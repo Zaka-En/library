@@ -1,0 +1,133 @@
+<script lang="ts">
+  import { getContextClient, mutationStore } from "@urql/svelte";
+  import { CREATE_AUTHOR, UPDATE_AUTHOR } from "$lib/graphql/mutations";
+  import { goto,invalidateAll } from "$app/navigation";
+
+  
+  let { author = null } = $props();
+
+  const client = getContextClient();
+  const isEdit = $derived(!!author?.id);
+
+  // Estado del formulario usando el rune $state
+  let formData = $state({
+    name: author?.name ?? "",
+    fullname: author?.fullname ?? "",
+    biography: author?.biography ?? "",
+    country: author?.country ?? ""
+  });
+
+  let loading = $state(false);
+  let errorMessage = $state("");
+
+  async function handleSubmit(e: Event) {
+    e.preventDefault();
+    loading = true;
+    errorMessage = "";
+
+    
+    const input = {
+      name: formData.name,
+      fullname: formData.fullname || null,
+      biography: formData.biography || null,
+      country: formData.country
+    };
+    
+    
+    const variables = isEdit 
+      ? { input: { id: Number(author.id), ...input } } 
+      : { input };
+
+    const result = await client.mutation(
+      isEdit ? UPDATE_AUTHOR : CREATE_AUTHOR,
+      variables
+    ).toPromise();
+
+    loading = false;
+
+    //await invalidateAll()
+    if (result.error) {
+      errorMessage = result.error.message;
+    } else {
+      
+      goto("/authors");
+    }
+  }
+</script>
+
+<form onsubmit={handleSubmit} class="space-y-4 max-w-lg mx-auto bg-white p-8 rounded-xl shadow-md">
+  <h2 class="text-2xl font-bold mb-6">
+    {isEdit ? 'Editar Autor' : 'Nuevo Autor'}
+  </h2>
+
+  {#if errorMessage}
+    <div class="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+      {errorMessage}
+    </div>
+  {/if}
+
+  {#if isEdit}
+    <div>
+      <label class="block text-sm font-medium text-gray-700" for="id">ID del Autor</label>
+      <input
+        id="id"
+        type="text"
+        value={author.id}
+        disabled
+        class="mt-1 block w-full rounded-md border-gray-30 bg-gray-100 cursor-not-allowed"
+      />
+    </div>
+  {/if}
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700" for="name">Nombre (obligatorio)</label>
+    <input
+      id="name"
+      bind:value={formData.name}
+      type="text"
+      required
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+    />
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700" for="fullname">Nombre Completo</label>
+    <input
+      id="fullname"
+      bind:value={formData.fullname}
+      type="text"
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+    />
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700" for="country">País (obligatorio)</label>
+    <input
+      id="country"
+      bind:value={formData.country}
+      type="text"
+      required
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+    />
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700" for="biography">Biografía</label>
+    <textarea
+      id="biography"
+      bind:value={formData.biography}
+      rows="4"
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+    ></textarea>
+  </div>
+
+  <div class="pt-4">
+    <button
+      type="submit"
+      disabled={loading}
+      class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+    >
+      {loading ? 'Guardando...' : (isEdit ? 'Actualizar Autor' : 'Crear Autor')}
+    </button>
+  </div>
+</form>
