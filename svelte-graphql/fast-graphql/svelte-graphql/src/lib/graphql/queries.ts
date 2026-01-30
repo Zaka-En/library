@@ -8,8 +8,8 @@ export const GET_AUTHORS = gql`
 
 export const GET_AUTHOR = gql`
   query GetAuthor($id: Int!) {
-    author { 
-      id name fullname biograpy country 
+    author(id: $id) { 
+      id name fullname biography country 
       books { id title publicationYear  pages}
     }
   }

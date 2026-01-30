@@ -2,7 +2,7 @@ import { gql } from '@urql/svelte';
 
 export const CREATE_AUTHOR = gql`
   mutation CreateAuthor($input: CreateAuthorInput!) {
-    createAuthor(input: $input) { id name }
+    createAuthor(input: $input) { id name  }
   }
 `;
 
