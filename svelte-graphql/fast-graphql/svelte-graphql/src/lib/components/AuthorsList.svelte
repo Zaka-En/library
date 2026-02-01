@@ -25,4 +25,6 @@
       </div>
     </div>
   {/each}
+{:else}
+  <div>No hay ningún autor registrado</div>
 {/if}

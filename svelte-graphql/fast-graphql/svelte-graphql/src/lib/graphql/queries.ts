@@ -45,7 +45,3 @@ export const MY_READING_PROGRESS = gql`
     }
   }
 `;
-
-
-
-

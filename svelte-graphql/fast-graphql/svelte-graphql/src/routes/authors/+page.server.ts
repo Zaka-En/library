@@ -1,6 +1,9 @@
 import type { PageServerLoad } from "./$types";
+import { env } from '$env/dynamic/public';
 
 export const load: PageServerLoad = async ({ fetch }) => {
+  const API_URL = env.PUBLIC_INTERNAL_API_URL || env.PUBLIC_API_URL || 'http://backend:8000/graphql';
+
   const OPTIONS = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -13,12 +16,8 @@ export const load: PageServerLoad = async ({ fetch }) => {
     })
   }
 
-  const URL_SERVIDOR = 'http://localhost:8000/graphql'
-
-  const response = await fetch(URL_SERVIDOR, OPTIONS); 
+  const response = await fetch(API_URL, OPTIONS);
   const data = await response.json()
-  
 
-  return { authors: data.data.authors };
-  
+  return { authors: data.data?.authors ?? [] };
 }

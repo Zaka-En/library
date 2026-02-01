@@ -20,7 +20,7 @@ export const CREATE_BOOK = gql`
 
 export const START_READING = gql`
   mutation StartReading($input: StartReadingInput!) {
-    startReading(input: $input) { id currentPage startDate }
+    startReading(input: $input) { id startDate }
   }
 `;
 
@@ -33,5 +33,14 @@ export const UPDATE_PROGRESS = gql`
 export const FINISH_READING = gql`
   mutation FinishReading($input: FinishReadingInput!) {
     finishReading(input: $input) { id finishDate }
+  }
+`;
+
+export const UPDATE_BOOK = gql`
+  mutation UpdateBook($input: UpdateBookInput!) {
+    updateBook(input: $input) { 
+      id title isbn publicationYear pages 
+      author { id name country }
+    }
   }
 `;

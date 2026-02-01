@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { getContextClient, mutationStore } from "@urql/svelte";
+  import { getContextClient } from "@urql/svelte";
   import { CREATE_AUTHOR, UPDATE_AUTHOR } from "$lib/graphql/mutations";
-  import { goto,invalidateAll } from "$app/navigation";
+  import { goto } from "$app/navigation";
 
   
   let { author = null } = $props();
