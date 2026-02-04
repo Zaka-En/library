@@ -25,8 +25,7 @@
     myReadingProgressStore.fetch({
       variables: {
         userId
-      },
-      policy: 'NetworkOnly'
+      }
     })
   })
 
@@ -43,11 +42,6 @@
     isModalOpen = true;
   }
 
-  // function closeModal() {
-  //   isModalOpen = false;
-  //   selectedBook = null;
-  //   selectedReading = null;
-  // }
 </script>
 
 {#if $myReadingProgressStore.fetching}

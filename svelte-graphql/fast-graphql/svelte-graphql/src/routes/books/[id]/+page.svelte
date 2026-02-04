@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ReadingModal from "$lib/components/ReadingModal.svelte";
   
   const { data } = $props();
   const { book } = data;
@@ -98,9 +97,3 @@
   </div>
 </section>
 
-<!-- Reading Modal -->
-<ReadingModal 
-  bind:isOpen={isModalOpen} 
-  book={book} 
-  userId="user123"
-/>

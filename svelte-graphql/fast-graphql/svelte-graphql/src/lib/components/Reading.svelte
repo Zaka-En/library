@@ -5,7 +5,7 @@
     onUpdate : Function
   }
 
-  const { reading, onUpdate, onFinish } : PropsType = $props();
+  const { reading, onUpdate } : PropsType = $props();
 
   const progress = $derived(
     reading.book?.pages > 0
