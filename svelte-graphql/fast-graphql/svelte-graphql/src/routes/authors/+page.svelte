@@ -1,6 +1,21 @@
 <script lang="ts">
   import AuthorsList from "$lib/components/AuthorsList.svelte";
-  let { data } = $props();
+  import { graphql } from "$houdini"; 
+
+  const authorsStore = graphql(
+      `
+      query GetAuthors {
+        authors @list(name: "All_Authors") { id name fullname biography country }
+      }
+    `
+  )
+
+  $effect(() => {
+    authorsStore.fetch()
+  })
+
+  let authors = $derived($authorsStore.data?.authors)
+  
   
 </script>
 
@@ -16,6 +31,6 @@
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2">
-    <AuthorsList authors={data.authors} />
+    <AuthorsList authors={authors} />
   </div>
 </section>

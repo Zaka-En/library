@@ -10,7 +10,7 @@
           <h2 class="text-xl font-semibold">{author.name}</h2>
           <p class="text-gray-600 text-sm">🌍 {author.country}</p>
           <p class="text-gray-700 mt-2">
-            {author.biography.slice(0, 100)}...
+            {author?.biography?.slice(0, 100)}...
           </p>
         </div>
         <div class="flex gap-2">

@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { getContextClient } from "@urql/svelte";
-  import { CREATE_AUTHOR, UPDATE_AUTHOR } from "$lib/graphql/mutations";
+  import { graphql } from "$houdini";
   import { goto } from "$app/navigation";
-
-  
+  import { form } from "$app/server";
   let { author = null } = $props();
 
-  const client = getContextClient();
   const isEdit = $derived(!!author?.id);
+  let loading = $state(false);
+  let errorMessage = $state("");
 
   // Estado del formulario usando el rune $state
   let formData = $state({
@@ -17,16 +16,57 @@
     country: author?.country ?? ""
   });
 
-  let loading = $state(false);
-  let errorMessage = $state("");
+
+  const createAuthorStore = graphql(`
+      mutation CreateAuthor($input: CreateAuthorInput!) {
+      createAuthor(input: $input) 
+      { id @optimisticKey        
+        name 
+        fullname 
+        biography 
+        country
+      ...All_Authors_insert  
+      }
+    }
+  `)
+
+  const updateAuthorStore = graphql(`
+      mutation UpdateAuthor($input: UpdateAuthorInput!) {
+        updateAuthor(input: $input) { id name biography country }
+      }
+  `)
+
+  
 
   async function handleSubmit(e: Event) {
+
+    //Handling empty inputs
+    if (formData.name.trim() === "") {
+      errorMessage = "El campo <strong>Nombre</strong> no puede ser vacío"
+      return
+    }else if(formData.country.trim() === ""){
+      errorMessage = "El campo <strong>País</strong> no puede ser vacío"
+      return
+    }
+
+
     e.preventDefault();
     loading = true;
     errorMessage = "";
 
+    let result
+
+
+    interface inputType{
+      name: string
+      fullname?: string | null
+      biography?: string | null
+      country: string
+    }
+
+
     
-    const input = {
+    const input: inputType = {
       name: formData.name,
       fullname: formData.fullname || null,
       biography: formData.biography || null,
@@ -35,19 +75,34 @@
     
     
     const variables = isEdit 
-      ? { input: { id: Number(author.id), ...input } } 
-      : { input };
+    ? { input: { id: Number(author.id), ...input } } 
+    : { input };
 
-    const result = await client.mutation(
-      isEdit ? UPDATE_AUTHOR : CREATE_AUTHOR,
-      variables
-    ).toPromise();
+    if (isEdit) {
+      result = await updateAuthorStore.mutate(variables)
+    }else{
+      result = await createAuthorStore
+      .mutate(
+        variables,
+        {
+          optimisticResponse:{
+            createAuthor: {
+              name: formData.name,
+              fullname: formData.fullname,
+              biography: formData.biography,
+              country: formData.country,
+            }
+          }
+        }
+      )
+    }
+
+    
 
     loading = false;
 
-    //await invalidateAll()
-    if (result.error) {
-      errorMessage = result.error.message;
+    if (result.errors) {
+      errorMessage = "Ocurrió un error al subir los datos"
     } else {
       
       goto("/authors");

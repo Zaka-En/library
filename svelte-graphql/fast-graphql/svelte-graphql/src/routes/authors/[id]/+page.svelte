@@ -1,21 +1,17 @@
 <script lang="ts">
-  import { queryStore, getContextClient } from "@urql/svelte";
-  import { GET_AUTHOR } from "$lib/graphql/queries";
 
-  // Recibimos data del load
-  const { data } = $props();
-  
-  const resultAuthorById = queryStore({
-    client: getContextClient(),
-    query: GET_AUTHOR,
-    variables: { id: Number(data.id) }
-  });
+  import type { LayoutProps } from "./$types";
 
-  // Derivamos el autor para que el HTML sepa cuándo renderizar
-  const author = $derived($resultAuthorById.data?.author);
+
+  let {data} : LayoutProps = $props()
+
+  let authorStore = $derived(data.store)
+  let author = $derived($authorStore.data?.author)
+  let fetching = $derived($authorStore.fetching)
+
 </script>
 
-{#if !$resultAuthorById.fetching && author}
+{#if !$authorStore.fetching && author}
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <h1 class="text-3xl font-semibold mb-2">
       {author.name}
@@ -28,7 +24,7 @@
 
     {#if author?.biography}
       <p class="text-gray-700 leading-relaxed mb-8">
-        {author.biography}
+        {author?.biography}
       </p>
     {/if}
 
