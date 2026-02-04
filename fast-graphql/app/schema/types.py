@@ -7,7 +7,7 @@ from strawberry.types import Info
 class AuthorType:
   id: int
   name: str
-  biography: str
+  biography: Optional[str]
   country: str
   fullname: Optional[str]
 
