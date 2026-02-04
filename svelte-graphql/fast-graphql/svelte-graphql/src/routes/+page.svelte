@@ -1,16 +1,38 @@
 <script lang="ts">
-  import { queryStore } from "@urql/svelte";
-  import { getContextClient } from "@urql/svelte";
-  import { MY_READING_PROGRESS } from "$lib/graphql/queries";
-  import Reading from "$lib/components/Reading.svelte";
+
+  import { graphql } from "$houdini";
   import ReadingModal from "$lib/components/ReadingModal.svelte";
+  import Reading from "$lib/components/Reading.svelte";
 
   const userId = 'user123'
-  const resultMyReadingProgress = queryStore({
-    client: getContextClient(),
-    query: MY_READING_PROGRESS,
-    variables: {userId}
-  });
+
+  let myReadingProgressStore = graphql(
+    `
+      query MyReadingProgress($userId: String!) {
+        myReadingProgress(userId: $userId) {
+          id currentPage startDate
+          book {
+            id title pages
+            author { name }
+          }
+        }
+      }
+    `
+  )
+
+
+  $effect( () => {
+    myReadingProgressStore.fetch({
+      variables: {
+        userId
+      }
+    })
+  })
+
+  const myReadingProgress = $derived($myReadingProgressStore.data?.myReadingProgress || [])
+
+
+
 
   let isModalOpen = $state(false);
   let selectedBook = $state(null);
@@ -29,9 +51,9 @@
   }
 </script>
 
-{#if $resultMyReadingProgress.fetching}
+{#if $myReadingProgressStore.fetching}
   <div class="animate-pulse">Cargando...</div>
-{:else if $resultMyReadingProgress.error}
+{:else if $myReadingProgressStore.errors}
   <div class="bg-red-100 text-red-700 p-4 rounded">
     Ouups: ha habido un error al obtener sus datos. Contacta con el equipo de soporte
   </div>
@@ -40,10 +62,10 @@
 
 
 
-{#if $resultMyReadingProgress?.data?.myReadingProgress}
+{#if myReadingProgress}
   <h2 class="text-2xl font-bold mb-4">📖 Leyendo Actualmente</h2>
   <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {#each $resultMyReadingProgress.data.myReadingProgress as reading (reading.id)}
+    {#each myReadingProgress as reading (reading.id)}
       <Reading 
         {reading} 
         onUpdate={(book, readingData) => openReadingModal(book, readingData)}

@@ -26,3 +26,5 @@ vite.config.ts.timestamp-*
 #IA 
 AGENTs.md
 opencode.json
+.houdini
+.graphqlrc.yaml

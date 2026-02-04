@@ -1,0 +1,96 @@
+type AuthorType {
+  biography: String
+  books: [BookType!]!
+  country: String!
+  fullname: String
+  id: Int!
+  name: String!
+}
+
+type BookType {
+  author: AuthorType
+  authorId: Int!
+  id: Int!
+  isbn: String!
+  pages: Int!
+  publicationYear: Int!
+  title: String!
+}
+
+input CreateAuthorInput {
+  biography: String = null
+  country: String!
+  fullname: String = null
+  name: String!
+}
+
+input CreateBookInput {
+  authorId: Int!
+  isbn: String!
+  pages: Int!
+  publicationYear: Int!
+  title: String!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+input FinishReadingInput {
+  id: Int!
+}
+
+type Mutation {
+  createAuthor(input: CreateAuthorInput!): AuthorType!
+  createBook(input: CreateBookInput!): BookType!
+  deleteAuthor(id: Int!): Boolean!
+  deleteBook(id: Int!): Boolean!
+  finishReading(input: FinishReadingInput!): ReadingStateType!
+  startReading(input: StartReadingInput!): ReadingStateType!
+  updateAuthor(input: UpdateAuthorInput!): AuthorType!
+  updateBook(input: UpdateBookInput!): BookType!
+  updateProgress(input: UpdateProgressInput!): ReadingStateType!
+}
+
+type Query {
+  author(id: Int!): AuthorType
+  authors: [AuthorType!]!
+  book(id: Int!): BookType
+  books: [BookType!]!
+  myReadingProgress(userId: String!): [ReadingStateType!]!
+}
+
+type ReadingStateType {
+  book: BookType
+  bookId: Int!
+  currentPage: Int!
+  finishDate: DateTime
+  id: Int!
+  startDate: DateTime!
+}
+
+input StartReadingInput {
+  bookId: Int!
+  userId: String!
+}
+
+input UpdateAuthorInput {
+  biography: String
+  country: String
+  fullname: String
+  id: Int!
+  name: String
+}
+
+input UpdateBookInput {
+  authorId: Int
+  id: Int!
+  isbn: String
+  pages: Int
+  publicationYear: Int
+  title: String
+}
+
+input UpdateProgressInput {
+  currentPage: Int!
+  id: Int!
+}
