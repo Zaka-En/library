@@ -1,12 +1,12 @@
 <script lang="ts">
 
   import { graphql } from "$houdini";
-  import ReadingModal from "$lib/components/ReadingModal.svelte";
-  import Reading from "$lib/components/Reading.svelte";
+  import ReadingModal2 from "$lib/components/ReadingModal_2.svelte";
+  import Reading from "$lib/components/Reading.svelte"
 
-  const userId = 'user123'
+  const userId = '1'
 
-  let myReadingProgressStore = graphql(
+  const  myReadingProgressStore = graphql(
     `
       query MyReadingProgress($userId: String!) {
         myReadingProgress(userId: $userId) {
@@ -25,30 +25,29 @@
     myReadingProgressStore.fetch({
       variables: {
         userId
-      }
+      },
+      policy: 'NetworkOnly'
     })
   })
 
   const myReadingProgress = $derived($myReadingProgressStore.data?.myReadingProgress || [])
 
 
-
-
   let isModalOpen = $state(false);
-  let selectedBook = $state(null);
-  let selectedReading = $state(null);
+  let selectedBook: BookType | null = $state(null);
+  let selectedReading : ReadingProgressType | null = $state(null);
 
-  function openReadingModal(book: any, reading: any = null) {
+  function openReadingModal(book: BookType | null, reading: ReadingProgressType ) {
     selectedBook = book;
     selectedReading = reading;
     isModalOpen = true;
   }
 
-  function closeModal() {
-    isModalOpen = false;
-    selectedBook = null;
-    selectedReading = null;
-  }
+  // function closeModal() {
+  //   isModalOpen = false;
+  //   selectedBook = null;
+  //   selectedReading = null;
+  // }
 </script>
 
 {#if $myReadingProgressStore.fetching}
@@ -62,24 +61,26 @@
 
 
 
-{#if myReadingProgress}
+{#if myReadingProgress && !$myReadingProgressStore.fetching}
   <h2 class="text-2xl font-bold mb-4">📖 Leyendo Actualmente</h2>
   <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {#each myReadingProgress as reading (reading.id)}
-      <Reading 
-        {reading} 
-        onUpdate={(book, readingData) => openReadingModal(book, readingData)}
-        onFinish={(book, readingData) => openReadingModal(book, readingData)}
-      />
+      {#if reading}
+        <Reading 
+          {reading} 
+          onUpdate={() => openReadingModal(reading.book, reading)}
+           
+        />
+      {/if}  
     {/each}
   </section>
 {/if}
 
 <!-- Reading Modal -->
-<ReadingModal 
+<ReadingModal2
   bind:isOpen={isModalOpen} 
   book={selectedBook} 
-  userId="user123"
+  reading={selectedReading}
 />
 
 
