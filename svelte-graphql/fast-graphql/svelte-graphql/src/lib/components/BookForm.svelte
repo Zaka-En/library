@@ -1,7 +1,5 @@
 <script lang="ts">
 
-
-
   import { goto } from "$app/navigation";
   import { graphql } from "$houdini";
   const { book = null, author = null, event = null } = $props();

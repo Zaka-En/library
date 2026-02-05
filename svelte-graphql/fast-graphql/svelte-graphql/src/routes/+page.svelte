@@ -1,8 +1,32 @@
 <script lang="ts">
-
+  import Categories from "$lib/components/Categories.svelte";
   import { graphql } from "$houdini";
   import ReadingModal2 from "$lib/components/ReadingModal_2.svelte";
   import Reading from "$lib/components/Reading.svelte"
+
+  interface CategoryType {
+    name: string;
+    description: string;
+    totalBooks: number;
+  }
+  
+  const categories: CategoryType[] =  [
+    {
+      name: "Ciencia Ficción",
+      description: "Viajes en el tiempo, distopías futuristas y exploración espacial.",
+      totalBooks: 124
+    },
+    {
+      name: "Filosofía",
+      description: "Tratados clásicos y pensamientos contemporáneos sobre la existencia.",
+      totalBooks: 86
+    },
+    {
+      name: "Desarrollo Web",
+      description: "Guías modernas sobre Svelte, Tailwind y arquitectura de software.",
+      totalBooks: 52
+    }
+  ];
 
   const userId = '1'
 
@@ -56,8 +80,10 @@
 
 
 {#if myReadingProgress && !$myReadingProgressStore.fetching}
-  <h2 class="text-2xl font-bold mb-4">📖 Leyendo Actualmente</h2>
-  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div>
+    <h2 class="text-2xl font-bold mb-4">📖 Leyendo Actualmente</h2>
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-9/12">
+    
     {#each myReadingProgress as reading (reading.id)}
       {#if reading}
         <Reading 
@@ -68,7 +94,23 @@
       {/if}  
     {/each}
   </section>
+  </div>
+  
 {/if}
+
+{#snippet categorySnippet(name, description, totalBooks)} 
+  <h5 class="font-bold text-gray-800 text-lg mb-1 capitalize">{name}</h5>
+  <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+    {description?.length <= 30 ? description : description.slice(0, 50)}...
+  </p>
+  <a href="/books" class="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full hover:bg-indigo-700 transition-colors">
+    <span class="mr-1">{totalBooks}</span> libros
+  </a>
+{/snippet}
+
+<Categories {categories} {categorySnippet} >
+  {@render children()}
+</Categories>
 
 <!-- Reading Modal -->
 <ReadingModal2
