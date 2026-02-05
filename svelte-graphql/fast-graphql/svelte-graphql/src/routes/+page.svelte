@@ -101,7 +101,7 @@
 {#snippet categorySnippet(name, description, totalBooks)} 
   <h5 class="font-bold text-gray-800 text-lg mb-1 capitalize">{name}</h5>
   <p class="text-sm text-gray-600 mb-4 leading-relaxed">
-    {description?.length <= 30 ? description : description.slice(0, 50)}...
+    {description?.length <= 50 ? description : description.slice(0, 50)}...
   </p>
   <a href="/books" class="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full hover:bg-indigo-700 transition-colors">
     <span class="mr-1">{totalBooks}</span> libros
@@ -109,7 +109,9 @@
 {/snippet}
 
 <Categories {categories} {categorySnippet} >
-  {@render children()}
+  {#each categories as cat}
+    {@render categorySnippet(cat.name,cat.description,cat.totalBooks)}
+  {/each}
 </Categories>
 
 <!-- Reading Modal -->
