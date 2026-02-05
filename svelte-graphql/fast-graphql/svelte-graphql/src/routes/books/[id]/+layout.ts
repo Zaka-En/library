@@ -1,34 +1,27 @@
-import { GET_BOOK } from "$lib/graphql/queries";
-import type { PageServerLoad } from "./$types";
+import type { LayoutLoad } from './$types';
+import {graphql} from '$houdini'
 
-export const load: PageServerLoad = async ({ params, fetch }) => {
-  const { id } = params;
+const store = graphql(
+    `
+      query GetBook($id: Int!) {
+        book(id: $id) {
+        id title isbn publicationYear pages
+        author { id name fullname country }
+      }
+    }
+    `
+  )
 
-  const response = await fetch('http://backend:8000/graphql', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        query: `
-          query GetBook($id: Int!) {
-            book(id: $id) {
-              id title isbn publicationYear pages
-              author { id name }
-            }
-          }
-        `,
-        variables: { id: parseInt(id) }
-      })
-  });
+export const load: LayoutLoad = async ( event ) => {
+  
+  const id = Number(event.params.id)
 
-  const result = await response.json();
+  await store.fetch({
+    event,
+    variables: {
+      id
+    }
+  })
 
-  if (result.errors) {
-    throw new Error(result.errors[0].message);
-  }
-
-  return {
-    book: result.data.book
-  };
+  return { store };
 };

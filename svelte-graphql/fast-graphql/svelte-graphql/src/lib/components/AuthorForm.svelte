@@ -1,21 +1,36 @@
 <script lang="ts">
   import { graphql } from "$houdini";
   import { goto } from "$app/navigation";
-  import { form } from "$app/server";
   let { author = null } = $props();
 
-  const isEdit = $derived(!!author?.id);
+  let isEdit = $derived(!!author?.id);
   let loading = $state(false);
   let errorMessage = $state("");
+  
+
+  interface formDataType{
+    name:  string
+    fullname: string
+    biography: string
+    country: string
+  }
 
   // Estado del formulario usando el rune $state
-  let formData = $state({
-    name: author?.name ?? "",
-    fullname: author?.fullname ?? "",
-    biography: author?.biography ?? "",
-    country: author?.country ?? ""
+  let formData : formDataType  = $state({
+    name:  "",
+    fullname:  "",
+    biography: "",
+    country: "",
   });
 
+
+  // when the componente is mounted, it retries the author data if not null
+  $effect(() => {
+    formData.name = author?.name ?? "";
+    formData.fullname = author?.fullname ?? "";
+    formData.biography = author?.biography ?? "";
+    formData.country = author?.country ?? "";
+  })
 
   const createAuthorStore = graphql(`
       mutation CreateAuthor($input: CreateAuthorInput!) {
@@ -166,6 +181,7 @@
     />
   </div>
 
+
   <div>
     <label class="block text-sm font-medium text-gray-700" for="biography">Biografía</label>
     <textarea
@@ -185,4 +201,6 @@
       {loading ? 'Guardando...' : (isEdit ? 'Actualizar Autor' : 'Crear Autor')}
     </button>
   </div>
+
+  
 </form>
