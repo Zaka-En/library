@@ -12,15 +12,14 @@ import base64
 
 @strawberry.type
 class Query:
+
+  @strawberry.field
+  def authors_query (self, info: Info) -> List[AuthorType]:
+    session = info.context['db']
+    authors = session.query(Author).all()
+    return [author_to_type(author) for author in authors]
   
   @strawberry.field
-  # def authors(self, info: Info, limit: Optional[int] = 5, offset: Optional[int] = 0) -> List[AuthorType]:
-  #   actual_limit = limit if limit is not None else 5
-  #   print(f"DEBUG: limit={limit}, offset={offset}")
-  #   session = info.context['db']
-  #   authors = session.query(Author).offset(offset).limit(actual_limit).all()
-  #   print(f"DEBUG: limit={limit}, offset={offset}")
-  #   return [author_to_type(author) for author in authors]
   def authors(self, info: Info, first: int = 5, after: Optional[str]=None)-> relay.Connection[AuthorType]:
     session = info.context['db']
     
@@ -37,7 +36,7 @@ class Query:
         start_index = 0
 
     end_index = start_index + first
-    authors_to_retrive = all_authors[start_index:end_index]
+    authors_to_retrive = [ author_to_type(a) for a in all_authors[start_index:end_index]]
 
     edges = [
       relay.Edge(node=author, cursor=base64.b64encode(f"arrayconnection:{author.id}".encode()).decode())
