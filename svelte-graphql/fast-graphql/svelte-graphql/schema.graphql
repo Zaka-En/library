@@ -95,6 +95,7 @@ type PageInfo {
 type Query {
   author(id: Int!): AuthorType
   authors(after: String = null, first: Int! = 5): AuthorTypeConnection!
+  authorsQuery: [AuthorType!]!
   book(id: Int!): BookType
   books: [BookType!]!
   myReadingProgress(userId: String!): [ReadingStateType!]!

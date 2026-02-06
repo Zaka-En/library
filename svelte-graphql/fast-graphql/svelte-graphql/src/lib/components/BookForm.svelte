@@ -46,7 +46,7 @@
 
   const authorNamesStore = graphql(`
     query GetAuthorNamesWithId{
-      authors{
+      authorsQuery{
         id
         name
       }

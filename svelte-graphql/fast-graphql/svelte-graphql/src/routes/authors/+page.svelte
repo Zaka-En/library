@@ -5,7 +5,7 @@
   const authorsStore = graphql(
     `
       query GetAuthors($first: Int = 5, $after: String) {
-        authors(first: $first, after: $after) @paginate(mode: SinglePage) { 
+        authors(first: $first, after: $after) @list(name: "All_Authors") @paginate(mode: SinglePage) { 
           
           edges {
           node {
@@ -34,7 +34,7 @@
   });
 
   // Derivamos los datos de forma segura para Svelte 5
-  let authors = $derived($authorsStore.data?.authors ?? []);
+  let authors = $derived( $authorsStore.data?.authors?.edges);
 
   $inspect($authorsStore?.pageInfo)
 </script>
@@ -46,7 +46,7 @@
       
       <div class="flex  items-center gap-2 bg-gray-100 p-1 rounded-full border">
         <button
-          onclick={() => authorsStore.loadPreviousPage()}
+          onclick={() => authorsStore.loadPreviousPage}
          
           disabled={!$authorsStore.pageInfo?.hasPreviousPage || $authorsStore.fetching}
           class="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
@@ -66,7 +66,7 @@
         </span>
 
         <button
-          onclick={() => authorsStore.loadNextPage()}
+          onclick={() => authorsStore.loadNextPage({first: 5 , after: $authorsStore.data?.authors?.pageInfo?.endCursor ?? undefined})}
           disabled={!$authorsStore.pageInfo?.hasNextPage || $authorsStore.fetching}
           class="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           aria-label="Siguiente página"
