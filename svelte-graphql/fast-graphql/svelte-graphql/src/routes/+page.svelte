@@ -4,11 +4,6 @@
   import ReadingModal2 from "$lib/components/ReadingModal_2.svelte";
   import Reading from "$lib/components/Reading.svelte"
 
-  interface CategoryType {
-    name: string;
-    description: string;
-    totalBooks: number;
-  }
   
   const categories: CategoryType[] =  [
     {
@@ -108,10 +103,21 @@
   </a>
 {/snippet}
 
-<Categories {categories} {categorySnippet} >
-  {#each categories as cat}
-    {@render categorySnippet(cat.name,cat.description,cat.totalBooks)}
-  {/each}
+{#snippet children(cat,renderSnippet)}
+  {@render renderSnippet(cat.name,cat.description,cat.totalBooks)}
+{/snippet}
+
+<Categories {categories} {categorySnippet} {children}>
+
+  <!-- <h5 class="font-bold text-gray-800 text-lg mb-1 capitalize">dfsdf</h5>
+  <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+   sfsfsafdfsafouir
+  </p>
+  <a href="/books" class="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full hover:bg-indigo-700 transition-colors">
+    <span class="mr-1">23</span> libros
+  </a> -->
+  <!--  -->
+
 </Categories>
 
 <!-- Reading Modal -->
@@ -120,6 +126,4 @@
   book={selectedBook} 
   reading={selectedReading}
 />
-
-
 

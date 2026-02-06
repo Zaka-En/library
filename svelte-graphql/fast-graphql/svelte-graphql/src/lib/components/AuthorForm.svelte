@@ -1,7 +1,9 @@
 <script lang="ts">
   import { graphql } from "$houdini";
   import { goto } from "$app/navigation";
+  import FormButton from "./FormButton.svelte";
   let { author = null } = $props();
+
 
   let isEdit = $derived(!!author?.id);
   let loading = $state(false);
@@ -78,6 +80,7 @@
       biography?: string | null
       country: string
     }
+      goto("/authors");
 
 
     
@@ -192,14 +195,20 @@
     ></textarea>
   </div>
 
+  
+  
+  {#snippet submitSnippet(isLoading:any,editing:any)}
+    {#if isLoading}
+      <span class="animate-spin mr-2">🛞</span> Cargando...
+    {:else if editing !== undefined}
+      <span>{editing ? 'Guardar Cambios' : 'Crear Nuevo'}</span>
+    {/if}
+  {/snippet}
+
   <div class="pt-4">
-    <button
-      type="submit"
-      disabled={loading}
-      class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
-    >
-      {loading ? 'Guardando...' : (isEdit ? 'Actualizar Autor' : 'Crear Autor')}
-    </button>
+    <FormButton  {loading} {isEdit} {submitSnippet} 
+    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+    />
   </div>
 
   

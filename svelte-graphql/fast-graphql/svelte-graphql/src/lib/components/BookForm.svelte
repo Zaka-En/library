@@ -1,12 +1,15 @@
 <script lang="ts">
-
+  import FormButton from "./FormButton.svelte";
   import { goto } from "$app/navigation";
   import { graphql } from "$houdini";
+  import { fade } from "svelte/transition";
   const { book = null, author = null, event = null } = $props();
   let isEdit = $derived(!!book?.id);
   let error = $state("");
   let isLoading = $state(false);
   let authorId: number | null = $state(null)
+  let showSlowMessage = $state(false)
+
 
   let formData = $state({
     title: "",
@@ -21,6 +24,23 @@
     formData.publicationYear = book?.publicationYear;
     formData.pages = book?.pages;
   });
+
+  $effect(() => {
+    let timerId = null
+    if (isLoading) {
+      timerId = setTimeout(()=>{
+        showSlowMessage = true
+      },1000)
+    }
+
+    return () => {
+      clearTimeout(timerId)
+      showSlowMessage  = false        
+
+    }
+  })
+
+  $inspect(showSlowMessage)
 
   
 
@@ -55,7 +75,11 @@
   }
 
   async function handleSubmit(e: Event) {
+
     e.preventDefault();
+
+    if(!validateInputs()) {return}
+
     isLoading = true;
     error = "";
 
@@ -65,20 +89,25 @@
       ? { input: {id: Number(book.id), authorId: author.id, ...formData} }
       : { input: { authorId, ...formData } };
 
-    if (isEdit) {
-      mutationResult = await updateBookStore.mutate(variables);
-    }else if(!isEdit && authorId) {
-      console.log(variables)
-      mutationResult = await createBookStore.mutate(variables);      
+    try {
+      if (isEdit) {
+        mutationResult = await updateBookStore.mutate(variables);
+      }else if(!isEdit && authorId) {
+        mutationResult = await createBookStore.mutate(variables);      
+      }
+    } catch (e) {
+      error = "Algo ha pasado con el server"
     }
 
     isLoading = false
-    if (mutationResult.errors) {     
-      error = isEdit? "Ha ocurrido un error al intentar modificar los datos . Vuleve a enviar el formulario." : "Ha ocurrido un error al intentar insertar los datos vuleve a enviar el formulario."
-      console.log(mutationResult?.errors);
-      
+    if (mutationResult?.errors) {     
+      console.log(mutationResult.errors);
+      error = mutationResult.errors[0].message
+      // if (error.includes("ISBN")) {
+      //   error = `El isbn es un valor único universal, no puede ser duplicado`
+      // }
     } else {
-      goto(`/books/${book.id}`)
+      goto(`/books`)
     }
 
 
@@ -86,13 +115,38 @@
 
   function handleCancel() {goto(`/books`)}
 
+  function validateInputs(): boolean {
+    if (!formData.title || formData.title.trim().length < 2) {
+      error = "El título es obligatorio y debe tener al menos 2 caracteres.";
+      return false;
+    }
+
+    if (!authorId) {
+      error = "Debes seleccionar un autor para el libro.";
+      return false;
+    }
+
+    // Validación de ISBN (ejemplo simple de longitud)
+    if (formData.isbn && formData.isbn.length < 13) {
+      error = "El ISBN debe tener al menos 13 dígitos.";
+      return false;
+    }
+
+    if (formData.publicationYear && (formData.publicationYear < 1000 || formData.publicationYear > 2026)) {
+      error = "El año de publicación no es válido.";
+      return false;
+    }
+
+    return true;
+  }
+
   async function loadAuthorNames() {
     await authorNamesStore.fetch();
   }
 
 </script>
 
-<section class="max-w-2xl mx-auto">
+<section class="max-w-xl mx-auto">
   <div class="bg-white rounded-lg shadow-lg overflow-hidden">
     <!-- Header -->
     <div class="bg-linear-to-r from-yellow-500 to-orange-600 text-white p-6">
@@ -206,18 +260,18 @@
       {/if}
 
       <!-- Actions -->
-      <div class="flex gap-3 pt-4">
-        <button
-          type="submit"
-          disabled={isLoading}
-          class="flex-1 bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-        >
+      <div class="flex flex-col gap-3 pt-4">
+        {#snippet submitSnippet(isLoading:any,editing:any)}
           {#if isLoading}
-            Guardando...
-          {:else}
-            Guardar
+            <span class="animate-spin mr-2">🛞</span> Cargando...
+          {:else if editing !== undefined}
+            <span>{editing ? 'Guardar' : 'Crear Nuevo'}</span>
           {/if}
-        </button>
+        {/snippet}
+
+        <FormButton loading={isLoading} {isEdit} {submitSnippet}
+          class="flex-1 bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+        />
 
         <button
           type="button"
@@ -227,6 +281,11 @@
         >
           Cancelar
         </button>
+        {#if showSlowMessage}
+          <p in:fade class="text-xs text-yellow-700 italic text-center">
+            Está tardando un poco, tenga usted paciencia...
+          </p>
+        {/if}
       </div>
     </form>
   </div>

@@ -10,6 +10,12 @@ declare global {
 
 	type ReadingProgressType = NonNullable<MyReadingProgress$result['myReadingProgress']>[number]
 	type BookType = NonNullable<ReadingProgressType['book']>
+	type CategoryType = {
+    name: string;
+    description: string;
+    totalBooks: number;
+  }
+  
 }
 
 export {
