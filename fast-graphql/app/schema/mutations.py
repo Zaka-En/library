@@ -7,6 +7,8 @@ from app.models.book import Book
 from app.models.reading_state import ReadingState
 from .convertors import *
 from datetime import datetime
+from time import sleep
+from random import randint
 
 
 @strawberry.type
@@ -14,6 +16,7 @@ class Mutation:
 
   @strawberry.mutation
   def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:
+    sleep(1.5)
     session = info.context['db']
 
     author = Author(
@@ -31,8 +34,12 @@ class Mutation:
 
   @strawberry.mutation
   def update_author(self, input: UpdateAuthorInput, info: Info) -> AuthorType:
+
+    sleep(3)
+
+
     session = info.context['db']
-    
+
     author = session.query(Author).filter(Author.id == input.id).first()
     if not author:
       raise ValueError(f"Author with id {input.id} not found")
@@ -68,8 +75,16 @@ class Mutation:
 
   @strawberry.mutation
   def create_book(self, input: CreateBookInput, info: Info) -> BookType:
+    sleep(2)
     session = info.context['db']
-    
+
+    isbnAlreadyExists = session.query(Book).filter(Book.isbn == input.isbn).first()
+
+    if isbnAlreadyExists:
+      raise Exception("UNIQUE ISBN RULE VIOLATED")   
+    elif len(input.isbn) < 13:
+      raise  Exception("INVALID ISBN: exactly 13 characters")   
+
     book = Book(
       title=input.title,
       isbn=input.isbn,
@@ -86,6 +101,12 @@ class Mutation:
 
   @strawberry.mutation
   def update_book(self, input: UpdateBookInput, info: Info) -> BookType:
+    sleep(2)
+
+    if randint(1, 2) == 2:
+      raise Exception("ha fallado porque no tiene suerte")
+
+
     session = info.context['db']
     
     book = session.query(Book).filter(Book.id == input.id).first()
