@@ -94,7 +94,7 @@ type PageInfo {
 
 type Query {
   author(id: Int!): AuthorType
-  authors(after: String = null, first: Int! = 5): AuthorTypeConnection!
+  authors(after: String = null, before: String = null, first: Int = null, last: Int = null): AuthorTypeConnection!
   authorsQuery: [AuthorType!]!
   book(id: Int!): BookType
   books: [BookType!]!

@@ -4,8 +4,8 @@
 
   const authorsStore = graphql(
     `
-      query GetAuthors($first: Int = 5, $after: String) {
-        authors(first: $first, after: $after) @list(name: "All_Authors") @paginate(mode: SinglePage) { 
+      query GetAuthors($first: Int, $last: Int  $after: String, $before: String) {
+        authors(first: $first, last: $last, after: $after, before: $before) @list(name: "All_Authors") @paginate(mode: SinglePage) { 
           
           edges {
           node {
@@ -22,7 +22,6 @@
           startCursor
           endCursor
         }
-
         }
       }
     `
@@ -30,11 +29,13 @@
 
   // Forzamos el fetch inicial si es necesario
   $effect(() => {
-    authorsStore.fetch({variables:{limit:5}});
+    authorsStore.fetch({variables:{first: 10}});
   });
 
   // Derivamos los datos de forma segura para Svelte 5
-  let authors = $derived( $authorsStore.data?.authors?.edges);
+  let authors = $derived.by(() => {
+    return $authorsStore.data?.authors?.edges.map(edge => edge.node) ?? []
+  });
 
   $inspect($authorsStore?.pageInfo)
 </script>
@@ -46,7 +47,7 @@
       
       <div class="flex  items-center gap-2 bg-gray-100 p-1 rounded-full border">
         <button
-          onclick={() => authorsStore.loadPreviousPage}
+          onclick={() => authorsStore.loadPreviousPage({last: 10, before: $authorsStore.data?.authors?.pageInfo?.startCursor ?? undefined})}
          
           disabled={!$authorsStore.pageInfo?.hasPreviousPage || $authorsStore.fetching}
           class="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
@@ -66,7 +67,7 @@
         </span>
 
         <button
-          onclick={() => authorsStore.loadNextPage({first: 5 , after: $authorsStore.data?.authors?.pageInfo?.endCursor ?? undefined})}
+          onclick={() => authorsStore.loadNextPage({first: 10 , after: $authorsStore.data?.authors?.pageInfo?.endCursor ?? undefined})}
           disabled={!$authorsStore.pageInfo?.hasNextPage || $authorsStore.fetching}
           class="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           aria-label="Siguiente página"
