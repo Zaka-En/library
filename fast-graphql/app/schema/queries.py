@@ -20,22 +20,33 @@ class Query:
     return [author_to_type(author) for author in authors]
   
   @strawberry.field
-  def authors(self, info: Info, first: int = 5, after: Optional[str]=None)-> relay.Connection[AuthorType]:
+  def authors(self, info: Info, first: Optional[int] = None, last: Optional[int] = None, after: Optional[str]=None, before: Optional[str]=None)-> relay.Connection[AuthorType]:
     session = info.context['db']
     
     query = session.query(Author).order_by(Author.id)
     all_authors = query.all()
 
     start_index = 0
-    if after:
-      try:
+    end_index = len(all_authors)
+
+    try:
+      if after:
         decoded_cursor = base64.b64decode(after).decode().split(':')[-1]
         after_id = int(decoded_cursor)
-        start_index = next(i + 1 for i, a in enumerate(all_authors) if a.id == after_id)
-      except Exception :
-        start_index = 0
+        start_index = next((i + 1 for i, a in enumerate(all_authors) if a.id == after_id), 0)
+        end_index = start_index + (first if first else 5)
+      elif before:
+        decoded_cursor = base64.b64decode(before).decode().split(':')[-1]
+        before_id = int(decoded_cursor)
+        end_index =  next((i for i, a in enumerate(all_authors) if a.id == before_id), 0)
+        start_index = max(0, end_index - (last if last else 5)) 
+      else: # this would happen the first time the data is retrieved  
+        end_index = min(end_index, first if first else 5) 
+    except Exception:
+      start_index = 0
 
-    end_index = start_index + first
+
+
     authors_to_retrive = [ author_to_type(a) for a in all_authors[start_index:end_index]]
 
     edges = [
