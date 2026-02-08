@@ -1,3 +1,8 @@
+type AuthorConnection {
+  edges: [AuthorTypeEdge!]!
+  pageInfo: CustomPageInfo!
+}
+
 type AuthorType implements Node {
   biography: String
   books: [BookType!]!
@@ -7,15 +12,6 @@ type AuthorType implements Node {
   """The Globally Unique ID of this object"""
   id: ID!
   name: String!
-}
-
-"""A connection to a list of items."""
-type AuthorTypeConnection {
-  """Contains the nodes in this connection"""
-  edges: [AuthorTypeEdge!]!
-
-  """Pagination data for this connection"""
-  pageInfo: PageInfo!
 }
 
 """An edge in a connection."""
@@ -52,6 +48,21 @@ input CreateBookInput {
   title: String!
 }
 
+type CustomPageInfo {
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+  totalCount: Int!
+}
+
 """Date with time (isoformat)"""
 scalar DateTime
 
@@ -77,24 +88,9 @@ interface Node {
   id: ID!
 }
 
-"""Information to aid in pagination."""
-type PageInfo {
-  """When paginating forwards, the cursor to continue."""
-  endCursor: String
-
-  """When paginating forwards, are there more items?"""
-  hasNextPage: Boolean!
-
-  """When paginating backwards, are there more items?"""
-  hasPreviousPage: Boolean!
-
-  """When paginating backwards, the cursor to continue."""
-  startCursor: String
-}
-
 type Query {
   author(id: Int!): AuthorType
-  authors(after: String = null, before: String = null, first: Int = null, last: Int = null): AuthorTypeConnection!
+  authors(after: String = null, before: String = null, first: Int = null, last: Int = null): AuthorConnection!
   authorsQuery: [AuthorType!]!
   book(id: Int!): BookType
   books: [BookType!]!

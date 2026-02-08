@@ -14,10 +14,10 @@ const store = graphql(
 
 export const load: LayoutLoad = async ( event ) => {
 	
-  const id = Number(event.params.id)
+  const id = Number(atob(event.params.id).split(':').at(-1))
 
   await store.fetch({
-    event,
+
     variables: {
       id
     }
