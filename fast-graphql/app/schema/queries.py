@@ -20,14 +20,20 @@ class Query:
     return [author_to_type(author) for author in authors]
   
   @strawberry.field
-  def authors(self, info: Info, first: Optional[int] = None, last: Optional[int] = None, after: Optional[str]=None, before: Optional[str]=None)-> relay.Connection[AuthorType]:
+  def authors(
+    self, info: Info, 
+    first: Optional[int] = None, 
+    last: Optional[int] = None, 
+    after: Optional[str]=None, 
+    before: Optional[str]=None) -> AuthorConnection:
+
     session = info.context['db']
-    
+      
     query = session.query(Author).order_by(Author.id)
     all_authors = query.all()
 
     start_index = 0
-    end_index = len(all_authors)
+    total_count = end_index = len(all_authors)
 
     try:
       if after:
@@ -46,7 +52,6 @@ class Query:
       start_index = 0
 
 
-
     authors_to_retrive = [ author_to_type(a) for a in all_authors[start_index:end_index]]
 
     edges = [
@@ -57,13 +62,14 @@ class Query:
     has_next_page = len(all_authors) > end_index
     has_previous_page = start_index > 0
 
-    return relay.Connection(
+    return AuthorConnection(
       edges=edges,
-      page_info=relay.PageInfo(
+      page_info=CustomPageInfo(
         start_cursor=edges[0].cursor if edges else None,
         end_cursor=edges[-1].cursor if edges else None,
         has_next_page=has_next_page,
         has_previous_page=has_previous_page,
+        total_count=total_count
       )
     )
     
