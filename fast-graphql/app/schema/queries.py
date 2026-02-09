@@ -117,7 +117,7 @@ class Query:
 
 
   #   authors_to_retrive = [ author_to_type(a) for a in all_authors[start_index:end_index]]
-
+authors
   #   edges = [
   #     relay.Edge(node=author, cursor=base64.b64encode(f"arrayconnection:{author.id}".encode()).decode())
   #     for author in authors_to_retrive
