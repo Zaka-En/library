@@ -1,6 +1,22 @@
 import type { PageLoad } from "./$types"
+import {graphql} from '$houdini'
 
-export const load = async ( event ) => {
 
-  return  {event}
+
+const authorNamesStore = graphql(`
+  query GetAuthorNamesWithId{
+    authorsQuery{
+      id
+      name
+    }
+  }
+`)
+
+export const load : PageLoad= async ( event ) => {
+
+  await authorNamesStore.fetch({event})
+
+  return {
+    authorNamesStore
+  }
 }

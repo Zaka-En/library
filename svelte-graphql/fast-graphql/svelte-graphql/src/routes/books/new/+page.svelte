@@ -3,7 +3,8 @@
   import type { PageProps } from "./$types";
 
   let { data } : PageProps = $props()
-  let event = $derived( data.event)
+  let store =  $derived( data.authorNamesStore)
+  let authorNames = $derived($store.data?.authorsQuery)
 </script>
 
-<BookForm {event}  />
+<BookForm {authorNames}  />

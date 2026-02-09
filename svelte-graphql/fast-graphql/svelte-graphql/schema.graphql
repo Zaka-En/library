@@ -90,7 +90,7 @@ interface Node {
 
 type Query {
   author(id: Int!): AuthorType
-  authors(after: String = null, before: String = null, first: Int = null, last: Int = null): AuthorConnection!
+  authors(after: String = null, first: Int = null): AuthorConnection!
   authorsQuery: [AuthorType!]!
   book(id: Int!): BookType
   books: [BookType!]!

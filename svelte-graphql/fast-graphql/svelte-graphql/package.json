@@ -18,14 +18,15 @@
         "@tailwindcss/forms": "^0.5.11",
         "@tailwindcss/typography": "^0.5.19",
         "@tailwindcss/vite": "^4.1.18",
+        "@types/node": "^25.2.2",
+        "houdini": "^2.0.0-next.11",
+        "houdini-svelte": "^3.0.0-next.13",
         "rollup": "^4.57.1",
         "svelte": "^5.48.2",
         "svelte-check": "^4.3.5",
         "tailwindcss": "^4.1.18",
         "typescript": "^5.9.3",
-        "vite": "^7.3.1",
-        "houdini": "^2.0.0-next.11",
-        "houdini-svelte": "^3.0.0-next.13"
+        "vite": "^7.3.1"
     },
     "dependencies": {
         "graphql": "^16.12.0",
