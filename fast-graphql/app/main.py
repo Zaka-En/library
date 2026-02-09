@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 from app.schema import schema
 from app.database import get_db
+import uvicorn
+
 
 def get_context():
   db = next(get_db())
@@ -29,5 +31,4 @@ app.include_router(graphql_app, prefix='/graphql')
 
 
 if __name__ == "__main__":
-  import uvicorn
   uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
