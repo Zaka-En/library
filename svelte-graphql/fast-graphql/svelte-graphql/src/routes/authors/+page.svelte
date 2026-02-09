@@ -3,12 +3,13 @@
   import { graphql } from "$houdini"; 
   import PaginationNav from "$lib/components/PaginationNav.svelte";
 
+
   const authorsStore = graphql(
     `
-      query GetAuthors($first: Int, $last: Int  $after: String, $before: String) {
-        authors(first: $first, last: $last, after: $after, before: $before) 
-        @list(name: "All_Authors") 
-        @paginate(mode: SinglePage) {  
+      query GetAuthors($first: Int, $after: String) {
+        authors(first: $first, after: $after)
+        @paginate(mode: Infinite)
+        @list(name: "All_Authors") {  
           edges {
           node {
             id
@@ -20,8 +21,6 @@
           }
         pageInfo {
           hasNextPage
-          hasPreviousPage
-          startCursor
           endCursor
           totalCount
         }
@@ -35,15 +34,21 @@
     authorsStore.fetch({variables:{first: 10}});
   });
 
-  
-  let authors = $derived.by(() => {
-    return $authorsStore.data?.authors?.edges.map(edge => edge.node) ?? []
-  });
+  // $effect(() => {
+  //   const freshData = $authorsStore.data?.authors.edges.map(edge => edge.node) ?? []
 
+  //   if (freshData?.length > 0) {
+  //     const combined = [ ...authors, ...freshData]
+  //     const uniqueAuthors = Array.from(new Map(combined.map(a => [a.id, a])).values())
+  //     authors = uniqueAuthors
+  //   }
+  // })
+  
+  let authors = $derived($authorsStore.data?.authors?.edges.map(e => e.node) ?? []);
   let pageInfo = $derived($authorsStore.pageInfo)
   let fetching = $derived($authorsStore.fetching)
   
-
+  $inspect(authors)
   
 </script>
 
@@ -52,7 +57,7 @@
     
       <h1 class="text-3xl font-bold">Autores</h1>
       
-      <PaginationNav
+      <!-- <PaginationNav
         {pageInfo}
         fetching={fetching}
         itemsPorPage={10}
@@ -64,7 +69,7 @@
           last: 10,
           before: cursor,
         })}
-      />
+      /> -->
 
       <a
         href="/authors/new"
@@ -76,6 +81,16 @@
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2">
-    <AuthorsList {authors} />
+    <AuthorsList 
+  
+    noMoreData = {!pageInfo.hasNextPage}
+    loading = {$authorsStore.fetching}
+    onLoadMore= {() => {
+      authorsStore.loadNextPage({
+        first: 10
+      })
+    }}
+    {authors}
+    />
   </div>
 </section>
