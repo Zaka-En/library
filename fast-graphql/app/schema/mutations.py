@@ -183,7 +183,7 @@ class Mutation:
     return reading_state_to_type(reading_state)
 
   @strawberry.mutation
-  def finish_reading(self, input: FinishReadingInput, info: Info) -> ReadingStateType:
+  async def finish_reading(self, input: FinishReadingInput, info: Info) -> ReadingStateType:
     session = info.context['db']
     
     reading_state = session.query(ReadingState).filter(ReadingState.id == input.id).first()
