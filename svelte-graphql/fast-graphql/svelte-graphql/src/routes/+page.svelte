@@ -3,6 +3,7 @@
   import { graphql } from "$houdini";
   import ReadingModal2 from "$lib/components/ReadingModal_2.svelte";
   import Reading from "$lib/components/Reading.svelte"
+  import type { Snippet } from "svelte";
 
   
   const categories: CategoryType[] =  [
@@ -93,7 +94,7 @@
   
 {/if}
 
-{#snippet categorySnippet(name, description, totalBooks)} 
+{#snippet categorySnippet(name: string, description: string, totalBooks: number)} 
   <h5 class="font-bold text-gray-800 text-lg mb-1 capitalize">{name}</h5>
   <p class="text-sm text-gray-600 mb-4 leading-relaxed">
     {description?.length <= 50 ? description : description.slice(0, 50)}...
@@ -103,20 +104,11 @@
   </a>
 {/snippet}
 
-{#snippet children(cat,renderSnippet)}
-  {@render renderSnippet(cat.name,cat.description,cat.totalBooks)}
-{/snippet}
+<Categories {categories} {categorySnippet} >
 
-<Categories {categories} {categorySnippet} {children}>
-
-  <!-- <h5 class="font-bold text-gray-800 text-lg mb-1 capitalize">dfsdf</h5>
-  <p class="text-sm text-gray-600 mb-4 leading-relaxed">
-   sfsfsafdfsafouir
-  </p>
-  <a href="/books" class="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full hover:bg-indigo-700 transition-colors">
-    <span class="mr-1">23</span> libros
-  </a> -->
-  <!--  -->
+  {#snippet children(cat: CategoryType,renderSnippet: Snippet<[string,string,number]>)}
+    {@render renderSnippet(cat.name,cat.description,cat.totalBooks)}
+  {/snippet}
 
 </Categories>
 

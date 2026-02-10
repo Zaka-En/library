@@ -1,6 +1,7 @@
 <script lang="ts">
 
   import "./layout.css";
+  const { children } = $props()
 
 </script>
 
@@ -17,7 +18,7 @@
 </header>
 
 <main class='container flex  justify-between mx-auto px-4 py-8 max-w-7xl mt-20'>
-	<slot />
+	{@render children?.()}
 </main>
 
 
