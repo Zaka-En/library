@@ -1,5 +1,5 @@
 import type { PageLoad } from "./$types"
-import {graphql} from '$houdini'
+import { graphql } from '$houdini'
 
 
 
@@ -12,9 +12,9 @@ const authorNamesStore = graphql(`
   }
 `)
 
-export const load : PageLoad= async ( event ) => {
+export const load: PageLoad = async (event) => {
 
-  await authorNamesStore.fetch({event})
+  await authorNamesStore.fetch({ event })
 
   return {
     authorNamesStore

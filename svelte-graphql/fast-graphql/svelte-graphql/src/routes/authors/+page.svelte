@@ -35,7 +35,7 @@
   });
 
   
-  let authors = $derived($authorsStore.data?.authors?.edges.map(e => e.node) ?? []);
+  let authors = $derived($authorsStore.data?.authors?.edges ?? []);
   let pageInfo = $derived($authorsStore.pageInfo)
   let fetching = $derived($authorsStore.fetching)
   

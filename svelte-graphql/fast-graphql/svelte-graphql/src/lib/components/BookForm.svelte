@@ -1,50 +1,42 @@
 <script lang="ts">
-  import type { CreateBook$input, UpdateBook$input, QueryResult,UpdateBook$result,CreateBook$result } from "$houdini";
-  //import type {Timeout} from 'node:timers'
+  import type {LoaderType} from "$lib/utils/loader.svelte";
+  import type { CreateBook$input
+    , UpdateBook$input
+    , QueryResult
+    , UpdateBook$result
+    , CreateBook$result
+    , GetBooks$result 
+    , GetAuthors$result,
+    GetAuthorNamesWithId$result} from "$houdini";
+  //import type {Timeout} from 'node:timers' <-- Typescript does not like it for some reason
   import FormButton from "./FormButton.svelte";
   import { goto } from "$app/navigation";
   import { graphql } from "$houdini";
   import { fade } from "svelte/transition";
-  const { book = null, author = null, authorNames = null,  } = $props();
-  let isEdit = $derived(!!book?.id);
-  let error = $state("");
-  let isLoading = $state(false);
-  let authorId: number | null = $state(null)
-  let showSlowMessage = $state(false)
+  import { createLoader } from "$lib/utils/loader.svelte";
 
-  type LoaderType = {
-    isLoading: boolean;      
-    readonly showSlowMessage: boolean;
-    timerId: ReturnType<typeof setTimeout> | null;
-  };
-
-  // object loader:  encapculates logic of loading and showing a latency
-  // error  with getter and setter instead of $effect
-  let loader: LoaderType = {
-    timerId: null,
-    get isLoading(){
-      return isLoading
-    },
-
-    set isLoading(value: boolean){
-      isLoading = value
-
-      if(this.timerId) clearTimeout(this.timerId)
-
-      if (value) {
-        this.timerId = setTimeout(() => (showSlowMessage = true), 1000)
-      }else{
-        showSlowMessage = false
-      }
-    },
-
-    get showSlowMessage(){
-      return showSlowMessage
-    }
-
+  interface Props{
+    book:  GetBooks$result["books"][number] | null
+    author : GetAuthors$result["authors"]["edges"][number]["node"] | null
+    authorNames: GetAuthorNamesWithId$result["authorsQuery"] 
   }
 
+  const { 
+    book = null,
+    author = null,
+    authorNames = [],
+   } : Props 
+  = $props();
 
+
+  let isEdit = $derived(!!book?.id);
+  let error = $state("");
+  let authorId: number | null = $state(null)
+  let loader: LoaderType = createLoader()
+
+  
+
+  
   interface FormDataType {
     isbn?: string | null | undefined;
     pages?: number | null | undefined;
@@ -94,20 +86,17 @@
     loader.isLoading = true;
     error = "";
 
-    if (isEdit) {
-      
-    }
 
     let mutationResult: QueryResult<UpdateBook$result, UpdateBook$input>
-                        | QueryResult<CreateBook$result, CreateBook$input>
-
+                      | QueryResult<CreateBook$result, CreateBook$input> | null
+                      = null
     try {
       
       if (isEdit && book?.id) {
-        const input: UpdateBook$input = {
+        const input: UpdateBook$input = { 
         input: {
           id: Number(book.id),
-          authorId: author.id as number, 
+          authorId: Number(author?.id), 
           title: formData.title,
           isbn: formData.isbn,
           pages: formData.pages,
@@ -117,8 +106,8 @@
       } else {
         const input: CreateBook$input = {
         input: {
-          authorId: author.id as number,
-          title: formData.title ?? "", // Aseguramos que no sea undefined
+          authorId: Number(author?.id) ,
+          title: formData.title ?? "",  
           isbn: formData.isbn as string,
           pages: formData.pages as number,
           publicationYear: formData.publicationYear as number
@@ -131,13 +120,13 @@
       error = "Algo ha pasado con el server"
     }
 
-    isLoading = false
+    loader.isLoading = false
     if (mutationResult?.errors) {     
       console.log(mutationResult.errors);
       error = mutationResult.errors[0].message
-      // if (error.includes("ISBN")) {
-      //   error = `El isbn es un valor único universal, no puede ser duplicado`
-      // }
+      if (error.includes("ISBN")) {
+        error = `El isbn es un valor único universal, no puede ser duplicado`
+      }
     } else {
       goto(`/books`)
     }
@@ -255,7 +244,7 @@
       {#if isEdit}
         <div>
           <p class="block text-sm font-medium text-gray-700 mb-2">
-            Escrito por {author?.fullname ? author.fullname : author.name}
+            Escrito por {author?.fullname ? author.fullname : author?.name}
           </p>
         </div>
       {:else }
@@ -287,7 +276,7 @@
           {/if}
         {/snippet}
 
-        <FormButton loading={isLoading} {isEdit} {submitSnippet}
+        <FormButton loading={loader.isLoading} {isEdit} {submitSnippet}
           class="flex-1 bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
         />
 

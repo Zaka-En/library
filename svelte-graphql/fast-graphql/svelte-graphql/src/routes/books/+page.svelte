@@ -2,11 +2,11 @@
   import Book from '$lib/components/Book.svelte';
   import type { PageProps } from './$types';
 
-  const { data } = $props()
+  const { data } : PageProps = $props()
 
   let booksStore = $derived(data.store)
   
-  let books = $derived($booksStore.data?.books)
+  let books = $derived($booksStore.data?.books ?? [])
 
 </script>
 

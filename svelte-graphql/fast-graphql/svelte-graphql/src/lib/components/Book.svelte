@@ -1,5 +1,9 @@
 <script lang="ts">
-  const  { book }  = $props();
+  import type { GetBooks$result } from "$houdini";
+  type Book = GetBooks$result["books"][number]
+
+  const  { book } : { book: Book}  = $props();
+
 
 </script>
 

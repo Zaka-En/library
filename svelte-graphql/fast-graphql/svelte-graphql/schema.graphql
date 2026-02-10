@@ -71,6 +71,7 @@ input FinishReadingInput {
 }
 
 type Mutation {
+  addRating(text: String!): String!
   createAuthor(input: CreateAuthorInput!): AuthorType!
   createBook(input: CreateBookInput!): BookType!
   deleteAuthor(id: Int!): Boolean!
@@ -109,6 +110,10 @@ type ReadingStateType {
 input StartReadingInput {
   bookId: Int!
   userId: String!
+}
+
+type Subscription {
+  bookRatings: String!
 }
 
 input UpdateAuthorInput {

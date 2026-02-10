@@ -14,6 +14,7 @@ const store = graphql(
 
 export const load: LayoutLoad = async ( event ) => {
 	
+  // atob is for base64 -> utf8
   const id = Number(atob(event.params.id).split(':').at(-1))
 
   await store.fetch({

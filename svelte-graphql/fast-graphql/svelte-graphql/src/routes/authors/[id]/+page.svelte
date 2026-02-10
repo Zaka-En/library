@@ -11,7 +11,7 @@
 
 </script>
 
-{#if !$authorStore.fetching && author}
+{#if !fetching&& author}
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <h1 class="text-3xl font-semibold mb-2">
       {author.name}

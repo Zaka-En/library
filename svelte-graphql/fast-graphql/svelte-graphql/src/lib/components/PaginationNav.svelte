@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { PageInfo } from "$houdini";
-  import { onMount } from "svelte";
 
   interface Props {
     pageInfo: PageInfo;

@@ -1,14 +1,28 @@
 <script lang="ts">
+
+  import type {LoaderType} from "$lib/utils/loader.svelte";
+  import type {
+    QueryResult, 
+    CreateAuthor$input,CreateAuthor$result,
+    UpdateAuthor$input,
+    UpdateAuthor$result,
+    GetAuthors$result
+  } from '$houdini'
   import { graphql } from "$houdini";
   import { goto } from "$app/navigation";
   import FormButton from "./FormButton.svelte";
-  let { author = null } = $props();
+  import { createLoader } from "$lib/utils/loader.svelte";
+  import { fade } from "svelte/transition";
 
+  interface Props{
+    author: GetAuthors$result["authors"]["edges"][number]["node"] | null
+  }
 
+  let { author = null } : Props = $props();
   let isEdit = $derived(!!author?.id);
-  let loading = $state(false);
   let errorMessage = $state("");
-  
+  let loader: LoaderType = createLoader()
+
 
   interface formDataType{
     name:  string
@@ -68,58 +82,56 @@
 
 
     e.preventDefault();
-    loading = true;
+    loader.isLoading = true;
     errorMessage = "";
 
-    let result
+    type AuthorMutationResult = 
+    | QueryResult<UpdateAuthor$result, UpdateAuthor$input>
+    | QueryResult<CreateAuthor$result, CreateAuthor$input>;
 
-
-    interface inputType{
-      name: string
-      fullname?: string | null
-      biography?: string | null
-      country: string
-    }
-      goto("/authors");
-
-
-    
-    const input: inputType = {
-      name: formData.name,
-      fullname: formData.fullname || null,
-      biography: formData.biography || null,
-      country: formData.country
-    };
-    
-    
-    const variables = isEdit 
-    ? { input: { id: Number(author.id), ...input } } 
-    : { input };
+    let mutationResult: AuthorMutationResult | null = null;
 
     if (isEdit) {
-      result = await updateAuthorStore.mutate(variables)
-    }else{
-      result = await createAuthorStore
-      .mutate(
-        variables,
-        {
-          optimisticResponse:{
-            createAuthor: {
+
+      const variables: UpdateAuthor$input = {
+        input: {
+          id: Number(author?.id ),
+          name: formData.name,
+          fullname: formData.fullname,
+          biography: formData.biography,
+          country: formData.country,
+        }
+      };
+
+      mutationResult = await updateAuthorStore.mutate(variables);
+
+    } else {
+      const variables: CreateAuthor$input = {
+        input: {
+          name: formData.name,
+          fullname: formData.fullname,
+          biography: formData.biography,
+          country: formData.country, // Obligatorio en CreateAuthorInput
+        }
+      };
+
+      mutationResult = await createAuthorStore.mutate(variables, {
+        optimisticResponse: {
+          createAuthor: {
               name: formData.name,
               fullname: formData.fullname,
               biography: formData.biography,
-              country: formData.country,
-            }
+              country: formData.country, 
           }
         }
-      )
+      });
     }
 
     
 
-    loading = false;
+    loader.isLoading = false;
 
-    if (result.errors) {
+    if (mutationResult?.errors) {
       errorMessage = "Ocurrió un error al subir los datos"
     } else {
       
@@ -145,7 +157,7 @@
       <input
         id="id"
         type="text"
-        value={author.id}
+        value={author?.id}
         disabled
         class="mt-1 block w-full rounded-md border-gray-30 bg-gray-100 cursor-not-allowed"
       />
@@ -206,10 +218,15 @@
   {/snippet}
 
   <div class="pt-4">
-    <FormButton  {loading} {isEdit} {submitSnippet} 
+    <FormButton  loading={loader.isLoading}  {isEdit} {submitSnippet} 
     class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
     />
   </div>
 
-  
+  {#if loader.showSlowMessage}
+    <p in:fade class="text-xs text-yellow-700 italic text-center">
+      Está tardando un poco, tenga usted paciencia...
+    </p>
+  {/if}
+
 </form>
