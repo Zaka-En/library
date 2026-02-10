@@ -9,7 +9,29 @@ from .convertors import *
 from strawberry import relay
 import base64
 from sqlalchemy.orm import Session
-from typing import Generator, Any
+from typing import Generator, Any, AsyncGenerator
+import asyncio
+
+
+VALORACIONES = [
+  "Increíble historia, me encantó",
+  "Un poco lento al principio",
+  "Los personajes son muy profundos",
+  "No entendí el final",
+  "Obra maestra contemporánea"
+]
+
+
+@strawberry.type
+class Subscription:
+
+  @strawberry.subscription
+  async def book_ratings(self) -> AsyncGenerator[str, None]:
+
+    for valoracion in VALORACIONES:
+      await asyncio.sleep(1)
+      yield valoracion
+
 
 @strawberry.type
 class Query:
@@ -82,61 +104,61 @@ class Query:
     )
 
 
+  """
+  @strawberry.field
+  def authors(
+    self, info: Info, 
+    first: Optional[int] = None, 
+    last: Optional[int] = None, 
+    after: Optional[str] = None, 
+    before: Optional[str] = None) -> AuthorConnection:
 
-  # @strawberry.field
-  # def authors(
-  #   self, info: Info, 
-  #   first: Optional[int] = None, 
-  #   last: Optional[int] = None, 
-  #   after: Optional[str] = None, 
-  #   before: Optional[str] = None) -> AuthorConnection:
-
-  #   session = info.context['db']
+    session = info.context['db']
       
-  #   query = session.query(Author).order_by(Author.id).yield_per(first if first else 5)
-  #   all_authors = query.all()
+    query = session.query(Author).order_by(Author.id).yield_per(first if first else 5)
+    all_authors = query.all()
 
-  #   start_index = 0
-  #   total_count = end_index = len(all_authors)
+    start_index = 0
+    total_count = end_index = len(all_authors)
 
-  #   try:
-  #     if after:
-  #       decoded_cursor = base64.b64decode(after).decode().split(':')[-1]
-  #       after_id = int(decoded_cursor)
-  #       start_index = next((i + 1 for i, a in enumerate(all_authors) if a.id == after_id), 0)
-  #       end_index = start_index + (first if first else 5)
-  #     elif before:
-  #       decoded_cursor = base64.b64decode(before).decode().split(':')[-1]
-  #       before_id = int(decoded_cursor)
-  #       end_index =  next((i for i, a in enumerate(all_authors) if a.id == before_id), 0)
-  #       start_index = max(0, end_index - (last if last else 5)) 
-  #     else: # this would happen the first time the data is retrieved  
-  #       end_index = min(end_index, first if first else 5) 
-  #   except Exception:
-  #     start_index = 0
+    try:
+      if after:
+        decoded_cursor = base64.b64decode(after).decode().split(':')[-1]
+        after_id = int(decoded_cursor)
+        start_index = next((i + 1 for i, a in enumerate(all_authors) if a.id == after_id), 0)
+        end_index = start_index + (first if first else 5)
+      elif before:
+        decoded_cursor = base64.b64decode(before).decode().split(':')[-1]
+        before_id = int(decoded_cursor)
+        end_index =  next((i for i, a in enumerate(all_authors) if a.id == before_id), 0)
+        start_index = max(0, end_index - (last if last else 5)) 
+      else: # this would happen the first time the data is retrieved  
+        end_index = min(end_index, first if first else 5) 
+    except Exception:
+      start_index = 0
 
 
-  #   authors_to_retrive = [ author_to_type(a) for a in all_authors[start_index:end_index]]
-authors
-  #   edges = [
-  #     relay.Edge(node=author, cursor=base64.b64encode(f"arrayconnection:{author.id}".encode()).decode())
-  #     for author in authors_to_retrive
-  #   ]
+    authors_to_retrive = [ author_to_type(a) for a in all_authors[start_index:end_index]]
 
-  #   has_next_page = len(all_authors) > end_index
-  #   has_previous_page = start_index > 0
+    edges = [
+      relay.Edge(node=author, cursor=base64.b64encode(f"arrayconnection:{author.id}".encode()).decode())
+      for author in authors_to_retrive
+    ]
 
-  #   return AuthorConnection(
-  #     edges=edges,
-  #     page_info=CustomPageInfo(
-  #       start_cursor=edges[0].cursor if edges else None,
-  #       end_cursor=edges[-1].cursor if edges else None,
-  #       has_next_page=has_next_page,
-  #       has_previous_page=has_previous_page,
-  #       total_count=total_count
-  #     )
-  #   )
-    
+    has_next_page = len(all_authors) > end_index
+    has_previous_page = start_index > 0
+
+    return AuthorConnection(
+      edges=edges,
+      page_info=CustomPageInfo(
+        start_cursor=edges[0].cursor if edges else None,
+        end_cursor=edges[-1].cursor if edges else None,
+        has_next_page=has_next_page,
+        has_previous_page=has_previous_page,
+        total_count=total_count
+      )
+    )
+  """  
 
 
   @strawberry.field
