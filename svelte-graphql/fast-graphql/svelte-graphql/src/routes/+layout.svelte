@@ -13,7 +13,7 @@
 		<a class=" inline-block p-1 hover:underline transition" href="/">Inicio</a>
     <a class=" inline-block p-1 hover:underline transition" href="/authors">Autores</a>
     <a class=" inline-block p-1 hover:underline transition" href="/books">Libros</a>
-    <a class=" inline-block p-1 hover:underline transition" href="/">Mi Lectura</a>
+    <a class=" inline-block p-1 hover:underline transition" href="/ratings">Valoraciones</a>
   </nav>
 </header>
 
