@@ -16,6 +16,9 @@
 </script>
 
 <div class="bg-white shadow rounded-lg p-6 mb-4">
+
+  <!-- <enhaced:img  -->
+
   <h3 class="text-xl font-semibold">
     {reading.book.title}
   </h3>
