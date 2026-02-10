@@ -1,5 +1,5 @@
 from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, UpdateBookInput, StartReadingInput, UpdateProgressInput, FinishReadingInput )
-from .types import AuthorType, BookType, ReadingStateType
+from .types import AuthorType, BookType, ReadingStateType, broadcast
 import strawberry
 from strawberry.types import Info
 from app.models.author import Author
@@ -196,3 +196,9 @@ class Mutation:
     session.refresh(reading_state)
     
     return reading_state_to_type(reading_state)
+  
+  @strawberry.mutation
+  async def add_rating(self, text: str) -> str:
+    await broadcast.publish(channel="RATINGS",message=text)
+    return text
+  

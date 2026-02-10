@@ -3,7 +3,10 @@ import strawberry
 from datetime import datetime
 from strawberry.types import Info
 from base64 import b64encode, b64decode
-from typing import Generic, TypeVar
+from typing import TypeVar
+from broadcaster import Broadcast
+
+broadcast = Broadcast("memory://")
 
 @strawberry.type
 class AuthorType(strawberry.relay.Node):

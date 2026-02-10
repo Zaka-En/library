@@ -1,7 +1,7 @@
 import strawberry
 from typing import List, Optional
 from strawberry.types import Info
-from .types import AuthorType, BookType, ReadingStateType
+from .types import AuthorType, BookType, ReadingStateType, broadcast
 from app.models.author import Author
 from app.models.book import Book
 from app.models.reading_state import ReadingState
@@ -11,6 +11,7 @@ import base64
 from sqlalchemy.orm import Session
 from typing import Generator, Any, AsyncGenerator
 import asyncio
+from broadcaster import Broadcast
 
 
 VALORACIONES = [
@@ -27,10 +28,10 @@ class Subscription:
 
   @strawberry.subscription
   async def book_ratings(self) -> AsyncGenerator[str, None]:
-
-    for valoracion in VALORACIONES:
-      await asyncio.sleep(1)
-      yield valoracion
+    async with broadcast.subscribe(channel="RATINGS") as subscriber:
+      while True:
+        event = await subscriber.get()
+        yield event.message
 
 
 @strawberry.type
