@@ -9,6 +9,7 @@ from .convertors import *
 from datetime import datetime
 from time import sleep
 from random import randint
+from fastapi.concurrency import run_in_threadpool
 
 
 @strawberry.type
@@ -35,7 +36,10 @@ class Mutation:
   @strawberry.mutation
   def update_author(self, input: UpdateAuthorInput, info: Info) -> AuthorType:
 
-    sleep(3)
+    #Esto congela el servidor
+    print("Iniciado el bloqueo")
+    sleep(10)
+    print("Terminado el bloqueo")
 
 
     session = info.context['db']
@@ -201,4 +205,15 @@ class Mutation:
   async def add_rating(self, text: str) -> str:
     await broadcast.publish(channel="RATINGS",message=text)
     return text
-  
+
+  @strawberry.mutation
+  async def generate_reporting(self, author_id: int) -> str:
+
+    def heavy_work():
+      print("heavy work")
+      sleep(10)
+      return "report generated"
+    
+
+    result = await run_in_threadpool(heavy_work)
+    return f"hecho {result}"

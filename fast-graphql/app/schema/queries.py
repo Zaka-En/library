@@ -9,7 +9,7 @@ from .convertors import *
 from strawberry import relay
 import base64
 from sqlalchemy.orm import Session
-from typing import Generator, Any, AsyncGenerator
+from typing import Generator, Any, AsyncGenerator, Tuple
 import asyncio
 from broadcaster import Broadcast
 
@@ -187,4 +187,24 @@ class Query:
 
     return [reading_state_to_type(book) for book in books_in_progress] 
 
+  @strawberry.field
+  async def recomendations(self, user: str) -> Tuple[str,str,str]: 
+
+    async def recomender(service: str):
+      await asyncio.sleep(2)
+      return f"Libro recomendado {service}"
+
+    start = datetime.now()
+
+    results = await asyncio.gather(
+      recomender("Drama"),
+      recomender("Horror"),
+      recomender("Sitcom")
+    )
+
+    diff = datetime.now() - start
+
+    print(f"Tiempo total: {diff.seconds} segundos") # Debería ser ~2s, no 6s
+
+    return results 
 
