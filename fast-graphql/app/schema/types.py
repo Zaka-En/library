@@ -6,7 +6,7 @@ from base64 import b64encode, b64decode
 from typing import TypeVar
 from broadcaster import Broadcast
 
-broadcast = Broadcast("memory://")
+broadcast = Broadcast("redis://localhost:6379")
 
 @strawberry.type
 class AuthorType(strawberry.relay.Node):
