@@ -17,7 +17,7 @@
 
 <div class="bg-white shadow rounded-lg p-6 mb-4">
 
-  <!-- <enhaced:img  -->
+  <enhaced:img src="../assets/ReadingImage.png"  alt="Imagen de un niño leyendo"/>
 
   <h3 class="text-xl font-semibold">
     {reading.book.title}

@@ -4,7 +4,7 @@
 
   let { data } : PageProps = $props()
   let store =  $derived( data.authorNamesStore)
-  let authorNames = $derived($store.data?.authorsQuery)
+  let authorNames = $derived($store.data?.authorsQuery ?? [])
 </script>
 
 <BookForm {authorNames}  />
