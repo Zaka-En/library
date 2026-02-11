@@ -77,6 +77,7 @@ type Mutation {
   deleteAuthor(id: Int!): Boolean!
   deleteBook(id: Int!): Boolean!
   finishReading(input: FinishReadingInput!): ReadingStateType!
+  generateReporting(authorId: Int!): String!
   startReading(input: StartReadingInput!): ReadingStateType!
   updateAuthor(input: UpdateAuthorInput!): AuthorType!
   updateBook(input: UpdateBookInput!): BookType!
@@ -96,6 +97,7 @@ type Query {
   book(id: Int!): BookType
   books: [BookType!]!
   myReadingProgress(userId: String!): [ReadingStateType!]!
+  recomendations(user: String!): [String!]!
 }
 
 type ReadingStateType {
@@ -114,6 +116,7 @@ input StartReadingInput {
 
 type Subscription {
   bookRatings: String!
+  updateAuthorNotifications: String!
 }
 
 input UpdateAuthorInput {

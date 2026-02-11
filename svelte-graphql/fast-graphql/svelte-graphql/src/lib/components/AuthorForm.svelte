@@ -13,6 +13,7 @@
   import FormButton from "./FormButton.svelte";
   import { createLoader } from "$lib/utils/loader.svelte";
   import { fade } from "svelte/transition";
+  import { onMount } from "svelte";
 
   interface Props{
     author: GetAuthors$result["authors"]["edges"][number]["node"] | null
@@ -67,6 +68,22 @@
       }
   `)
 
+  const updateAuthorNotificationsStore = graphql(`
+    subscription NotificationsUpdate {
+      updateAuthorNotifications
+    }
+  `)
+
+
+  onMount(()=>{
+    updateAuthorNotificationsStore.listen()
+
+    return () => {
+      updateAuthorNotificationsStore.unlisten()
+    }
+  })
+
+
   
 
   async function handleSubmit(e: Event) {
@@ -95,7 +112,7 @@
 
       const variables: UpdateAuthor$input = {
         input: {
-          id: Number(author?.id ),
+          id: Number(atob(author?.id || "").split(":").at(-1)),
           name: formData.name,
           fullname: formData.fullname,
           biography: formData.biography,
@@ -228,5 +245,11 @@
       Está tardando un poco, tenga usted paciencia...
     </p>
   {/if}
+ 
+  {#key $updateAuthorNotificationsStore.data?.updateAuthorNotifications}
+    <p class="text-xs text-yellow-700 italic font-medium animate-pulse text-center">
+      {$updateAuthorNotificationsStore.data?.updateAuthorNotifications}
+    </p>
+  {/key}
 
 </form>
