@@ -40,6 +40,14 @@ class Subscription:
         event = await subscriber.get()
         yield event.message
 
+  @strawberry.subscription
+  async def book_chat(self, book_id: int) -> AsyncGenerator[str,None] :
+    channel = f"BOOK_CHAT_{book_id}"
+    async with broadcast.subscribe(channel=channel) as subscriber:
+      while True:
+        event = await subscriber.get()
+        yield event.message
+    
 
 
 

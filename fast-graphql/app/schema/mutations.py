@@ -17,8 +17,7 @@ import asyncio
 class Mutation:
 
   @strawberry.mutation
-  def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:
-    sleep(1.5)
+  async def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:
     session = info.context['db']
 
     author = Author(
@@ -29,8 +28,8 @@ class Mutation:
     )
 
     session.add(author)
-    session.commit()
-    session.refresh(author)
+    await session.commit()
+    await session.refresh(author)
 
     return author_to_type(author)
 
@@ -68,7 +67,7 @@ class Mutation:
     return author_to_type(author)
 
   @strawberry.mutation
-  def delete_author(self, id: int, info: Info) -> bool:
+  async def delete_author(self, id: int, info: Info) -> bool:
     session = info.context['db']
     
     author = session.query(Author).filter(Author.id == id).first()
@@ -76,12 +75,12 @@ class Mutation:
       return False
     
     session.delete(author)
-    session.commit()
+    await session.commit()
     return True
 
   @strawberry.mutation
-  def create_book(self, input: CreateBookInput, info: Info) -> BookType:
-    sleep(2)
+  async def create_book(self, input: CreateBookInput, info: Info) -> BookType:
+    await asyncio.sleep(1)
     session = info.context['db']
 
     isbnAlreadyExists = session.query(Book).filter(Book.isbn == input.isbn).first()
@@ -100,14 +99,14 @@ class Mutation:
     )
     
     session.add(book)
-    session.commit()
-    session.refresh(book)
+    await session.commit()
+    await session.refresh(book)
     
     return book_to_type(book)
 
   @strawberry.mutation
-  def update_book(self, input: UpdateBookInput, info: Info) -> BookType:
-    sleep(2)
+  async def update_book(self, input: UpdateBookInput, info: Info) -> BookType:
+    await asyncio.sleep(2)
 
     if randint(1, 2) == 2:
       raise Exception("ha fallado porque no tiene suerte")
@@ -126,13 +125,13 @@ class Mutation:
       if key != 'id' and value is not None:
         setattr(book,key,value)
     
-    session.commit()
-    session.refresh(book)
+    await session.commit()
+    await session.refresh(book)
     
     return book_to_type(book)
 
   @strawberry.mutation
-  def delete_book(self, id: int, info: Info) -> bool:
+  async def delete_book(self, id: int, info: Info) -> bool:
     session = info.context['db']
     
     book = session.query(Book).filter(Book.id == id).first()
@@ -140,11 +139,11 @@ class Mutation:
       return False
     
     session.delete(book)
-    session.commit()
+    await session.commit()
     return True
 
   @strawberry.mutation
-  def start_reading(self, input: StartReadingInput, info: Info) -> ReadingStateType:
+  async def start_reading(self, input: StartReadingInput, info: Info) -> ReadingStateType:
     session = info.context['db']
     
     # Validar que el libro existe
@@ -159,13 +158,13 @@ class Mutation:
     )
     
     session.add(reading_state)
-    session.commit()
-    session.refresh(reading_state)
+    await session.commit()
+    await session.refresh(reading_state)
     
     return reading_state_to_type(reading_state)
 
   @strawberry.mutation
-  def update_progress(self, input: UpdateProgressInput, info: Info) -> ReadingStateType:
+  async def update_progress(self, input: UpdateProgressInput, info: Info) -> ReadingStateType:
     session = info.context['db']
     
     reading_state = session.query(ReadingState).filter(ReadingState.id == input.id).first()
@@ -183,8 +182,8 @@ class Mutation:
     
     reading_state.current_page = input.current_page
     
-    session.commit()
-    session.refresh(reading_state)
+    await session.commit()
+    await session.refresh(reading_state)
     
     return reading_state_to_type(reading_state)
 
@@ -219,3 +218,19 @@ class Mutation:
 
     result = await run_in_threadpool(heavy_work)
     return f"hecho {result}"
+  
+  @strawberry.mutation
+  async def send_book_chat_message(
+    self,
+    book_id: int,
+    user_name: str,
+    message: str
+  ) -> bool:
+    
+    channel = f"CHAT_BOOK_{book_id}"
+
+    payload = f"{user_name}: {message}"
+
+    await broadcast.publish(channel=channel, message=payload)
+
+    return True
