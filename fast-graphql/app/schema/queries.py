@@ -32,6 +32,15 @@ class Subscription:
       while True:
         event = await subscriber.get()
         yield event.message
+  
+  @strawberry.subscription
+  async def update_author_notifications(self) -> AsyncGenerator[str, None]:
+    async with broadcast.subscribe(channel="NOTIFICATIONS") as subscriber:
+      while True:
+        event = await subscriber.get()
+        yield event.message
+
+
 
 
 @strawberry.type

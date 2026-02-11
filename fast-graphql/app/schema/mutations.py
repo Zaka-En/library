@@ -10,6 +10,7 @@ from datetime import datetime
 from time import sleep
 from random import randint
 from fastapi.concurrency import run_in_threadpool
+import asyncio
 
 
 @strawberry.type
@@ -34,13 +35,12 @@ class Mutation:
     return author_to_type(author)
 
   @strawberry.mutation
-  def update_author(self, input: UpdateAuthorInput, info: Info) -> AuthorType:
+  async def update_author(self, input: UpdateAuthorInput, info: Info) -> AuthorType:
 
-    #Esto congela el servidor
-    print("Iniciado el bloqueo")
-    sleep(10)
-    print("Terminado el bloqueo")
-
+    await broadcast.publish(channel="NOTIFICATIONS", message="Incializando actualizacion")
+    await asyncio.sleep(3)
+    await broadcast.publish(channel="NOTIFICATIONS", message="Validando sus datos")
+    await asyncio.sleep(3)
 
     session = info.context['db']
 
@@ -55,7 +55,6 @@ class Mutation:
       if key != 'id' and value is not None:
         setattr(author, key, value)
 
-    
     try:
       session.commit()
       session.refresh(author) # Para que el objeto author tenga los datos frescos de la DB
@@ -63,6 +62,9 @@ class Mutation:
       session.rollback()
       raise e
     
+    await broadcast.publish(channel="NOTIFICATIONS", message="¡Autor actualizado con éxito!")
+    await asyncio.sleep(3)
+
     return author_to_type(author)
 
   @strawberry.mutation

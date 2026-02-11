@@ -36,5 +36,5 @@ app.add_event_handler("shutdown", broadcast.disconnect)
 
 
 if __name__ == "__main__":
-  uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
-  #uvicorn.run("app.main:app", host="127.0.0.1", port=8000, workers=2)
+  #uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+  uvicorn.run("app.main:app", host="127.0.0.1", port=8000, workers=8)
