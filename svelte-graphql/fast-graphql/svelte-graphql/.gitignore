@@ -28,3 +28,6 @@ AGENTs.md
 opencode.json
 .houdini
 .graphqlrc.yaml
+
+#non used assets
+src/lib/assets/*.png
