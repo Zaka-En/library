@@ -1,10 +1,10 @@
 from app.models.author import Author
 from app.models.book import Book
 from app.models.reading_state import ReadingState
-from .types import *
+from .types import (AuthorType, BookType, ReadingStateType)
 
 
-def author_to_type(author: Author) -> AuthorType:
+def author_to_type(author: Author) -> "AuthorType":
   return AuthorType(
     id=author.id,
     name=author.name,
@@ -13,7 +13,7 @@ def author_to_type(author: Author) -> AuthorType:
     fullname=author.fullname
   )
 
-def book_to_type(book: Book) -> BookType:
+def book_to_type(book: Book) -> "BookType":
   return BookType(
     id=book.id,
     title=book.title,
@@ -23,7 +23,7 @@ def book_to_type(book: Book) -> BookType:
     author_id=book.author_id
   )
 
-def reading_state_to_type(state: ReadingState) -> ReadingStateType:
+def reading_state_to_type(state: ReadingState) -> "ReadingStateType":
   return ReadingStateType(
       id=state.id,
       current_page=state.current_page,

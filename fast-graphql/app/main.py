@@ -2,16 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 from app.schema import schema
-from app.database import get_db
+from app.database import  SessionLocal
 import uvicorn
 from strawberry.subscriptions import GRAPHQL_WS_PROTOCOL, GRAPHQL_TRANSPORT_WS_PROTOCOL
 from app.schema.types import broadcast
 
 
-def get_context():
-  db = next(get_db())
-  return {"db": db}
-
+async def get_context():
+  return {"db_factory": SessionLocal}
 
 app = FastAPI()
 
@@ -37,4 +35,4 @@ app.add_event_handler("shutdown", broadcast.disconnect)
 
 if __name__ == "__main__":
   #uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
-  uvicorn.run("app.main:app", host="127.0.0.1", port=8000, workers=8)
+  uvicorn.run("app.main:app", host="127.0.0.1", port=8000, workers=3)

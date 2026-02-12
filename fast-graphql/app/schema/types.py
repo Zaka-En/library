@@ -2,9 +2,11 @@ from typing import Optional, List
 import strawberry
 from datetime import datetime
 from strawberry.types import Info
-from base64 import b64encode, b64decode
+from sqlalchemy import select
 from typing import TypeVar
 from broadcaster import Broadcast
+from app.models.author import Author
+from app.models.book import Book
 
 broadcast = Broadcast("redis://localhost:6379")
 
@@ -17,13 +19,13 @@ class AuthorType(strawberry.relay.Node):
   fullname: Optional[str]
 
   @strawberry.field
-  def books(self, info: Info) -> List["BookType"]:
-    from app.models.book import Book
+  async def books(self, info: Info) -> List["BookType"]:
     from .convertors import book_to_type
-    
-    session = info.context['db']
-    books = session.query(Book).filter(Book.author_id == self.id).all()
-    return [book_to_type(book) for book in books]
+    async with info.context['db_factory']() as session:
+      query = select(Book).filter(Book.author_id == self.id)
+      result = await session.execute(query)
+      books = result.scalars().all()
+      return [book_to_type(book) for book in books]
 
 @strawberry.type
 class BookType:
@@ -33,15 +35,16 @@ class BookType:
   publication_year: int
   pages: int
   author_id: int
-  
+
   @strawberry.field
-  def author(self, info: Info) -> Optional["AuthorType"]:
-    from app.models.author import Author
+  async def author(self, info: Info) -> Optional["AuthorType"]:
     from .convertors import author_to_type
-    
-    session = info.context['db']
-    author = session.query(Author).filter(Author.id == self.author_id).first()
-    return author_to_type(author) if author else None
+    async with info.context['db_factory']() as session:
+      result = await session.execute(
+        select(Author).filter(Author.id == self.author_id)
+      )
+      author = result.scalar_one_or_none()
+      return author_to_type(author) if author else None
 
 @strawberry.type
 class ReadingStateType:
@@ -52,18 +55,19 @@ class ReadingStateType:
   book_id: int
 
   @strawberry.field
-  def book(self, info: Info) -> Optional[BookType]:
-    from app.models.book import Book
+  async def book(self, info: Info) -> Optional[BookType]:
     from .convertors import book_to_type
-    
-    session = info.context['db']
-    book = session.query(Book).filter(Book.id == self.book_id).first()
-    return book_to_type(book) if book else None
-  
+    async with info.context['db_factory']() as session:
+      result = await session.execute(
+        select(Book).filter(Book.id == self.book_id)
+      )
+      book = result.scalar_one_or_none()
+      return book_to_type(book) if book else None
+
 @strawberry.type
 class CustomPageInfo(strawberry.relay.PageInfo):
-    """PageInfo extended with aditional info"""
-    total_count: int
+  """PageInfo extended with aditional info"""
+  total_count: int
 
 NodeType = TypeVar("NodeType")
 
@@ -71,4 +75,3 @@ NodeType = TypeVar("NodeType")
 class AuthorConnection:
   page_info: CustomPageInfo
   edges: list[strawberry.relay.Edge[AuthorType]]
-
