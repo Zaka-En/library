@@ -1,9 +1,10 @@
-from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, UpdateBookInput, StartReadingInput, UpdateProgressInput, FinishReadingInput )
-from .types import AuthorType, BookType, ReadingStateType, broadcast
+from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, UpdateBookInput, StartReadingInput, UpdateProgressInput, FinishReadingInput, RegisterInput )
+from .types import AuthorType, BookType, ReadingStateType, UserType, broadcast
 import strawberry
 from strawberry.types import Info
 from app.models.author import Author
 from app.models.book import Book
+from app.models.user import User
 from app.models.reading_state import ReadingState
 from .convertors import *
 from datetime import datetime
@@ -16,6 +17,39 @@ from sqlalchemy import select
 
 @strawberry.type
 class Mutation:
+  @strawberry.mutation
+  async def register_user(self, info: Info, data: RegisterInput) -> UserType:
+    db_factory = info.context["db_factory"]
+
+    async with db_factory() as session:
+
+      hash_pw = User.hash_password(data.password)
+
+      new_user = User(
+        name=data.name,
+        fullname=data.fullname,
+        password=hash_pw,
+        rol=data.rol
+      )
+
+      session.add(new_user)
+
+      try:
+        await session.commit()
+        await session.refresh()
+      except Exception as e:
+        await session.rollback()
+        raise e
+    
+      return UserType(
+        id=strawberry.ID(str(new_user.id)),
+        fullname=new_user.fullname,
+        name=new_user.name,
+        rol=new_user.rol
+      )
+      
+
+
 
   @strawberry.mutation
   async def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:

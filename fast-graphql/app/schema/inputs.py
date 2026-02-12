@@ -51,3 +51,10 @@ class UpdateProgressInput:
 @strawberry.input
 class FinishReadingInput:
   id: int  # ID del ReadingState
+
+@strawberry.input
+class RegisterInput:
+  name: str
+  password: str
+  fullname: Optional[str] = None
+  rol: str = "user"

@@ -65,6 +65,13 @@ class ReadingStateType:
       return book_to_type(book) if book else None
 
 @strawberry.type
+class UserType:
+  id: strawberry.ID
+  name: str
+  fullname: Optional[str]
+  rol: str
+
+@strawberry.type
 class CustomPageInfo(strawberry.relay.PageInfo):
   """PageInfo extended with aditional info"""
   total_count: int
