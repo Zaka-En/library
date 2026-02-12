@@ -1,7 +1,8 @@
 from app.models.author import Author
 from app.models.book import Book
 from app.models.reading_state import ReadingState
-from .types import (AuthorType, BookType, ReadingStateType)
+from app.models.user import User
+from .types import (AuthorType, BookType, ReadingStateType, UserType)
 
 
 def author_to_type(author: Author) -> "AuthorType":
@@ -31,3 +32,11 @@ def reading_state_to_type(state: ReadingState) -> "ReadingStateType":
       finish_date=state.finish_date,
       book_id=state.book_id
   )
+
+# def user_to_type(user: User) -> UserType:
+#   return UserType(
+#     id
+#     name=user.name,
+#     fullname=user.fullname,
+    
+#   )

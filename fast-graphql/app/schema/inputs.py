@@ -55,6 +55,12 @@ class FinishReadingInput:
 @strawberry.input
 class RegisterInput:
   name: str
+  email: str
   password: str
   fullname: Optional[str] = None
   rol: str = "user"
+
+@strawberry.input
+class LoginInput:
+  email: str
+  password: str

@@ -26,7 +26,7 @@ class ReadingState(Base):
   )
 
   current_page: Mapped[int] = mapped_column(
-    Integer,
+    ForeignKey("users.id"),
     nullable=False
   )
 

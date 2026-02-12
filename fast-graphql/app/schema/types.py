@@ -67,9 +67,16 @@ class ReadingStateType:
 @strawberry.type
 class UserType:
   id: strawberry.ID
+  email: str
   name: str
   fullname: Optional[str]
   rol: str
+
+@strawberry.type
+class LoginResponse:
+  access_token: str
+  token_type: str
+  user: UserType
 
 @strawberry.type
 class CustomPageInfo(strawberry.relay.PageInfo):

@@ -14,6 +14,12 @@ class User(Base):
     autoincrement=True
   )
 
+  email: Mapped[str] = mapped_column(
+    String(254),
+    nullable=False,
+    unique=True
+  )
+
   name: Mapped[str] = mapped_column(
     String(50),
     nullable=False
@@ -45,7 +51,7 @@ class User(Base):
 
   def verify_password(self, plain_password: str) -> bool:
     password_bytes = plain_password.encode('utf-8')
-    hashed_bytes = self.hashed_password.encode('utf-8')
+    hashed_bytes = self.password.encode('utf-8')
     
     return bcrypt.checkpw(password_bytes, hashed_bytes)
     

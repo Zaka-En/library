@@ -1,5 +1,5 @@
-from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, UpdateBookInput, StartReadingInput, UpdateProgressInput, FinishReadingInput, RegisterInput )
-from .types import AuthorType, BookType, ReadingStateType, UserType, broadcast
+from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, UpdateBookInput, StartReadingInput, UpdateProgressInput, FinishReadingInput, RegisterInput, LoginInput )
+from .types import AuthorType, BookType, ReadingStateType, UserType, LoginResponse, broadcast
 import strawberry
 from strawberry.types import Info
 from app.models.author import Author
@@ -13,6 +13,7 @@ from random import randint
 from fastapi.concurrency import run_in_threadpool
 import asyncio
 from sqlalchemy import select
+from app.utils.auth import create_access_token
 
 
 @strawberry.type
@@ -29,14 +30,15 @@ class Mutation:
         name=data.name,
         fullname=data.fullname,
         password=hash_pw,
-        rol=data.rol
+        rol=data.rol,
+        email=data.email
       )
 
       session.add(new_user)
 
       try:
         await session.commit()
-        await session.refresh()
+        await session.refresh(new_user)
       except Exception as e:
         await session.rollback()
         raise e
@@ -45,11 +47,41 @@ class Mutation:
         id=strawberry.ID(str(new_user.id)),
         fullname=new_user.fullname,
         name=new_user.name,
+        email=new_user.email,
         rol=new_user.rol
       )
       
+  @strawberry.mutation
+  async def login(self, info: Info, data: LoginInput) -> LoginResponse:
+    db_factory = info.context["db_factory"]
+    
+    async with db_factory() as session:
 
+      query = select(User).where(User.email == data.email)
+      result = await session.execute(query)
+      user = result.scalar_one_or_none()
 
+      if not user or not user.verify_password(data.password):
+        raise Exception("Credenciales incorrectas")
+
+      token = create_access_token(data={
+        "sub": str(user.id),
+        "name": user.name,
+        "rol": user.rol
+      })
+
+      return LoginResponse(
+        access_token=token,
+        token_type="bearer",
+        user=UserType(
+          id=strawberry.ID(str(user.id)),
+          email=user.email,
+          name=user.name,
+          fullname=user.fullname,
+          rol=user.rol
+        )
+      )
+    
 
   @strawberry.mutation
   async def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:
