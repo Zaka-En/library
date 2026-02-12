@@ -47,6 +47,8 @@
             href="/authors/{author.node.id}/edit"
             class="text-gray-600 hover:underline">Editar</a
           >
+
+          <span></span>
         </div>
       </div>
     </div>

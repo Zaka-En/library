@@ -4,4 +4,9 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { enhancedImages } from '@sveltejs/enhanced-img'; 
 
-export default defineConfig({ plugins: [houdini(), tailwindcss(), sveltekit(), enhancedImages()] });
+export default defineConfig({ 
+  plugins: [houdini(), tailwindcss(), sveltekit(), enhancedImages()], 
+  ssr: {
+    noExternal: ['houdini']
+  }
+});

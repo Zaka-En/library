@@ -85,8 +85,7 @@
         <Reading 
           {reading} 
           onUpdate={() => openReadingModal(reading.book, reading)}
-           
-        />
+          />
       {/if}  
     {/each}
   </section>

@@ -32,9 +32,13 @@
   <div class="px-4 pb-4">
     <a 
       href="/books/{book.id}" 
-      class="block w-full text-center bg-green-600 text-white py-2 rounded hover:bg-green-700 transition "
+      class="block w-full text-center bg-green-600 text-white py-2 rounded hover:bg-green-700 transition mb-2 "
     >
      Ver detalles
     </a>
+    <a 
+      href="/books/{book.id}/chat"
+      class="block w-full text-center underline hover:text-blue-500 transition"
+    >Chat & Discuss</a>
   </div>
 </div>
