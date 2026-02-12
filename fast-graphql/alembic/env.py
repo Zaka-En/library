@@ -9,6 +9,7 @@ from app.database import Base
 from app.models.author import Author
 from app.models.book import Book
 from app.models.reading_state import ReadingState
+from app.models.user import User
 
 import os
 from dotenv import load_dotenv

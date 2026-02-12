@@ -20,8 +20,8 @@ class ReadingState(Base):
     nullable=False
   )
 
-  user_id: Mapped[str] = mapped_column(
-    String(50),
+  user_id: Mapped[int] = mapped_column(
+    Integer,
     nullable=False
   )
 
@@ -43,6 +43,11 @@ class ReadingState(Base):
 
   book: Mapped["Book"] = relationship(
     "Book",
+    back_populates="reading_states"
+  )
+
+  user: Mapped["User"] = relationship(
+    "User",
     back_populates="reading_states"
   )
  
