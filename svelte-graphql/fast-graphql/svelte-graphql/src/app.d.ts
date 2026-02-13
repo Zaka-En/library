@@ -3,9 +3,23 @@ import type { ReadingProgressType, BookType } from "../app";
 import { HTMLAttributes } from 'svelte/elements';
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
-declare global {
+declare global {ç
+
 	namespace App {
-		
+		interface Locals{
+			token: string
+			user:{
+				token: string
+				id:string
+				name:string
+				rol:string
+			}| null ;
+		}
+
+		interface Session{
+			token: string
+		}
+
 	}
 
 	type ReadingProgressType = NonNullable<MyReadingProgress$result['myReadingProgress']>[number]

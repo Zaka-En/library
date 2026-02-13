@@ -21,7 +21,7 @@
     </a>
   </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mx-10">
     {#each books as book (book.id)}
       <Book {book} />
     {/each}

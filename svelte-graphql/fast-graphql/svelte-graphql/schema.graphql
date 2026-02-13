@@ -70,6 +70,17 @@ input FinishReadingInput {
   id: Int!
 }
 
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  accessToken: String!
+  tokenType: String!
+  user: UserType!
+}
+
 type Mutation {
   addRating(text: String!): String!
   createAuthor(input: CreateAuthorInput!): AuthorType!
@@ -78,6 +89,8 @@ type Mutation {
   deleteBook(id: Int!): Boolean!
   finishReading(input: FinishReadingInput!): ReadingStateType!
   generateReporting(authorId: Int!): String!
+  login(data: LoginInput!): LoginResponse!
+  registerUser(data: RegisterInput!): UserType!
   sendBookChatMessage(bookId: Int!, message: String!, userName: String!): Boolean!
   startReading(input: StartReadingInput!): ReadingStateType!
   updateAuthor(input: UpdateAuthorInput!): AuthorType!
@@ -97,7 +110,7 @@ type Query {
   authorsQuery: [AuthorType!]!
   book(id: Int!): BookType
   books: [BookType!]!
-  myReadingProgress(userId: String!): [ReadingStateType!]!
+  myReadingProgress(userId: Int!): [ReadingStateType!]!
   recomendations(user: String!): [String!]!
 }
 
@@ -110,9 +123,17 @@ type ReadingStateType {
   startDate: DateTime!
 }
 
+input RegisterInput {
+  email: String!
+  fullname: String = null
+  name: String!
+  password: String!
+  rol: String! = "user"
+}
+
 input StartReadingInput {
   bookId: Int!
-  userId: String!
+  userId: Int!
 }
 
 type Subscription {
@@ -141,4 +162,12 @@ input UpdateBookInput {
 input UpdateProgressInput {
   currentPage: Int!
   id: Int!
+}
+
+type UserType {
+  email: String!
+  fullname: String
+  id: ID!
+  name: String!
+  rol: String!
 }

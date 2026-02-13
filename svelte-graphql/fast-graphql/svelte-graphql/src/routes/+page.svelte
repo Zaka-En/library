@@ -24,11 +24,11 @@
     }
   ];
 
-  const userId = '1'
+  const userId = 1
 
   const  myReadingProgressStore = graphql(
     `
-      query MyReadingProgress($userId: String!) {
+      query MyReadingProgress($userId: Int!) {
         myReadingProgress(userId: $userId) {
           id currentPage startDate
           book {
@@ -77,7 +77,7 @@
 
 {#if myReadingProgress && !$myReadingProgressStore.fetching}
   <div>
-    <h2 class="text-2xl font-bold mb-4">📖 Leyendo Actualmente</h2>
+    <h2 class="text-2xl font-bold mb-4 mt-2">📖 Leyendo Actualmente</h2>
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-9/12">
     
     {#each myReadingProgress as reading (reading.id)}
@@ -94,7 +94,7 @@
 {/if}
 
 {#snippet categorySnippet(name: string, description: string, totalBooks: number)} 
-  <h5 class="font-bold text-gray-800 text-lg mb-1 capitalize">{name}</h5>
+  <h5 class="font-bold text-gray-800 text-lg mb-1 capitalize mt-2">{name}</h5>
   <p class="text-sm text-gray-600 mb-4 leading-relaxed">
     {description?.length <= 50 ? description : description.slice(0, 50)}...
   </p>

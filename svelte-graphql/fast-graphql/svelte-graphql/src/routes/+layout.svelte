@@ -17,7 +17,7 @@
   </nav>
 </header>
 
-<main class='container flex  justify-between mx-auto px-4 py-8 max-w-7xl mt-20'>
+<main class='w-full mt-20 h-[calc(100vh-5rem)] flex items-start justify-between px-4'>
 	{@render children?.()}
 </main>
 

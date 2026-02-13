@@ -1,8 +1,6 @@
 <script lang="ts">
   import viewport from "$lib/utils/useViewportActions";
   import type { GetAuthors$result } from "$houdini";
-  // import type { GetAuthors$result } from "$houdini"
-  // import type { PageInfo } from "$houdini";
 
   
 
@@ -30,7 +28,7 @@
 {#if authors}
   {#each authors as author (author.node.id)}
     <div 
-      class="bg-white shadow rounded-lg p-6 mb-5 mx-2">
+      class="bg-white shadow rounded-lg p-6 mb-5 ">
       <div class="flex justify-between items-start">
         <div>
           <h2 class="text-xl font-semibold">{author.node.name}</h2>
