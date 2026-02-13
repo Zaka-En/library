@@ -1,15 +1,36 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 from app.schema import schema
 from app.database import  SessionLocal
 import uvicorn
+import jwt
+from app.utils.auth import SECRET_KEY, ALGORITHM
 from strawberry.subscriptions import GRAPHQL_WS_PROTOCOL, GRAPHQL_TRANSPORT_WS_PROTOCOL
 from app.schema.types import broadcast
+from typing import Any
 
 
-async def get_context():
-  return {"db_factory": SessionLocal}
+async def get_context(request: Request):
+  context: dict[str, Any] =  {
+    "db_factory": SessionLocal,
+    "user" : None
+    }
+  
+  
+
+  if request and hasattr(request,"headers"):
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer"):
+      token = auth_header.split(" ")[1]
+      try:
+        decoded_token = jwt.decode(jwt=token, key=SECRET_KEY, algorithms=[ALGORITHM])
+        context["user"] = decoded_token
+      except:
+        raise Exception("Usuario no authenticado")
+  
+  return context
+
 
 app = FastAPI()
 
@@ -34,5 +55,5 @@ app.add_event_handler("shutdown", broadcast.disconnect)
 
 
 if __name__ == "__main__":
-  #uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
-  uvicorn.run("app.main:app", host="127.0.0.1", port=8000, workers=3)
+  uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+  #uvicorn.run("app.main:app", host="127.0.0.1", port=8000, workers=3)

@@ -14,6 +14,7 @@ from fastapi.concurrency import run_in_threadpool
 import asyncio
 from sqlalchemy import select
 from app.utils.auth import create_access_token
+from app.utils.permissions import IsAuthenticated
 
 
 @strawberry.type
@@ -83,7 +84,7 @@ class Mutation:
       )
     
 
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:
     async with info.context['db_factory']() as session:
       author = Author(
@@ -99,7 +100,7 @@ class Mutation:
 
       return author_to_type(author)
 
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def update_author(self, input: UpdateAuthorInput, info: Info) -> AuthorType:
 
     await broadcast.publish(channel="NOTIFICATIONS", message="Incializando actualizacion")
@@ -132,7 +133,7 @@ class Mutation:
 
       return author_to_type(author)
 
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def delete_author(self, id: int, info: Info) -> bool:
     async with info.context['db_factory']() as session:
       result = await session.execute(select(Author).filter(Author.id == id))
@@ -144,7 +145,7 @@ class Mutation:
       await session.commit()
       return True
 
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def create_book(self, input: CreateBookInput, info: Info) -> BookType:
     await asyncio.sleep(1)
     async with info.context['db_factory']() as session:
@@ -170,7 +171,7 @@ class Mutation:
       
       return book_to_type(book)
 
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def update_book(self, input: UpdateBookInput, info: Info) -> BookType:
     await asyncio.sleep(2)
 
@@ -195,7 +196,7 @@ class Mutation:
       
       return book_to_type(book)
 
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def delete_book(self, id: int, info: Info) -> bool:
     async with info.context['db_factory']() as session:
       result = await session.execute(select(Book).filter(Book.id == id))
@@ -207,7 +208,7 @@ class Mutation:
       await session.commit()
       return True
 
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def start_reading(self, input: StartReadingInput, info: Info) -> ReadingStateType:
     async with info.context['db_factory']() as session:
       result = await session.execute(select(Book).filter(Book.id == input.book_id))
@@ -218,7 +219,7 @@ class Mutation:
       reading_state = ReadingState(
         book_id=input.book_id,
         user_id=input.user_id,
-        current_page=0
+        current_page=1
       )
       
       session.add(reading_state)
@@ -227,7 +228,7 @@ class Mutation:
       
       return reading_state_to_type(reading_state)
 
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def update_progress(self, input: UpdateProgressInput, info: Info) -> ReadingStateType:
     async with info.context['db_factory']() as session:
       result = await session.execute(select(ReadingState).filter(ReadingState.id == input.id))
@@ -250,7 +251,7 @@ class Mutation:
       
       return reading_state_to_type(reading_state)
 
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def finish_reading(self, input: FinishReadingInput, info: Info) -> ReadingStateType:
     async with info.context['db_factory']() as session:
       result = await session.execute(select(ReadingState).filter(ReadingState.id == input.id))
@@ -265,12 +266,12 @@ class Mutation:
       
       return reading_state_to_type(reading_state)
   
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def add_rating(self, text: str) -> str:
     await broadcast.publish(channel="RATINGS",message=text)
     return text
 
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def generate_reporting(self, author_id: int) -> str:
 
     def heavy_work():
@@ -282,7 +283,7 @@ class Mutation:
     result = await run_in_threadpool(heavy_work)
     return f"hecho {result}"
   
-  @strawberry.mutation
+  @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def send_book_chat_message(
     self,
     book_id: int,

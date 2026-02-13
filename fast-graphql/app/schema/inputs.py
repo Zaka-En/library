@@ -39,7 +39,7 @@ class UpdateBookInput:
 @strawberry.input
 class StartReadingInput:
   book_id: int
-  user_id: str
+  user_id: int
 
 
 @strawberry.input

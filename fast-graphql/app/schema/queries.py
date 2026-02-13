@@ -156,7 +156,7 @@ class Query:
       return book_to_type(book) if book else None
 
   @strawberry.field
-  async def my_reading_progress(self, user_id: str, info: Info) -> List[ReadingStateType]:
+  async def my_reading_progress(self, user_id: int, info: Info) -> List[ReadingStateType]:
     async with info.context['db_factory']() as session:
       result = await session.execute(
           select(ReadingState).filter(
