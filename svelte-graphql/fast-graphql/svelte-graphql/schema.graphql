@@ -77,8 +77,9 @@ input LoginInput {
 
 type LoginResponse {
   accessToken: String!
+  refreshToken: String!
   tokenType: String!
-  user: UserType!
+  user: UserType
 }
 
 type Mutation {
@@ -90,6 +91,7 @@ type Mutation {
   finishReading(input: FinishReadingInput!): ReadingStateType!
   generateReporting(authorId: Int!): String!
   login(data: LoginInput!): LoginResponse!
+  refreshToken: LoginResponse!
   registerUser(data: RegisterInput!): UserType!
   sendBookChatMessage(bookId: Int!, message: String!, userName: String!): Boolean!
   startReading(input: StartReadingInput!): ReadingStateType!

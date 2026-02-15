@@ -18,10 +18,11 @@ export const load: LayoutLoad = async ( event ) => {
   const id = Number(atob(event.params.id).split(':').at(-1))
 
   await store.fetch({
-
+    
     variables: {
       id
-    }
+    },
+    event
   })
 
 	return { store };

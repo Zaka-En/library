@@ -10,7 +10,7 @@
   const authorsStore =  $derived(data.GetAuthors)
   
   let authors = $derived($authorsStore.data?.authors?.edges ?? []);
-  let pageInfo = $derived($authorsStore.pageInfo)
+  let pageInfo = $derived($authorsStore.data?.authors.pageInfo)
   let fetching = $derived($authorsStore.fetching)
   
   
@@ -35,7 +35,7 @@
     <AuthorsList 
   
     noMoreData = {!pageInfo.hasNextPage}
-    loading = {$authorsStore.fetching}
+    loading = {fetching}
     onLoadMore= {() => {
       authorsStore.loadNextPage({
         first: 10

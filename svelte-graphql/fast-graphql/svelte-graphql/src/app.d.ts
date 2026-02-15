@@ -9,16 +9,12 @@ declare global {ç
 		interface Locals{
 			token: string
 			user:{
-				token: string
-				id:string
+				email: string
 				name:string
 				rol:string
 			}| null ;
 		}
 
-		interface Session{
-			token: string
-		}
 
 	}
 

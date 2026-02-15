@@ -6,6 +6,7 @@ const loginStore = graphql(
   `mutation Login($data: LoginInput!) {
     login(data: $data) {
       accessToken
+      refreshToken
       tokenType
       user {
         email
@@ -20,35 +21,48 @@ const loginStore = graphql(
 
 export const actions: Actions = {
   default: async (event) => {
-  const data = await event.request.formData();
-  const email = data.get('email') as string;
-  const password = data.get('password') as string;
+    const data = await event.request.formData();
+    const email = data.get('email') as string;
+    const password = data.get('password') as string;
 
 
-  const response = await loginStore.mutate(
+    const response = await loginStore.mutate(
       { data: { email, password } },
       { event } 
-  );
+    );
 
-  console.log('Respuesta Houdini:', JSON.stringify(response, null, 2));
+    
 
-  if (response.errors) {
-    return fail(400, {error: response.errors[0].message})
-  }
+    if (response.errors) {
+      return fail(401, {error: response.errors[0].message})
+    }
 
-  const token = response.data?.login.accessToken;
+    const accessToken = response.data?.login.accessToken;
+    const refreshToken = response.data?.login.refreshToken;
 
-  if (token) {
-    event.cookies.set('access_token',token, {
+    if (accessToken) {
+      event.cookies.set('access_token', accessToken, {
+        path: '/',
+        httpOnly: true,
+        //secure: true,
+        sameSite: 'lax',
+        maxAge: 15 * 60
+      });
+    }
+      
+    if(refreshToken){
+      event.cookies.set('refresh_token', refreshToken, {
       path: '/',
       httpOnly: true,
+      //secure: true,
       sameSite: 'strict',
-      maxAge: 60 * 60 * 24
+      maxAge: 6 * 30 * 24 * 60 * 60
     });
+    }
+    
+    
+    throw redirect(303, event.url.searchParams.get("redirect") ?? "/books")
 
-    throw redirect(303, 'authors');
-  }
-
-    return fail(400,{ error: 'Login fallido' })
+    
   }
 };

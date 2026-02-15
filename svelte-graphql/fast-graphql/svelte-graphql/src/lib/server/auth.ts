@@ -1,28 +1,26 @@
-import { jwtDecode } from "jwt-decode";
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET_KEY } from '$env/static/private'
 
-export interface UserPayLoad{
-  token: string;
-  id: string
+export interface UserPayLoad {
+  //id: string
   name: string
+  email: string
   rol: string
 }
 
 export function authenticateUser(token: string | undefined): UserPayLoad | null {
-  if(!token ) return null
+  if (!token) return null;
   
-  try{
-    const decoded: any = jwtDecode(token)
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET_KEY, {
+      algorithms: ['HS256']
+    }) as any;
     
-    const isExpired = decoded.exp * 1000 < Date.now();
-    if(isExpired) return null;
-
-    return{
-      token,
-      id: decoded.sub,
-      name: decoded.name,
-      rol: decoded.rol
-    }
-  }catch(error){
-    return null
+    
+    if (decoded.refresh) return null;
+    
+    return decoded.user; // Devuelve el objeto user del payload
+  } catch {
+    return null;
   }
 }
