@@ -75,8 +75,9 @@ class UserType:
 @strawberry.type
 class LoginResponse:
   access_token: str
+  refresh_token : str
   token_type: str
-  user: UserType
+  user: Optional[UserType] = None
 
 @strawberry.type
 class CustomPageInfo(strawberry.relay.PageInfo):

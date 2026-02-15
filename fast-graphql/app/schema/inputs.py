@@ -13,14 +13,14 @@ class CreateAuthorInput:
 @strawberry.input
 class UpdateAuthorInput:
   id:int 
-  name:  Optional[str]
-  biography: Optional[str]
-  fullname: Optional[str]
-  country: Optional[str]
+  name:  Optional[str] = strawberry.UNSET
+  biography: Optional[str] =  strawberry.UNSET
+  fullname: Optional[str] =  strawberry.UNSET
+  country: Optional[str] =  strawberry.UNSET
 
 @strawberry.input
 class CreateBookInput:
-  title: str
+  title: str 
   isbn: str
   publication_year: int
   pages: int
@@ -29,11 +29,11 @@ class CreateBookInput:
 @strawberry.input
 class UpdateBookInput:
   id:int
-  title: Optional[str]
-  isbn: Optional[str]
-  publication_year: Optional[int]
-  pages: Optional[int]
-  author_id: Optional[int]
+  title: Optional[str] = strawberry.UNSET
+  isbn: Optional[str] = strawberry.UNSET
+  publication_year: Optional[int] = strawberry.UNSET
+  pages: Optional[int] = strawberry.UNSET
+  author_id: Optional[int] = strawberry.UNSET
 
 
 @strawberry.input

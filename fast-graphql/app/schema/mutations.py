@@ -7,14 +7,18 @@ from app.models.book import Book
 from app.models.user import User
 from app.models.reading_state import ReadingState
 from .convertors import *
-from datetime import datetime
+from datetime import datetime,timedelta
 from time import sleep
-from random import randint
 from fastapi.concurrency import run_in_threadpool
 import asyncio
 from sqlalchemy import select
 from app.utils.auth import create_access_token
 from app.utils.permissions import IsAuthenticated
+from app.utils.auth import decode_token
+from fastapi import Request, Response
+
+
+REFRESH_TOKEN_EXPIRY= 6 * 30
 
 
 @strawberry.type
@@ -60,19 +64,30 @@ class Mutation:
 
       query = select(User).where(User.email == data.email)
       result = await session.execute(query)
-      user = result.scalar_one_or_none()
+      user: User = result.scalar_one_or_none()
 
       if not user or not user.verify_password(data.password):
         raise Exception("Credenciales incorrectas")
-
-      token = create_access_token(data={
-        "sub": str(user.id),
+      
+      user_data= {
+        "email": user.email,
         "name": user.name,
         "rol": user.rol
-      })
+      }
+
+      access_token = create_access_token(
+        user_data= user_data
+      )
+
+      refresh_token = create_access_token(
+        user_data=user_data,
+        expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
+        refresh=True
+      )
 
       return LoginResponse(
-        access_token=token,
+        access_token=access_token,
+        refresh_token=refresh_token,
         token_type="bearer",
         user=UserType(
           id=strawberry.ID(str(user.id)),
@@ -82,7 +97,68 @@ class Mutation:
           rol=user.rol
         )
       )
+
+  @strawberry.mutation
+  async def refresh_token(self, info: Info) -> LoginResponse:
+
+    request: Request = info.context["request"]
+    response: Response = info.context["response"]
+
+    refresh_token = request.cookies.get("refresh_token", "")
+   
+    token_data = decode_token(refresh_token)
+
+    if not token_data.get("refresh"):
+        raise Exception("PROVIDED TOKEN IS NOT A REFRESH TOKEN")
     
+    exp = token_data.get("exp")
+    if not exp or datetime.fromtimestamp(exp) < datetime.now():
+        raise Exception("REFRESH TOKEN EXPIRED")
+    
+    user_data = token_data.get("user")
+    if not user_data:
+        raise Exception("INVALID TOKEN")
+    
+    new_access_token = create_access_token(user_data=user_data)
+
+    response.set_cookie(
+      key="access_token",
+      value=new_access_token,
+      httponly=True,
+      samesite="strict",
+      #secure=True, 
+      max_age=900  # 15 minutos
+    )
+
+    return LoginResponse(
+      access_token=new_access_token,
+      refresh_token=refresh_token,
+      token_type="bearer"
+    )
+
+    """ token_data = decode_token(refresh_token)
+
+    if not token_data.get("refresh"):
+      raise Exception("El token proporcionado no es un refresh token")
+    
+    # verify expiry
+    exp = token_data.get("exp")
+    if not exp or datetime.fromtimestamp(exp) < datetime.now():
+      raise Exception("Refresh token expirado")
+    
+    # get user data
+    user_data = token_data.get("user")
+    if not user_data:
+      raise Exception("Token inválido")
+    
+    new_access_token = create_access_token(user_data=user_data)
+    
+    return LoginResponse(
+      access_token=new_access_token,
+      refresh_token=refresh_token,
+      token_type="bearer"
+    )
+  """
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:
@@ -173,10 +249,6 @@ class Mutation:
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def update_book(self, input: UpdateBookInput, info: Info) -> BookType:
-    await asyncio.sleep(2)
-
-    if randint(1, 2) == 2:
-      raise Exception("ha fallado porque no tiene suerte")
 
     async with info.context['db_factory']() as session:
       result = await session.execute(select(Book).filter(Book.id == input.id))
@@ -184,7 +256,7 @@ class Mutation:
       if not book:
         raise ValueError(f"Book with id {input.id} not found")
       
-     
+      
       input_dict = vars(input)
 
       for key, value in input_dict.items():

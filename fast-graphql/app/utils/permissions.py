@@ -1,10 +1,32 @@
 from strawberry.permission import BasePermission
 from strawberry.types import Info
 from typing import Any
+from fastapi import Request
+from app.utils.auth import decode_token
 
 class IsAuthenticated(BasePermission):
-  message = "User not authenticated or invalid token"
+  message = "Token expired"
 
   def has_permission(self, source: Any, info: Info, **kwargs) -> bool:
-    user = info.context.get("user")
-    return user is not None
+    request: Request = info.context.get("request")
+
+    if not request:
+      return False
+    
+    access_token: str = request.cookies.get("access_token", "")
+
+    try:
+
+      decoded = decode_token(access_token)
+
+      if decoded.get("refresh"):
+        return False
+      
+      info.context["user"] = decoded["user"]
+
+      return True
+    
+    except Exception as e :
+      return False
+
+    
