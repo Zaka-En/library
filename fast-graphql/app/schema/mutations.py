@@ -16,6 +16,9 @@ from app.utils.auth import create_access_token
 from app.utils.permissions import IsAuthenticated
 from app.utils.auth import decode_token
 from fastapi import Request, Response
+from app.services.user_service import UserService
+from app.services.author_service import AuthorService
+from app.services.book_service import BookService
 
 
 REFRESH_TOKEN_EXPIRY= 6 * 30
@@ -25,78 +28,39 @@ REFRESH_TOKEN_EXPIRY= 6 * 30
 class Mutation:
   @strawberry.mutation
   async def register_user(self, info: Info, data: RegisterInput) -> UserType:
-    db_factory = info.context["db_factory"]
+    user_service: UserService = info.context["user_service"]
 
-    async with db_factory() as session:
-
-      hash_pw = User.hash_password(data.password)
-
-      new_user = User(
-        name=data.name,
-        fullname=data.fullname,
-        password=hash_pw,
-        rol=data.rol,
-        email=data.email
-      )
-
-      session.add(new_user)
-
-      try:
-        await session.commit()
-        await session.refresh(new_user)
-      except Exception as e:
-        await session.rollback()
-        raise e
+    try:
+      new_user = await user_service.register(data=data)
+    except Exception as e:
+      raise e
     
-      return UserType(
-        id=strawberry.ID(str(new_user.id)),
-        fullname=new_user.fullname,
-        name=new_user.name,
-        email=new_user.email,
-        rol=new_user.rol
-      )
+    return UserType(
+      id=strawberry.ID(str(new_user.id)),
+      fullname=new_user.fullname,
+      name=new_user.name,
+      email=new_user.email,
+      rol=new_user.rol
+    )
       
   @strawberry.mutation
   async def login(self, info: Info, data: LoginInput) -> LoginResponse:
-    db_factory = info.context["db_factory"]
-    
-    async with db_factory() as session:
+    user_service: UserService = info.context["user_service"]
 
-      query = select(User).where(User.email == data.email)
-      result = await session.execute(query)
-      user: User = result.scalar_one_or_none()
+    user, access_token, refresh_token = await user_service.authenticate(data=data)
 
-      if not user or not user.verify_password(data.password):
-        raise Exception("Credenciales incorrectas")
-      
-      user_data= {
-        "email": user.email,
-        "name": user.name,
-        "rol": user.rol
-      }
-
-      access_token = create_access_token(
-        user_data= user_data
+    return LoginResponse(
+      access_token=access_token,
+      refresh_token=refresh_token,
+      token_type="bearer",
+      user=UserType(
+        id=strawberry.ID(str(user.id)),
+        email=user.email,
+        name=user.name,
+        fullname=user.fullname,
+        rol=user.rol
       )
-
-      refresh_token = create_access_token(
-        user_data=user_data,
-        expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
-        refresh=True
-      )
-
-      return LoginResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type="bearer",
-        user=UserType(
-          id=strawberry.ID(str(user.id)),
-          email=user.email,
-          name=user.name,
-          fullname=user.fullname,
-          rol=user.rol
-        )
-      )
+    )
 
   @strawberry.mutation
   async def refresh_token(self, info: Info) -> LoginResponse:
@@ -162,52 +126,16 @@ class Mutation:
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:
-    async with info.context['db_factory']() as session:
-      author = Author(
-        name=input.name,
-        biography=input.biography,
-        fullname=input.fullname,
-        country=input.country
-      )
-
-      session.add(author)
-      await session.commit()
-      await session.refresh(author)
-
-      return author_to_type(author)
+    author_service: AuthorService = info.context["author_service"]
+    author = await author_service.create(data=input)
+    return author_to_type(author=author)
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def update_author(self, input: UpdateAuthorInput, info: Info) -> AuthorType:
-
-    await broadcast.publish(channel="NOTIFICATIONS", message="Incializando actualizacion")
-    await asyncio.sleep(3)
-    await broadcast.publish(channel="NOTIFICATIONS", message="Validando sus datos")
-    await asyncio.sleep(3)
-
-    async with info.context['db_factory']() as session:
-      result = await session.execute(select(Author).filter(Author.id == input.id))
-      author = result.scalar_one_or_none()
-      if not author:
-        raise ValueError(f"Author with id {input.id} not found")
-      
-      
-      input_dict = vars(input)
-      
-      for key, value in input_dict.items():
-        if key != 'id' and value is not None:
-          setattr(author, key, value)
-
-      try:
-        await session.commit()
-        await session.refresh(author)
-      except Exception as e:
-        await session.rollback()
-        raise e
-      
-      await broadcast.publish(channel="NOTIFICATIONS", message="¡Autor actualizado con éxito!")
-      await asyncio.sleep(3)
-
-      return author_to_type(author)
+    author_service: AuthorService = info.context["author_service"]
+    author = await author_service.update(data_input=input)
+    return author_to_type(author=author)
+    
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def delete_author(self, id: int, info: Info) -> bool:
@@ -223,62 +151,19 @@ class Mutation:
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def create_book(self, input: CreateBookInput, info: Info) -> BookType:
-    await asyncio.sleep(1)
-    async with info.context['db_factory']() as session:
-      result = await session.execute(select(Book).filter(Book.isbn == input.isbn))
-      isbnAlreadyExists = result.scalar_one_or_none()
-
-      if isbnAlreadyExists:
-        raise Exception("UNIQUE ISBN RULE VIOLATED")   
-      elif len(input.isbn) < 13:
-        raise  Exception("INVALID ISBN: exactly 13 characters")   
-
-      book = Book(
-        title=input.title,
-        isbn=input.isbn,
-        publication_year=input.publication_year,
-        pages=input.pages,
-        author_id=input.author_id
-      )
-      
-      session.add(book)
-      await session.commit()
-      await session.refresh(book)
-      
-      return book_to_type(book)
+    book_service: BookService = info.context["book_service"]
+    book = await book_service.create(input=input)
+    return book_to_type(book)
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def update_book(self, input: UpdateBookInput, info: Info) -> BookType:
-
-    async with info.context['db_factory']() as session:
-      result = await session.execute(select(Book).filter(Book.id == input.id))
-      book = result.scalar_one_or_none()
-      if not book:
-        raise ValueError(f"Book with id {input.id} not found")
-      
-      
-      input_dict = vars(input)
-
-      for key, value in input_dict.items():
-        if key != 'id' and value is not None:
-          setattr(book,key,value)
-      
-      await session.commit()
-      await session.refresh(book)
-      
-      return book_to_type(book)
+    book_service: BookService = info.context["book_service"]
+    book = await book_service.update(input=input)
+    return book_to_type(book)
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def delete_book(self, id: int, info: Info) -> bool:
-    async with info.context['db_factory']() as session:
-      result = await session.execute(select(Book).filter(Book.id == id))
-      book = result.scalar_one_or_none()
-      if not book:
-        return False
-      
-      await session.delete(book)
-      await session.commit()
-      return True
+    return await info.context["book_service"].delete(id=id) 
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def start_reading(self, input: StartReadingInput, info: Info) -> ReadingStateType:

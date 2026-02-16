@@ -7,12 +7,12 @@ from app.models.book import Book
 from app.models.reading_state import ReadingState
 from .convertors import *
 from strawberry import relay
-import base64
 from sqlalchemy import select
 from typing import  AsyncGenerator, Tuple
 import asyncio
-from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
+from app.services.author_service import AuthorService
+from app.services.book_service import BookService
 
 
 VALORACIONES = [
@@ -58,102 +58,60 @@ class Query:
 
   @strawberry.field
   async def authors_query (self, info: Info) -> List[AuthorType]:
-    async with info.context['db_factory']() as session:
-      result = await session.execute(
-        select(Author)
-      )
-      authors = result.scalars().all()
-      return [author_to_type(author) for author in authors]
+    author_service: AuthorService = info.context["author_service"]
+    authors = await author_service.get_all()
+    return [author_to_type(a) for a in authors]
 
   @strawberry.field
   async def authors(
     self,
     info: Info,
     first: Optional[int] = None, 
-    after: Optional[str] = None) -> AuthorConnection:
+    after: Optional[str] = None
+    ) -> AuthorConnection:
 
-    async with info.context['db_factory']() as session:
-      after_id = 0
-      first = first if first else 5
-      has_next_page = False
+    author_service: AuthorService = info.context["author_service"]
+    
+    result = await author_service.get_paginated(
+      limit=first or 5, 
+      after_cursor=after
+    )
 
-      if after:
-        decoded_cursor = base64.b64decode(after).decode().split(':')[-1]
-        after_id =  int(decoded_cursor)
+    edges = [
+      relay.Edge(
+          node=author_to_type(author),
+          cursor=author_service._encode_cursor(author.id)
+      ) for author in result.items
+    ]
 
-      #este es generador, cada vez que hace un viaje hacia mariadb trae (first + 1) elementos 
-      async def authors_generator( session: AsyncSession, first: int , after_id: int = 0 ):
-        query = select(Author).order_by(Author.id)
-
-        if after_id:
-          query = query.filter(Author.id > after_id)
-
-        query = query.limit(first + 1)
-      
-        result = await session.execute(query)
-
-        for author in result.scalars():
-          yield author
-
-      authors_stream = authors_generator(session,first, after_id)
-
-      async def edges_generator(stream, limit: int):
-        nonlocal has_next_page
-        i = 0
-        async for author in stream:
-          if i < limit:
-            yield relay.Edge(
-              node=author_to_type(author),
-              cursor=base64.b64encode(f"arrayconnection:{author.id}".encode()).decode()
-            )
-            i += 1
-          else:
-            has_next_page = True
-            return
-
-      edges_gen= edges_generator(stream=authors_stream,limit=first)
-
-      edges = [edge async for edge in edges_gen]
-
-      end_cursor = edges[-1].cursor if edges else None
-      start_cursor = edges[0].cursor if edges else None
-
-      return AuthorConnection(
-        edges=edges,
-        page_info= CustomPageInfo(
-          has_previous_page=False,
-          has_next_page=has_next_page,
-          end_cursor=end_cursor,
-          start_cursor=start_cursor,
-          total_count=len(edges)
-        )
+    return AuthorConnection(
+      edges=edges,
+      page_info= CustomPageInfo(
+        has_previous_page=False,
+        has_next_page=result.has_next_page,
+        end_cursor=result.end_cursor,
+        start_cursor=result.start_cursor,
+        total_count=len(edges)
       )
-
+    )
 
   @strawberry.field
   async def author(self, id: int, info: Info) -> Optional[AuthorType]:
-    async with info.context['db_factory']() as session:
-      result = await session.execute(
-          select(Author).filter(Author.id == id)
-      )
-      author = result.scalar_one_or_none()
-      return author_to_type(author) if author else None
+    author_service: AuthorService = info.context["author_service"]
+    author = await author_service.get_by_id(id)
+    return author_to_type(author) if author else None
 
   @strawberry.field
   async def books(self, info: Info) -> List[BookType]:
-    async with info.context['db_factory']() as session:
-      result = await session.execute(select(Book))
-      books = result.scalars().all()
-      return [book_to_type(book) for book in books]
+    book_service: BookService = info.context["book_service"]
+    books = await book_service.get_all()
+    return [book_to_type(b) for b in books]
 
   @strawberry.field
   async def book(self, id: int, info: Info) -> Optional[BookType]:
-    async with info.context['db_factory']() as session:
-      result = await session.execute(
-          select(Book).filter(Book.id == id)
-      )
-      book = result.scalar_one_or_none()
-      return book_to_type(book) if book else None
+    book_service: BookService = info.context["book_service"]
+    book: Book = await book_service.get_by_id(book_id=id)
+    return book_to_type(book) if book else None
 
   @strawberry.field
   async def my_reading_progress(self, user_id: int, info: Info) -> List[ReadingStateType]:

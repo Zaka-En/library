@@ -1,18 +1,39 @@
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 from app.schema import schema
-from app.database import  SessionLocal
+from app.database import  get_db_session
 import uvicorn
 from strawberry.subscriptions import GRAPHQL_WS_PROTOCOL, GRAPHQL_TRANSPORT_WS_PROTOCOL
 from app.schema.types import broadcast
+from app.services.user_service import UserService
+from app.services.author_service import AuthorService
+from app.services.book_service import BookService
+from typing import Annotated
+from app.schema.types import broadcast
 
 
-async def get_context(request: Request, response: Response):
+async def get_user_service(session = Depends(get_db_session)):
+  return UserService(session=session)
+
+async def get_author_service(session= Depends(get_db_session)):
+  return AuthorService(session=session,broadcast=broadcast)
+
+async def get_book_service(session=Depends(get_db_session)):
+  return BookService(session=session)
+
+async def get_context(
+  request: Request,
+  response: Response,
+  user_service: Annotated[UserService,Depends(get_user_service)],
+  author_service: Annotated[AuthorService,Depends(get_author_service)],
+  book_service: Annotated[BookService,Depends(get_book_service)]):
   return {
-    "db_factory": SessionLocal,
     "request": request,
-    "response": response
+    "response": response,
+    "user_service": user_service,
+    "author_service": author_service,
+    "book_service": book_service
   }
 
 
