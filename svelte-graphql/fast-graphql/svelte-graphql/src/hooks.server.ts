@@ -8,9 +8,6 @@ export const handle: Handle = async ({ event, resolve }) => {
   const refreshToken = event.cookies.get('refresh_token');
   let user: UserPayLoad | null = authenticateUser(accessToken);
 
-  
-
-
   if (!user && refreshToken) {
     console.log("Token expirado en servidor. Intentando Refresh...");
 
@@ -43,7 +40,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         event.cookies.set('access_token', newAccessToken, {
           path: '/',
           httpOnly: true,
-          sameSite: 'lax',
+          sameSite: 'strict',
           //secure: true
           maxAge: 15 * 60 // 15 min
         });
@@ -59,7 +56,6 @@ export const handle: Handle = async ({ event, resolve }) => {
       console.error("Error de red en refresh server:", error);
     }
   }
-
 
   event.locals.user = user;
   event.locals.token = accessToken;

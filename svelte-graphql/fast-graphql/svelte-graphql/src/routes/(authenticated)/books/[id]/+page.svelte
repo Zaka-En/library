@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { graphql } from '$houdini';
   import type { LayoutProps } from './$types';
+ import { goto } from '$app/navigation';
 
   const { data } : LayoutProps = $props();
 
@@ -30,6 +32,42 @@
 			birthDay = new Date(val)
 		}
 	}
+
+  const startReadingStore = graphql(
+    `
+      mutation StartReading($input: StartReadingInput!){
+        startReading(input: $input){
+          id
+          bookId
+        }
+      }
+    `
+  )
+
+
+  const startReadingAction = async () => {
+
+
+    try {
+      if(book?.id){
+      await startReadingStore.mutate({ 
+        input: { 
+          bookId: book.id, 
+          userId: 5 
+        } 
+      })
+    }
+    } catch (error) {
+      console.error("Error",error)
+    }
+
+    
+    goto("/")
+  }
+  
+
+ 
+  
 
 
 
@@ -97,7 +135,7 @@
           <!-- Actions -->
           <div class="pt-6 space-y-3">
             <button 
-              
+              onclick={startReadingAction}
               class="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition font-medium"
             >
               📖 Empezar a Leer

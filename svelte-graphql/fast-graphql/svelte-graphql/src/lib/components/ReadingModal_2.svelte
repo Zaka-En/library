@@ -38,6 +38,7 @@
   async function handleUpdate() {
     if (!reading) return;
     isSubmitting = true;
+    console.log("FROM READINGMODAL ONUPDATE:", reading.id)
     await updateStore.mutate({ 
       input: { id: Number(reading.id), currentPage: newPage } 
     });

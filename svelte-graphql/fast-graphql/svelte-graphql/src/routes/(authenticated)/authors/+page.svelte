@@ -1,13 +1,12 @@
 <script lang="ts">
   import AuthorsList from "$lib/components/AuthorsList.svelte";
-  import { graphql } from "$houdini"; 
   import type { PageProps } from "./$types";
 
   let { data } : PageProps = $props()
   let { user } = $derived(data)
 
 
-  const authorsStore =  $derived(data.GetAuthors)
+  const authorsStore =  $derived(data.authorsStore)
   
   let authors = $derived($authorsStore.data?.authors?.edges ?? []);
   let pageInfo = $derived($authorsStore.data?.authors.pageInfo)
@@ -34,7 +33,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-2">
     <AuthorsList 
   
-    noMoreData = {!pageInfo.hasNextPage}
+    noMoreData = {!pageInfo?.hasNextPage}
     loading = {fetching}
     onLoadMore= {() => {
       authorsStore.loadNextPage({
