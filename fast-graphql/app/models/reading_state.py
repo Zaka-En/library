@@ -1,7 +1,7 @@
 from app.database import Base
 from typing import Optional
-from sqlalchemy import ForeignKey, String, Integer, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey, Integer, DateTime
+from sqlalchemy.orm import Mapped, mapped_column, relationship, joinedload
 from sqlalchemy.sql import func
 from datetime import datetime
 
@@ -21,12 +21,13 @@ class ReadingState(Base):
   )
 
   user_id: Mapped[int] = mapped_column(
-    Integer,
+    
+    ForeignKey("users.id"),
     nullable=False
   )
 
   current_page: Mapped[int] = mapped_column(
-    ForeignKey("users.id"),
+    Integer,
     nullable=False
   )
 

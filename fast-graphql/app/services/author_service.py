@@ -30,6 +30,10 @@ class AuthorService:
     result = await self.session.execute(select(Author).filter(Author.id == author_id))
     return result.scalar_one_or_none()
 
+  async def get_by_ids(self, authors_ids: list[int]) -> List[Author]:
+    return list((await self.session.execute(select(Author).where(Author.id.in_(authors_ids)))).scalars().all())
+    
+
   async def create(self, data: CreateAuthorInput) -> Author:
     author = Author(
         name=data.name,
@@ -105,3 +109,14 @@ class AuthorService:
       start_cursor=start_cursor,
       end_cursor=end_cursor
     )
+  
+  async def delete(self, author_id: int ) -> bool:
+    query = await self.session.execute(select(Author).filter(Author.id == author_id))
+    author = query.scalar_one_or_none()
+
+    if not author:
+      return False
+    
+    await self.session.delete(author)
+    await self.session.commit()
+    return True

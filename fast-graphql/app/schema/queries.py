@@ -7,12 +7,12 @@ from app.models.book import Book
 from app.models.reading_state import ReadingState
 from .convertors import *
 from strawberry import relay
-from sqlalchemy import select
 from typing import  AsyncGenerator, Tuple
 import asyncio
 from datetime import datetime
 from app.services.author_service import AuthorService
 from app.services.book_service import BookService
+from app.services.reading_state_service import ReadingStateService
 
 
 VALORACIONES = [
@@ -22,34 +22,6 @@ VALORACIONES = [
   "No entendí el final",
   "Obra maestra contemporánea"
 ]
-
-
-@strawberry.type
-class Subscription:
-
-  @strawberry.subscription
-  async def book_ratings(self) -> AsyncGenerator[str, None]:
-    async with broadcast.subscribe(channel="RATINGS") as subscriber:
-      while True:
-        event = await subscriber.get()
-        yield event.message
-  
-  @strawberry.subscription
-  async def update_author_notifications(self) -> AsyncGenerator[str, None]:
-    async with broadcast.subscribe(channel="NOTIFICATIONS") as subscriber:
-      while True:
-        event = await subscriber.get()
-        yield event.message
-
-  @strawberry.subscription
-  async def book_chat(self, book_id: int) -> AsyncGenerator[str,None] :
-    channel = f"BOOK_CHAT_{book_id}"
-    async with broadcast.subscribe(channel=channel) as subscriber:
-      while True:
-        event = await subscriber.get()
-        print(f"PUBLISHED to all subscriber : {event.message}")
-        yield event.message
-    
 
 
 
@@ -115,15 +87,10 @@ class Query:
 
   @strawberry.field
   async def my_reading_progress(self, user_id: int, info: Info) -> List[ReadingStateType]:
-    async with info.context['db_factory']() as session:
-      result = await session.execute(
-          select(ReadingState).filter(
-              ReadingState.user_id == user_id,
-              ReadingState.finish_date == None
-          )
-      )
-      books_in_progress = result.scalars().all()
-      return [reading_state_to_type(book) for book in books_in_progress]
+    service: ReadingStateService = info.context["reading_state_service"]
+    reading_states = await service.get_user_progress(user_id=user_id)
+
+    return [reading_state_to_type(r) for r in reading_states]
 
   @strawberry.field
   async def recomendations(self, user: str) -> Tuple[str,str,str]: 

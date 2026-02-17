@@ -4,6 +4,7 @@ from typing import Any
 from fastapi import Request
 from app.utils.auth import decode_token
 
+#TODO devolver 40* en vez de mensaje
 class IsAuthenticated(BasePermission):
   message = "Token expired"
 
@@ -29,4 +30,9 @@ class IsAuthenticated(BasePermission):
     except Exception as e :
       return False
 
-    
+#TODO: METER EN DEPENDENCIES
+usedPemissions = set()
+
+@cached
+def RBAC(roles):
+  ....

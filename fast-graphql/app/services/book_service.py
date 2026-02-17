@@ -1,10 +1,12 @@
 # app/services/book_service.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from app.models.book import Book
 from app.models.author import Author
-from typing import Sequence, Optional
+from typing import Sequence, Optional, List
 from app.schema.inputs import CreateBookInput, UpdateBookInput
+
 
 
 class BookService:
@@ -12,14 +14,19 @@ class BookService:
     self.session = session
 
   async def get_all(self) -> Sequence[Book]:
-    # Aquí podríá añadir un .options(selectinload(Book.author)) 
-    # para evitar el problema de N+1 queries
+    
     result = await self.session.execute(select(Book))
     return result.scalars().all()
 
   async def get_by_id(self, book_id: int) -> Book:
     result = await self.session.execute(select(Book).filter(Book.id == book_id))
     return result.scalar_one_or_none()
+  
+  async def get_by_ids(self, books_ids: list[int]) -> List[Book]:
+    return list((await self.session.execute(select(Book).where(Author.id.in_(books_ids)))).scalars().all())
+  
+  async def get_by_author_ids(self, authors_ids: list[int]) ->  List[Book]:
+    return list((await self.session.execute(select(Book).where(Book.author_id.in_(authors_ids)))).scalars().all())
 
   async def create(self, input: CreateBookInput):
     
@@ -73,3 +80,8 @@ class BookService:
     await self.session.commit()
 
     return True
+  
+  async def get_by_author(self, author_id: int) -> List[Book]:
+    query = select(Book).filter(Book.author_id == author_id)
+    result = await self.session.execute(query)
+    return list(result.scalars().all())

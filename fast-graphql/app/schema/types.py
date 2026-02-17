@@ -7,6 +7,8 @@ from typing import TypeVar
 from broadcaster import Broadcast
 from app.models.author import Author
 from app.models.book import Book
+from strawberry.dataloader import DataLoader
+
 
 broadcast = Broadcast("redis://localhost:6379")
 
@@ -21,12 +23,9 @@ class AuthorType(strawberry.relay.Node):
   @strawberry.field
   async def books(self, info: Info) -> List["BookType"]:
     from .convertors import book_to_type
-    async with info.context['db_factory']() as session:
-      query = select(Book).filter(Book.author_id == self.id)
-      result = await session.execute(query)
-      books = result.scalars().all()
-      return [book_to_type(book) for book in books]
-
+    books = await info.context["books_by_author_loader"].load(self.id)  
+    return [book_to_type(b) for b in books] 
+  
 @strawberry.type
 class BookType:
   id: int
@@ -39,13 +38,10 @@ class BookType:
   @strawberry.field
   async def author(self, info: Info) -> Optional["AuthorType"]:
     from .convertors import author_to_type
-    async with info.context['db_factory']() as session:
-      result = await session.execute(
-        select(Author).filter(Author.id == self.author_id)
-      )
-      author = result.scalar_one_or_none()
-      return author_to_type(author) if author else None
-
+    auhtor_loader: DataLoader = info.context["author_loader"]
+    author = await auhtor_loader.load(self.author_id)
+    return author_to_type(author)
+  
 @strawberry.type
 class ReadingStateType:
   id: int
@@ -57,13 +53,9 @@ class ReadingStateType:
   @strawberry.field
   async def book(self, info: Info) -> Optional[BookType]:
     from .convertors import book_to_type
-    async with info.context['db_factory']() as session:
-      result = await session.execute(
-        select(Book).filter(Book.id == self.book_id)
-      )
-      book = result.scalar_one_or_none()
-      return book_to_type(book) if book else None
-
+    book = await info.context["book_loader"].load(self.book_id)  
+    return book_to_type(book) if book else None
+  
 @strawberry.type
 class UserType:
   id: strawberry.ID
