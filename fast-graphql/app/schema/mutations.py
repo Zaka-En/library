@@ -1,5 +1,5 @@
 from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, UpdateBookInput, StartReadingInput, UpdateProgressInput, FinishReadingInput, RegisterInput, LoginInput )
-from .types import AuthorType, BookType, ReadingStateType, UserType, LoginResponse, broadcast
+from .types import AuthorType, BookType, ReadingStateType, UserType, LoginResponse
 import strawberry
 from strawberry.types import Info
 
@@ -14,8 +14,9 @@ from app.utils.auth import decode_token
 from fastapi import Request, Response
 from app.services.user_service import UserService
 from app.services.author_service import AuthorService
-from app.services.book_service import BookService
+#from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
+from app.broadcast import broadcast
 
 
 REFRESH_TOKEN_EXPIRY= 6 * 30
@@ -98,7 +99,7 @@ class Mutation:
     )
 
 
-  @strawberry.mutation(permission_classes=[RBAC(roles=[.....])])
+  @strawberry.mutation(permission_classes=[IsAuthenticated]) #TODO RBAC(roles=[.....])
   async def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:
     author_service: AuthorService = info.context["author_service"]
     author = await author_service.create(data=input)
@@ -118,13 +119,13 @@ class Mutation:
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def create_book(self, input: CreateBookInput, info: Info) -> BookType:
-    book_service: BookService = info.context["book_service"]
+    book_service = info.context["book_service"]
     book = await book_service.create(input=input)
     return book_to_type(book)
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def update_book(self, input: UpdateBookInput, info: Info) -> BookType:
-    book_service: BookService = info.context["book_service"]
+    book_service = info.context["book_service"]
     book = await book_service.update(input=input)
     return book_to_type(book)
 

@@ -1,7 +1,6 @@
 # app/services/book_service.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from sqlalchemy.orm import joinedload
 from app.models.book import Book
 from app.models.author import Author
 from typing import Sequence, Optional, List

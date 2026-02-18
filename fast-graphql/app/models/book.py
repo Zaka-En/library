@@ -1,7 +1,11 @@
 from app.database import Base
-from typing import List
+from typing import List, TYPE_CHECKING
 from sqlalchemy import ForeignKey, String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+if TYPE_CHECKING:
+  from .author import Author
+  from .reading_state import ReadingState
 
 class Book(Base):
 

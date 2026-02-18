@@ -1,7 +1,7 @@
 import strawberry
 from typing import List, Optional
 from strawberry.types import Info
-from .types import AuthorType, BookType, ReadingStateType, broadcast, CustomPageInfo, AuthorConnection
+from .types import AuthorType, BookType, ReadingStateType, CustomPageInfo, AuthorConnection
 from app.models.author import Author
 from app.models.book import Book
 from app.models.reading_state import ReadingState
@@ -11,7 +11,7 @@ from typing import  AsyncGenerator, Tuple
 import asyncio
 from datetime import datetime
 from app.services.author_service import AuthorService
-from app.services.book_service import BookService
+# from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
 
 
@@ -75,13 +75,13 @@ class Query:
 
   @strawberry.field
   async def books(self, info: Info) -> List[BookType]:
-    book_service: BookService = info.context["book_service"]
+    book_service = info.context["book_service"]
     books = await book_service.get_all()
     return [book_to_type(b) for b in books]
 
   @strawberry.field
   async def book(self, id: int, info: Info) -> Optional[BookType]:
-    book_service: BookService = info.context["book_service"]
+    book_service = info.context["book_service"]
     book: Book = await book_service.get_by_id(book_id=id)
     return book_to_type(book) if book else None
 

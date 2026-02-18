@@ -1,7 +1,10 @@
 from app.database import Base
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+if TYPE_CHECKING:
+  from .book import Book
 
 class Author(Base):
 

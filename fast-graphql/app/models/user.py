@@ -1,9 +1,11 @@
 from app.database import Base
 from sqlalchemy import String, CheckConstraint
-import enum
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import bcrypt
+
+if TYPE_CHECKING:
+  from .reading_state import ReadingState
 
 class User(Base):
 
