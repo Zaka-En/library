@@ -62,6 +62,20 @@ class UserType:
   rol: str
 
 @strawberry.type
+class UserProfileType:
+  id: strawberry.ID
+  email: str
+  name: str
+  fullname: Optional[str]
+  rol: str
+  second_name: Optional[str]
+  street_adress: Optional[str]
+  city: Optional[str]
+  province: Optional[str]
+  zip_code: Optional[str]
+  about: Optional[str]
+
+@strawberry.type
 class LoginResponse:
   access_token: str
   refresh_token : str
@@ -79,3 +93,5 @@ NodeType = TypeVar("NodeType")
 class AuthorConnection:
   page_info: CustomPageInfo
   edges: list[strawberry.relay.Edge[AuthorType]]
+
+

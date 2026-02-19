@@ -4,8 +4,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.models.reading_state import ReadingState
 from app.models.book import Book
+from .base import SingletonServiceInstance
 
-class ReadingStateService():
+class ReadingStateService(SingletonServiceInstance):
   _instance = None
 
   def __new__(cls, *args, **kwargs):

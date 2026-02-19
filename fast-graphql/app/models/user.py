@@ -1,5 +1,5 @@
 from app.database import Base
-from sqlalchemy import String, CheckConstraint
+from sqlalchemy import String, CheckConstraint, Text
 from typing import Optional, List, TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import bcrypt
@@ -25,6 +25,36 @@ class User(Base):
   name: Mapped[str] = mapped_column(
     String(50),
     nullable=False
+  )
+
+  second_name: Mapped[Optional[str]] = mapped_column(
+    String(50),
+    nullable=True
+  )
+
+  street_adress: Mapped[Optional[str]] = mapped_column(
+    String(255),
+    nullable=True
+  ) 
+
+  city: Mapped[Optional[str]] = mapped_column(
+    String(50),
+    nullable=True
+  )
+
+  province: Mapped[Optional[str]] = mapped_column(
+    String(50),
+    nullable=True
+  )
+
+  zip_code : Mapped[Optional[str]] = mapped_column(
+    String(5),
+    nullable=True
+  )
+
+  about: Mapped[Optional[str]] = mapped_column(
+    Text,
+    nullable=True
   )
 
   fullname: Mapped[Optional[str]] = mapped_column(

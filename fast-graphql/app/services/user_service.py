@@ -55,10 +55,12 @@ class UserService:
       if not user or not user.verify_password(data.password):
         raise Exception("INVALID CREDENTIALS")
       
+      #the user payload
       user_data= {
         "email": user.email,
         "name": user.name,
-        "rol": user.rol
+        "rol": user.rol,
+        "id": user.id
       }
 
       access_token = create_access_token(
@@ -72,3 +74,14 @@ class UserService:
       )
 
       return user, access_token, refresh_token
+    
+  async def get_all_info_by_id(self, id: int) -> User:
+    async with self.session_factory() as session:
+      query = select(User).where(User.id == id)
+      result = await session.execute(query)
+      user: User = result.scalar_one_or_none()
+
+      if not user:
+        raise Exception("USER NOT FOUND") 
+      
+      return user

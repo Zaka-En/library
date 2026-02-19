@@ -1,7 +1,7 @@
 import strawberry
 from typing import List, Optional
 from strawberry.types import Info
-from .types import AuthorType, BookType, ReadingStateType, CustomPageInfo, AuthorConnection
+from .types import AuthorType, BookType, ReadingStateType, CustomPageInfo, AuthorConnection, UserProfileType
 from app.models.book import Book
 from .convertors import reading_state_to_type, book_to_type, author_to_type
 from strawberry import relay
@@ -11,6 +11,8 @@ from datetime import datetime
 from app.services.author_service import AuthorService
 # from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
+from app.utils.permissions import IsAuthenticated
+from app.models.user import User
 
 
 VALORACIONES = [
@@ -25,6 +27,31 @@ VALORACIONES = [
 
 @strawberry.type
 class Query:
+
+  @strawberry.field(permission_classes=[IsAuthenticated])
+  async def user_info(self, info: Info, user_id: int) -> UserProfileType :
+
+    user_from_payload = info.context["user"]
+
+    if not user_from_payload or not user_from_payload["id"] != user_id:
+      raise Exception("CAN NOT QUERY OR MODIFY OTHERS PRFILES")
+    
+
+    service = info.context["user_service"]
+    user: User = service.get_all_info_by_id(user_id)
+    return UserProfileType(
+      id=strawberry.ID(str(user.id)),
+      email=user.email,
+      name=user.name,
+      fullname=user.fullname,
+      rol=user.rol,
+      second_name=user.second_name,
+      street_adress=user.street_adress,
+      city=user.city,
+      province=user.province,
+      zip_code=user.zip_code,
+      about=user.about
+    )
 
   @strawberry.field
   async def authors_query (self, info: Info) -> List[AuthorType]:
@@ -64,6 +91,7 @@ class Query:
         total_count=len(edges)
       )
     )
+
 
   @strawberry.field
   async def author(self, id: int, info: Info) -> Optional[AuthorType]:

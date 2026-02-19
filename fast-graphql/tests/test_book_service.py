@@ -18,7 +18,7 @@ async def test_get_by_id_returns_book():
   fake_book = Book(id=1,title="BlaBla",pages=3,author_id=1,publication_year=2023,isbn='1234567891234')
   session = make_mock_session(return_value=fake_book)
 
-  fake_book_service = BookService(session=session)
+  fake_book_service = BookService(asy=session)
   result = await fake_book_service.get_by_id(book_id=1)
 
   assert result.title == "BlaBla"

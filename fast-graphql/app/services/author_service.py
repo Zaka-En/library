@@ -9,6 +9,8 @@ from strawberry import UNSET
 from typing import AsyncGenerator, List, Optional
 from dataclasses import dataclass
 import base64
+from .base import BaseService, SingletonServiceInstance
+from typing import Optional
 
 @dataclass
 class PaginatedAuthors:
@@ -17,14 +19,10 @@ class PaginatedAuthors:
   start_cursor: Optional[str]
   end_cursor: Optional[str]
 
-class AuthorService:
-  _instance = None
 
-  def __new__(cls, *args, **kwargs):
-    if cls._instance is None:
-      cls._instance = super().__new__(cls)
-    return cls._instance
 
+
+class AuthorService(SingletonServiceInstance,BaseService[Author]):
   def __init__(self, session_factory: async_sessionmaker[AsyncSession], broadcast: Broadcast):
     if not hasattr(self, "session_factory"):
       self.session_factory = session_factory
@@ -35,7 +33,7 @@ class AuthorService:
       result = await session.execute(select(Author))
       return list(result.scalars().all())
 
-  async def get_by_id(self, author_id: int) -> Author:
+  async def get_by_id(self, author_id: int) -> Optional[Author]:
     async with self.session_factory() as session:
       result = await session.execute(select(Author).filter(Author.id == author_id))
       return result.scalar_one_or_none()

@@ -4,6 +4,7 @@ from typing import Any
 from fastapi import Request, Response, status
 from app.utils.auth import decode_token
 from functools import lru_cache
+from jwt import exceptions as pyJwtExceptions
 
 class IsAuthenticated(BasePermission):
   message = "UNAUTHENTICATED"
@@ -15,6 +16,8 @@ class IsAuthenticated(BasePermission):
     if not request and response:
       response.status_code = status.HTTP_401_UNAUTHORIZED
       return False
+    
+
     
     access_token: str = request.cookies.get("access_token", "")
 
@@ -50,17 +53,28 @@ def RBAC(*roles: str):
       
       response: Response = info.context["response"]
       
-      user = info.context["user"]
-      print("="*89)
-      print("user:", user)
-      print("="*89)
-      if not user:
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return False
+      user_access_token = info.context["user_access_token"]
 
-      if user.get("rol") not in roles:
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return False
+
+      # try:
+      #   payload = decode_token(user_access_token)
+      #   user = payload.get("user")
+        
+      #   return user
+      # except pyJwtExceptions.InvalidTokenError as e:
+      #   print(f"Error decodificando el token: {e}")
+      #   return None
+      # except Exception as e:
+      #   print(f"Error decodificando el token: {e}")
+      #   return None
+
+      # if not user:
+      #   response.status_code = status.HTTP_500
+      #   return False
+
+      # if user.get("rol") not in roles:
+      #   response.status_code = status.HTTP_403_FORBIDDEN
+      #   return False
       
       return True
 

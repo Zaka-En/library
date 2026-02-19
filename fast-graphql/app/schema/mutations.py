@@ -41,6 +41,7 @@ class Mutation:
       
   @strawberry.mutation
   async def login(self, info: Info, data: LoginInput) -> LoginResponse:
+
     user_service: UserService = info.context["user_service"]
 
     user, access_token, refresh_token = await user_service.authenticate(data=data)

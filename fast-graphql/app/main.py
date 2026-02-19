@@ -17,6 +17,8 @@ origins = [
 ]
 
 
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
   await broadcast.connect()
