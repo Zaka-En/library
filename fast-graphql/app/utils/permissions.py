@@ -1,9 +1,9 @@
-from collections.abc import Awaitable
 from strawberry.permission import BasePermission
 from strawberry.types import Info
-from typing import Any, Awaitable
+from typing import Any
 from fastapi import Request, Response, status
 from app.utils.auth import decode_token
+from functools import lru_cache
 
 class IsAuthenticated(BasePermission):
   message = "UNAUTHENTICATED"
@@ -34,18 +34,37 @@ class IsAuthenticated(BasePermission):
 
       return True
     
-    except Exception as e :
+    except Exception :
       return False
-
-def RBAC(*roles):
-  class RBAC(BasePermission):
+    
+@lru_cache
+def RBAC(*roles: str):
+  class RoleBasedAccessControl(BasePermission):
     message = f"UNAUTHORIZED. REQUIRED ROLES: {', '.join(roles)}"
 
-    def has_permission(self, source: Any, info: Info[Any, Any], **kwargs: Any) -> bool | Awaitable[bool]:
+    def has_permission(self, source: Any, info: Info[Any, Any], **kwargs: Any) -> bool:
 
       auth_cheking = IsAuthenticated()
       if not auth_cheking.has_permission(source=source,info=info,**kwargs):
         return False
+      
+      response: Response = info.context["response"]
+      
+      user = info.context["user"]
+      print("="*89)
+      print("user:", user)
+      print("="*89)
+      if not user:
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return False
+
+      if user.get("rol") not in roles:
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return False
+      
+      return True
+
+  return RoleBasedAccessControl
       
       
 
