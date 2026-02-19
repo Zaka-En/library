@@ -12,12 +12,6 @@ class IsAuthenticated(BasePermission):
   def has_permission(self, source: Any, info: Info, **kwargs) -> bool:
     request: Request = info.context.get("request")
     response: Response = info.context.get("response")
-
-    if not request and response:
-      response.status_code = status.HTTP_401_UNAUTHORIZED
-      return False
-    
-
     
     access_token: str = request.cookies.get("access_token", "")
 
@@ -26,19 +20,27 @@ class IsAuthenticated(BasePermission):
       return False
 
     try:
-
       decoded = decode_token(access_token)
-
-      if not decoded or decoded.get("refresh"):
+      if decoded.get("refresh"):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return False
 
-      info.context["user"] = decoded["user"]
-
-      return True
-    
-    except Exception :
+    except pyJwtExceptions.ExpiredSignatureError :
+      self.message = "UNAUTHENTICATED, TOKEN EXPIRED"
+      response.status_code = status.HTTP_401_UNAUTHORIZED
       return False
+    except pyJwtExceptions.InvalidTokenError :
+      self.message = "UNAUTHENTICATED, INVALID TOKEN"
+      response.status_code = status.HTTP_401_UNAUTHORIZED
+      return False
+    except Exception as e:
+      self.message = "ERROR DECODING TOKEN"
+      response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+      return False
+    
+    return True
+  
+  
     
 @lru_cache
 def RBAC(*roles: str):
