@@ -9,13 +9,12 @@ declare global {ç
 		interface Locals{
 			token: string
 			user:{
+				id: int
 				email: string
 				name:string
 				rol:string
 			}| null ;
 		}
-
-
 	}
 
 	type ReadingProgressType = NonNullable<MyReadingProgress$result['myReadingProgress']>[number]
