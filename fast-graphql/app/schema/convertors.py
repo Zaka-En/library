@@ -1,8 +1,7 @@
 from app.models.author import Author
 from app.models.book import Book
 from app.models.reading_state import ReadingState
-from app.models.user import User
-from .types import (AuthorType, BookType, ReadingStateType, UserType)
+from .types import (AuthorType, BookType, ReadingStateType)
 
 
 def author_to_type(author: Author) -> "AuthorType":

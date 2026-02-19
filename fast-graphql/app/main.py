@@ -17,13 +17,6 @@ origins = [
 ]
 
 
-graphql_app = GraphQLRouter(
-  schema,
-  subscription_protocols=[GRAPHQL_WS_PROTOCOL, GRAPHQL_TRANSPORT_WS_PROTOCOL],
-  context_getter=get_context,
-  dependencies=
-)
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
   await broadcast.connect()
@@ -41,6 +34,14 @@ app.add_middleware(
   allow_methods=["*"],
   allow_headers=["*"],
 )
+
+graphql_app = GraphQLRouter(
+  schema,
+  subscription_protocols=[GRAPHQL_WS_PROTOCOL, GRAPHQL_TRANSPORT_WS_PROTOCOL],
+  context_getter=get_context
+  #dependencies=
+)
+
 
 app.include_router(graphql_app, prefix='/graphql')
 # app.add_event_handler("startup", broadcast.connect)

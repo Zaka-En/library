@@ -2,14 +2,12 @@ from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, Upd
 from .types import AuthorType, BookType, ReadingStateType, UserType, LoginResponse
 import strawberry
 from strawberry.types import Info
-
-from app.models.reading_state import ReadingState
-from .convertors import *
+from .convertors import author_to_type, book_to_type, reading_state_to_type
 from datetime import datetime
 from time import sleep
 from fastapi.concurrency import run_in_threadpool
 from app.utils.auth import create_access_token
-from app.utils.permissions import IsAuthenticated
+from app.utils.permissions import IsAuthenticated, RBAC
 from app.utils.auth import decode_token
 from fastapi import Request, Response
 from app.services.user_service import UserService
@@ -99,7 +97,7 @@ class Mutation:
     )
 
 
-  @strawberry.mutation(permission_classes=[IsAuthenticated]) #TODO RBAC(roles=[.....])
+  @strawberry.mutation(permission_classes=[RBAC("admin", "editor")]) #TODO RBAC(roles=[.....])
   async def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:
     author_service: AuthorService = info.context["author_service"]
     author = await author_service.create(data=input)

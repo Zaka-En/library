@@ -2,11 +2,8 @@ from typing import Optional, List
 import strawberry
 from datetime import datetime
 from strawberry.types import Info
-from sqlalchemy import select
 from typing import TypeVar
 from broadcaster import Broadcast
-from app.models.author import Author
-from app.models.book import Book
 from strawberry.dataloader import DataLoader
 
 

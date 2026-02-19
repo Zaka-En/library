@@ -2,12 +2,10 @@ import strawberry
 from typing import List, Optional
 from strawberry.types import Info
 from .types import AuthorType, BookType, ReadingStateType, CustomPageInfo, AuthorConnection
-from app.models.author import Author
 from app.models.book import Book
-from app.models.reading_state import ReadingState
-from .convertors import *
+from .convertors import reading_state_to_type, book_to_type, author_to_type
 from strawberry import relay
-from typing import  AsyncGenerator, Tuple
+from typing import Tuple
 import asyncio
 from datetime import datetime
 from app.services.author_service import AuthorService

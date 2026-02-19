@@ -1,7 +1,7 @@
 from app.database import Base
 from typing import Optional, TYPE_CHECKING
 from sqlalchemy import ForeignKey, Integer, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship, joinedload
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from datetime import datetime
 
