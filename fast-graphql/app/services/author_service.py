@@ -9,7 +9,7 @@ from strawberry import UNSET
 from typing import AsyncGenerator, List, Optional
 from dataclasses import dataclass
 import base64
-from .base import BaseService, SingletonServiceInstance
+from .base import BaseService, SingletonService
 from typing import Optional
 
 @dataclass
@@ -22,7 +22,7 @@ class PaginatedAuthors:
 
 
 
-class AuthorService(SingletonServiceInstance,BaseService[Author]):
+class AuthorService(SingletonService,BaseService[Author]):
   def __init__(self, session_factory: async_sessionmaker[AsyncSession], broadcast: Broadcast):
     if not hasattr(self, "session_factory"):
       self.session_factory = session_factory

@@ -27,6 +27,11 @@ class User(Base):
     nullable=False
   )
 
+  username: Mapped[str] = mapped_column(
+    String(50),
+    nullable=False
+  )
+
   second_name: Mapped[Optional[str]] = mapped_column(
     String(50),
     nullable=True

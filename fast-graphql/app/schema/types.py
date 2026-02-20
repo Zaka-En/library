@@ -1,11 +1,12 @@
-from typing import Optional, List
+from typing import Optional, List, Any
 import strawberry
 from datetime import datetime
 from strawberry.types import Info
 from typing import TypeVar
 from broadcaster import Broadcast
 from strawberry.dataloader import DataLoader
-
+from app.dependencies import CustomContext
+from app.models.user import User
 
 broadcast = Broadcast("redis://localhost:6379")
 
@@ -18,9 +19,9 @@ class AuthorType(strawberry.relay.Node):
   fullname: Optional[str]
 
   @strawberry.field
-  async def books(self, info: Info) -> List["BookType"]:
+  async def books(self, info: Info[CustomContext,Any]) -> List["BookType"]:
     from .convertors import book_to_type
-    books = await info.context["books_by_author_loader"].load(self.id)  
+    books = await info.context.loaders.book.load(self.id)
     return [book_to_type(b) for b in books] 
   
 @strawberry.type
@@ -33,10 +34,10 @@ class BookType:
   author_id: int
 
   @strawberry.field
-  async def author(self, info: Info) -> Optional["AuthorType"]:
+  async def author(self, info: Info[CustomContext,Any]) -> Optional["AuthorType"]:
     from .convertors import author_to_type
-    auhtor_loader: DataLoader = info.context["author_loader"]
-    author = await auhtor_loader.load(self.author_id)
+    auhtor_loader: DataLoader = info.context.loaders.author
+    author = await auhtor_loader.load(self.id)
     return author_to_type(author)
   
 @strawberry.type
@@ -48,9 +49,9 @@ class ReadingStateType:
   book_id: int
 
   @strawberry.field
-  async def book(self, info: Info) -> Optional[BookType]:
+  async def book(self, info: Info[CustomContext,Any]) -> Optional[BookType]:
     from .convertors import book_to_type
-    book = await info.context["book_loader"].load(self.book_id)  
+    book = await info.context.loaders.book.load(self.book_id)
     return book_to_type(book) if book else None
   
 @strawberry.type
@@ -62,13 +63,14 @@ class UserType:
   rol: str
 
 @strawberry.type
-class UserProfileType:
+class UserProfileType(User):
   id: strawberry.ID
-  email: str
-  name: str
-  fullname: Optional[str]
-  rol: str
-  second_name: Optional[str]
+  email: strawberry.auto
+  name: strawberry.auto
+  username: strawberry.auto
+  fullname: strawberry.auto
+  rol: strawberry.auto
+  second_name: strawberry.auto
   street_adress: Optional[str]
   city: Optional[str]
   province: Optional[str]

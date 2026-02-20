@@ -1,90 +1,62 @@
 from strawberry.permission import BasePermission
 from strawberry.types import Info
 from typing import Any
-from fastapi import Request, Response, status
-from app.utils.auth import decode_token
+from fastapi import  Response, status
 from functools import lru_cache
-from jwt import exceptions as pyJwtExceptions
+from app.dependencies import CustomContext
+
 
 class IsAuthenticated(BasePermission):
   message = "UNAUTHENTICATED"
 
-  def has_permission(self, source: Any, info: Info, **kwargs) -> bool:
-    request: Request = info.context.get("request")
-    response: Response = info.context.get("response")
+  def has_permission(self, source: Any, info: Info[CustomContext, Any], **kwargs) -> bool:
     
-    access_token: str = request.cookies.get("access_token", "")
+    auth = info.context.auth
+    response: Response | None = info.context.response
 
-    if not access_token:
-      response.status_code = status.HTTP_401_UNAUTHORIZED
+    if not auth.is_authenticated:
+      self.message = auth.error_message
+      if response:
+        response.status_code = auth.status_code
       return False
 
-    try:
-      decoded = decode_token(access_token)
-      if decoded.get("refresh"):
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return False
+    return True    
 
-    except pyJwtExceptions.ExpiredSignatureError :
-      self.message = "UNAUTHENTICATED, TOKEN EXPIRED"
-      response.status_code = status.HTTP_401_UNAUTHORIZED
-      return False
-    except pyJwtExceptions.InvalidTokenError :
-      self.message = "UNAUTHENTICATED, INVALID TOKEN"
-      response.status_code = status.HTTP_401_UNAUTHORIZED
-      return False
-    except Exception as e:
-      self.message = "ERROR DECODING TOKEN"
-      response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-      return False
-    
-    return True
-  
-  
     
 @lru_cache
 def RBAC(*roles: str):
-  class RoleBasedAccessControl(BasePermission):
+  class RoleBasedAccessControl(IsAuthenticated):
     message = f"UNAUTHORIZED. REQUIRED ROLES: {', '.join(roles)}"
 
-    def has_permission(self, source: Any, info: Info[Any, Any], **kwargs: Any) -> bool:
+   
 
-      auth_cheking = IsAuthenticated()
-      if not auth_cheking.has_permission(source=source,info=info,**kwargs):
+    def has_permission(self, source: Any, info: Info[CustomContext, Any], **kwargs: Any) -> bool:
+
+      # before cheking the authorization, vemos si está autenticado
+      auth_check = super().has_permission(source,info,**kwargs)
+      response: Response | None = info.context.response
+
+      if not auth_check:
+        if response:
+          response.status_code = status.HTTP_401_UNAUTHORIZED
         return False
       
-      response: Response = info.context["response"]
       
-      user_access_token = info.context["user_access_token"]
+      user = info.context.user
+      print(user)
 
-
-      # try:
-      #   payload = decode_token(user_access_token)
-      #   user = payload.get("user")
-        
-      #   return user
-      # except pyJwtExceptions.InvalidTokenError as e:
-      #   print(f"Error decodificando el token: {e}")
-      #   return None
-      # except Exception as e:
-      #   print(f"Error decodificando el token: {e}")
-      #   return None
-
-      # if not user:
-      #   response.status_code = status.HTTP_500
-      #   return False
-
-      # if user.get("rol") not in roles:
-      #   response.status_code = status.HTTP_403_FORBIDDEN
-      #   return False
+      if user and user["rol"] not in roles:
+        print(user["rol"])
+        if response:
+          response.status_code = status.HTTP_403_FORBIDDEN
+          return False
       
+      print("somehow the request reaches this place when it shoudnt")
       return True
 
   return RoleBasedAccessControl
       
       
-
-
 #TODO: METER EN DEPENDENCIES
 # usedPemissions = set()
 

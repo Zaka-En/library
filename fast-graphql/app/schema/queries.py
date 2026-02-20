@@ -13,6 +13,8 @@ from app.services.author_service import AuthorService
 from app.services.reading_state_service import ReadingStateService
 from app.utils.permissions import IsAuthenticated
 from app.models.user import User
+from app.dependencies import CustomContext
+from app.utils.permissions import RBAC
 
 
 VALORACIONES = [
@@ -23,26 +25,29 @@ VALORACIONES = [
   "Obra maestra contemporánea"
 ]
 
-
-
 @strawberry.type
 class Query:
 
-  @strawberry.field(permission_classes=[IsAuthenticated])
-  async def user_info(self, info: Info, user_id: int) -> UserProfileType :
+  #TODO add a permission: isuserowner
+  @strawberry.field #(permission_classes=[IsAuthenticated])
+  async def user_info(self, info: Info[CustomContext, None], user_id: int) -> UserProfileType :
 
-    user_from_payload = info.context["user"]
+    user_from_payload = info.context.user
 
-    if not user_from_payload or not user_from_payload["id"] != user_id:
-      raise Exception("CAN NOT QUERY OR MODIFY OTHERS PRFILES")
+    # if not user_from_payload or not user_from_payload["id"] != user_id:
+    #   raise Exception("CAN NOT QUERY OR MODIFY OTHERS PRFILES")
     
 
-    service = info.context["user_service"]
-    user: User = service.get_all_info_by_id(user_id)
+    service = info.context.user_service
+    user: User = await service.get_all_info_by_id(user_id)
+    print("="*90)
+    print("DEBUG USER PROFILE", vars(user))
+    print("="*90)
     return UserProfileType(
       id=strawberry.ID(str(user.id)),
       email=user.email,
       name=user.name,
+      username=user.username,
       fullname=user.fullname,
       rol=user.rol,
       second_name=user.second_name,
@@ -54,8 +59,8 @@ class Query:
     )
 
   @strawberry.field
-  async def authors_query (self, info: Info) -> List[AuthorType]:
-    author_service: AuthorService = info.context["author_service"]
+  async def authors_query (self, info: Info[CustomContext, None]) -> List[AuthorType]:
+    author_service: AuthorService = info.context.author_service
     authors = await author_service.get_all()
     return [author_to_type(a) for a in authors]
 
@@ -67,7 +72,7 @@ class Query:
     after: Optional[str] = None
     ) -> AuthorConnection:
 
-    author_service: AuthorService = info.context["author_service"]
+    author_service: AuthorService = info.context.author_service
     
     result = await author_service.get_paginated(
       limit=first or 5, 
@@ -93,31 +98,32 @@ class Query:
     )
 
 
-  @strawberry.field
-  async def author(self, id: int, info: Info) -> Optional[AuthorType]:
-    author_service: AuthorService = info.context["author_service"]
+  @strawberry.field(permission_classes=[RBAC("admin")])
+  async def author(self, id: int, info: Info[CustomContext, None]) -> Optional[AuthorType]:
+    author_service: AuthorService = info.context.author_service
     author = await author_service.get_by_id(id)
     return author_to_type(author) if author else None
 
   @strawberry.field
-  async def books(self, info: Info) -> List[BookType]:
-    book_service = info.context["book_service"]
+  async def books(self, info: Info[CustomContext, None]) -> List[BookType]:
+    book_service = info.context.book_service
     books = await book_service.get_all()
     return [book_to_type(b) for b in books]
 
   @strawberry.field
-  async def book(self, id: int, info: Info) -> Optional[BookType]:
-    book_service = info.context["book_service"]
+  async def book(self, id: int, info: Info[CustomContext, None]) -> Optional[BookType]:
+    book_service = info.context.book_service
     book: Book = await book_service.get_by_id(book_id=id)
     return book_to_type(book) if book else None
 
   @strawberry.field
-  async def my_reading_progress(self, user_id: int, info: Info) -> List[ReadingStateType]:
-    service: ReadingStateService = info.context["reading_state_service"]
+  async def my_reading_progress(self, user_id: int, info: Info[CustomContext, None]) -> List[ReadingStateType]:
+    service: ReadingStateService = info.context.reading_state_service
     reading_states = await service.get_user_progress(user_id=user_id)
 
     return [reading_state_to_type(r) for r in reading_states]
 
+  #TODO: user is no longer just a string
   @strawberry.field
   async def recomendations(self, user: str) -> Tuple[str,str,str]: 
 

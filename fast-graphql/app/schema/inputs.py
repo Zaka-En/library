@@ -64,3 +64,18 @@ class RegisterInput:
 class LoginInput:
   email: str
   password: str
+
+
+@strawberry.input
+class UpdateUserInput:
+  id: int 
+  name: Optional[str] = None
+  username: Optional[str] = None
+  email: Optional[str] = None
+  fullname: Optional[str] = None
+  second_name: Optional[str] = None
+  street_adress: Optional[str] = None
+  city: Optional[str] = None
+  province: Optional[str] = None
+  zip_code: Optional[str] = None
+  about: Optional[str] = None

@@ -1,15 +1,18 @@
 from fastapi import Depends,  Request, WebSocket
-from typing import Annotated, Any, Union
+from typing import Annotated, Tuple
 from app.database import  SessionLocal
 from app.broadcast import broadcast
 from app.services.user_service import UserService
 from app.services.author_service import AuthorService
 from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
-from app.schema.loaders import create_loaders
+from app.schema.loaders import create_loaders, DataLoaders
 from app.utils.auth import decode_token
-#from strawberry.fastapi import  BaseContext
+from strawberry.fastapi import  BaseContext
 from jwt import exceptions as pyJwtExceptions
+from functools import cached_property
+from dataclasses import dataclass
+
 
 async def get_user_service():
   return UserService(session_factory=SessionLocal)
@@ -24,50 +27,89 @@ async def get_reading_state_service():
   return ReadingStateService(session_factory=SessionLocal)
 
 
-def parse_jwt_data_to_user(request: Request | WebSocket) -> dict | None:
-  access_token = ""
+
+
+#---------------AUTHENTICATION------------------
+@dataclass
+class AuthResult:
+  user: dict | None = None
+  error_message: str | None = None
+  status_code: int = 200
+  is_authenticated: bool = False
+
+def get_auth_result(access_token: str) -> AuthResult:
+  """Pure logic to decode access_token y inject the result in the context 
+  this allows us to centralize the authcheck
+  It only happens here once per request 
+  error_message and status_code if returned are to be handled in app.utils.permission.py"""
   
-  if isinstance(request, Request):
-    access_token = request.cookies.get("access_token", "") if request.cookies is not None else None
-  if not access_token:
-    print("En este contexto no hay nigun usuario")
-    return None
 
   try:
-    payload = decode_token(access_token)
-    user = payload.get("user")
-    
-    return user
-  except pyJwtExceptions.InvalidTokenError as e:
-    print(f"Error decodificando el token: {e}")
-    return None
+    decoded = decode_token(access_token)
+
+    if(decoded.get("refresh")):
+      return AuthResult(error_message="INVALID_TOKEN_TYPE (REFRESH)", status_code=401)
+    print("="*80)
+    print("DEBUG: EN LA VALIDACION DEL TOKEN, USER DICT: ",decoded["user"])
+    print("="*80)
+
+    return AuthResult(user=decoded["user"], is_authenticated=True)
+  except pyJwtExceptions.ExpiredSignatureError:
+    return AuthResult(error_message="UNAUTHENTICATED, TOKEN EXPIRED", status_code=401)
+  except pyJwtExceptions.InvalidTokenError:
+    return AuthResult(error_message="UNAUTHENTICATED, INVALID TOKEN", status_code=401)
   except Exception as e:
-    print(f"Error decodificando el token: {e}")
-    return None
+    return AuthResult(error_message=f"AUTH_ERROR: {str(e)}", status_code=500)
 
-# def require_roles(user: Depends(parse_jwt_data_to_user)):
 
-#TODO convert the get_context to return a CustomContext instance extending from strawberry.BaseContext
+class CustomContext(BaseContext):
+
+  def __init__(
+    self,
+    user_service: UserService,
+    author_service: AuthorService,
+    book_service: BookService,
+    reading_state_service: ReadingStateService,
+    
+  ):
+    super().__init__()
+    self.user_service = user_service
+    self.author_service = author_service
+    self.book_service = book_service
+    self.reading_state_service = reading_state_service
+
+    self.loaders: DataLoaders = create_loaders(book_service=book_service,author_service=author_service)
+
+  @cached_property
+  def auth(self) -> AuthResult:
+    if not self.request:
+      return AuthResult(error_message="NO_CONNECTION_SCOPE", status_code=500)
+    
+    user_access_token = self.request.cookies.get("access_token", "")
+
+    if not str.strip(user_access_token):
+      return AuthResult(error_message="UNAUTHENTICATED, MISSING TOKEN", status_code=401)
+    
+    return get_auth_result(user_access_token)
+
+  #helper prop
+  @cached_property
+  def user(self) -> dict | None:
+    return self.auth.user
+
+    
+    
+
 async def get_context(
-    request: Request,
-    user_service: Annotated[UserService,Depends(get_user_service)],
-    author_service: Annotated[AuthorService,Depends(get_author_service)],
-    book_service: Annotated[BookService,Depends(get_book_service)],
-    reading_state_service: Annotated[ReadingStateService,Depends(get_reading_state_service)],
-  )-> dict[str, Any]:
-
-  print("Nos ha llegado un objeto Websocket si o no", isinstance(request,WebSocket))
-  
-  return {
-    #"request": request,
-    #"response": response,
-    "user_service": user_service,
-    "author_service": author_service,
-    "book_service": book_service,
-    "reading_state_service": reading_state_service,
-    "user": parse_jwt_data_to_user(request) if request else None,
-    "user_access_token": request.cookies.get("access_token", "") if request and request.cookies else None,
-    **create_loaders(book_service=book_service,author_service=author_service)
-  }
-
-
+  user_service: Annotated[UserService, Depends(get_user_service)],
+  author_service: Annotated[AuthorService, Depends(get_author_service)],
+  book_service: Annotated[BookService, Depends(get_book_service)],
+  reading_state_service: Annotated[ReadingStateService, Depends(get_reading_state_service)],
+) -> CustomContext:
+    
+  return CustomContext(
+    user_service=user_service,
+    author_service=author_service,
+    book_service=book_service,
+    reading_state_service=reading_state_service
+  )

@@ -4,7 +4,16 @@ from app.services.book_service import BookService
 from app.services.author_service import AuthorService
 from app.models.book import Book
 from app.models.author import Author
+from dataclasses import dataclass
 
+
+#---------------Data Loaders-------------------
+@dataclass
+class DataLoaders:
+  def __init__(self,book_loader,author_loader,books_by_author_loader):
+    self.book = DataLoader(load_fn=book_loader) 
+    self.author = DataLoader(load_fn=author_loader)
+    self.books_by_author = DataLoader(load_fn=books_by_author_loader)
 
 
 async def load_books_by_ids(book_ids: List[int], book_service: BookService) -> List[Optional[Book]]:
@@ -25,7 +34,8 @@ async def load_books_by_author_ids(author_ids: List[int], book_service: BookServ
     books_by_author[book.author_id].append(book)
   return [books_by_author[id] for id in author_ids]
 
-def create_loaders(book_service: BookService, author_service: AuthorService) -> dict:
+
+def create_loaders(book_service: BookService, author_service: AuthorService) -> DataLoaders:
 
   async def load_books(ids: List[int]) -> List[Optional[Book]]:
     return await load_books_by_ids(ids, book_service)
@@ -36,14 +46,10 @@ def create_loaders(book_service: BookService, author_service: AuthorService) -> 
   async def load_books_by_author(ids: List[int]) -> List[List[Book]]:
     return await load_books_by_author_ids(ids, book_service)
 
-  return {
-    "book_loader": DataLoader(
-        load_fn=load_books
-    ),
-    "author_loader": DataLoader(
-        load_fn=load_authors
-    ),
-    "books_by_author_loader": DataLoader(
-        load_fn=load_books_by_author
-    ),
-  }
+  return DataLoaders(
+    book_loader=load_books,
+    author_loader=load_authors,
+    books_by_author_loader=load_books_by_author
+  )
+
+  

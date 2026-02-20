@@ -4,10 +4,10 @@ from app.models.book import Book
 from app.models.author import Author
 from typing import Optional, List
 from app.schema.inputs import CreateBookInput, UpdateBookInput
-from .base import BaseService, SingletonServiceInstance
+from .base import BaseService, SingletonService
 
 
-class BookService(SingletonServiceInstance,BaseService[Book]):
+class BookService(SingletonService,BaseService[Book]):
 
   def __init__(self, session_factory: async_sessionmaker[AsyncSession]):
     if not hasattr(self, "session_factory"):

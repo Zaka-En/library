@@ -1,10 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-from sqlalchemy import select
-from app.schema.inputs import RegisterInput, LoginInput
+from sqlalchemy import select,update
+from app.schema.inputs import RegisterInput, LoginInput, UpdateUserInput
 from app.models.user import User
 from app.utils.auth import create_access_token
 from datetime import timedelta
 from typing import Tuple
+
 
 REFRESH_TOKEN_EXPIRY=120 #6 months
 
@@ -85,3 +86,25 @@ class UserService:
         raise Exception("USER NOT FOUND") 
       
       return user
+    
+  async def update(self, data: UpdateUserInput ) -> User:
+    async with self.session_factory() as session:
+      
+      update_data = {
+        k: v for k, v in vars(data).items() 
+        if v is not None and k != "id"
+      }
+
+      if update_data:
+        await session.execute(
+          update(User)
+          .where(User.id == data.id)
+          .values(**update_data)
+        )
+        await session.commit()
+
+      result = await session.execute(
+        select(User).where(User.id == data.id)
+      )
+      
+      return result.scalar_one_or_none()

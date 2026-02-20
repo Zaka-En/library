@@ -1,20 +1,18 @@
-from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, UpdateBookInput, StartReadingInput, UpdateProgressInput, FinishReadingInput, RegisterInput, LoginInput )
-from .types import AuthorType, BookType, ReadingStateType, UserType, LoginResponse
+from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, UpdateBookInput, StartReadingInput, UpdateProgressInput, FinishReadingInput, RegisterInput, LoginInput, UpdateUserInput )
+from .types import AuthorType, BookType, ReadingStateType, UserType, LoginResponse, UserProfileType
 import strawberry
 from strawberry.types import Info
 from .convertors import author_to_type, book_to_type, reading_state_to_type
-from datetime import datetime
 from time import sleep
 from fastapi.concurrency import run_in_threadpool
-from app.utils.auth import create_access_token
 from app.utils.permissions import IsAuthenticated, RBAC
-from app.utils.auth import decode_token
-from fastapi import Request, Response
 from app.services.user_service import UserService
 from app.services.author_service import AuthorService
 #from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
 from app.broadcast import broadcast
+from app.dependencies import CustomContext
+from typing import Optional
 
 
 REFRESH_TOKEN_EXPIRY= 6 * 30
@@ -23,8 +21,8 @@ REFRESH_TOKEN_EXPIRY= 6 * 30
 @strawberry.type
 class Mutation:
   @strawberry.mutation
-  async def register_user(self, info: Info, data: RegisterInput) -> UserType:
-    user_service: UserService = info.context["user_service"]
+  async def register_user(self, info: Info[CustomContext, None], data: RegisterInput) -> UserType:
+    user_service: UserService = info.context.user_service
 
     try:
       new_user = await user_service.register(data=data)
@@ -40,9 +38,9 @@ class Mutation:
     )
       
   @strawberry.mutation
-  async def login(self, info: Info, data: LoginInput) -> LoginResponse:
+  async def login(self, info: Info[CustomContext, None], data: LoginInput) -> LoginResponse:
 
-    user_service: UserService = info.context["user_service"]
+    user_service: UserService = info.context.user_service
 
     user, access_token, refresh_token = await user_service.authenticate(data=data)
 
@@ -59,94 +57,111 @@ class Mutation:
       )
     )
 
-  @strawberry.mutation
-  async def refresh_token(self, info: Info) -> LoginResponse:
+  #TODO: este refresh es un desastre, hay que cambiarlo 
+  # @strawberry.mutation
+  # async def refresh_token(self, info: Info[CustomContext, None]) -> LoginResponse:
 
-    request: Request = info.context["request"]
-    response: Response = info.context["response"]
+  #   request: Request = info.context.request
+  #   response: Response = info.context.response
 
-    refresh_token = request.cookies.get("refresh_token", "")
+  #   refresh_token = request.cookies.get("refresh_token", "")
    
-    token_data = decode_token(refresh_token)
+  #   token_data = decode_token(refresh_token)
 
-    if not token_data.get("refresh"):
-        raise Exception("PROVIDED TOKEN IS NOT A REFRESH TOKEN")
+  #   if not token_data.get("refresh"):
+  #       raise Exception("PROVIDED TOKEN IS NOT A REFRESH TOKEN")
     
-    exp = token_data.get("exp")
-    if not exp or datetime.fromtimestamp(exp) < datetime.now():
-        raise Exception("REFRESH TOKEN EXPIRED")
+  #   exp = token_data.get("exp")
+  #   if not exp or datetime.fromtimestamp(exp) < datetime.now():
+  #       raise Exception("REFRESH TOKEN EXPIRED")
     
-    user_data = token_data.get("user")
-    if not user_data:
-        raise Exception("INVALID TOKEN")
+  #   user_data = token_data.get("user")
+  #   if not user_data:
+  #       raise Exception("INVALID TOKEN")
     
-    new_access_token = create_access_token(user_data=user_data)
+  #   new_access_token = create_access_token(user_data=user_data)
 
-    response.set_cookie(
-      key="access_token",
-      value=new_access_token,
-      httponly=True,
-      samesite="strict",
-      #secure=True, 
-      max_age=900  # 15 minutos
-    )
+  #   response.set_cookie(
+  #     key="access_token",
+  #     value=new_access_token,
+  #     httponly=True,
+  #     samesite="strict",
+  #     #secure=True, 
+  #     max_age=900  # 15 minutos
+  #   )
 
-    return LoginResponse(
-      access_token=new_access_token,
-      refresh_token=refresh_token,
-      token_type="bearer"
-    )
+  #   return LoginResponse(
+  #     access_token=new_access_token,
+  #     refresh_token=refresh_token,
+  #     token_type="bearer"
+  #   )
 
+  
+  @strawberry.mutation
+  async def update_user(
+      self, 
+      info: Info[CustomContext, None], 
+      input: UpdateUserInput
+    ) -> Optional[UserProfileType]:
+        
+        user_service = info.context.user_service
+        
+        updated_user = await user_service.update(data=input)
+        
+        if not updated_user:
+          raise Exception(f"Usuario con id {input.id} no encontrado")
+            
+        return updated_user
 
   @strawberry.mutation(permission_classes=[RBAC("admin", "editor")]) #TODO RBAC(roles=[.....])
-  async def create_author(self, input: CreateAuthorInput, info: Info) -> AuthorType:
-    author_service: AuthorService = info.context["author_service"]
+  async def create_author(self, input: CreateAuthorInput, info: Info[CustomContext, None]) -> AuthorType:
+    author_service: AuthorService = info.context.author_service
     author = await author_service.create(data=input)
     return author_to_type(author=author)
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
-  async def update_author(self, input: UpdateAuthorInput, info: Info) -> AuthorType:
-    author_service: AuthorService = info.context["author_service"]
+  async def update_author(self, input: UpdateAuthorInput, info: Info[CustomContext, None]) -> AuthorType:
+    author_service: AuthorService = info.context.author_service
     author = await author_service.update(data_input=input)
     return author_to_type(author=author)
     
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
-  async def delete_author(self, id: int, info: Info) -> bool:
-    author_service: AuthorService = info.context["author_service"]
+  async def delete_author(self, id: int, info: Info[CustomContext, None]) -> bool:
+    author_service: AuthorService = info.context.author_service
     return await author_service.delete(author_id=id)
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
-  async def create_book(self, input: CreateBookInput, info: Info) -> BookType:
-    book_service = info.context["book_service"]
-    book = await book_service.create(input=input)
+  async def create_book(self, input: CreateBookInput, info: Info[CustomContext, None]) -> BookType:
+    book_service = info.context.book_service
+    book = await book_service.create(data=input)
     return book_to_type(book)
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
-  async def update_book(self, input: UpdateBookInput, info: Info) -> BookType:
-    book_service = info.context["book_service"]
-    book = await book_service.update(input=input)
+  async def update_book(self, input: UpdateBookInput, info: Info[CustomContext, None]) -> BookType:
+    book_service = info.context.book_service
+    book = await book_service.update(data=input)
     return book_to_type(book)
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
-  async def delete_book(self, id: int, info: Info) -> bool:
-    return await info.context["book_service"].delete(id=id) 
+  async def delete_book(self, id: int, info: Info[CustomContext, None]) -> bool:
+    return await info.context.book_service.delete(id=id) 
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
-  async def start_reading(self, input: StartReadingInput, info: Info) -> ReadingStateType:
-    service: ReadingStateService = info.context["reading_state_service"]
+  async def start_reading(self, input: StartReadingInput, info: Info[CustomContext, None]) -> ReadingStateType:
+    service: ReadingStateService = info.context.reading_state_service
     reading_state = await service.start_reading(book_id=input.book_id,user_id=input.user_id)
       
     return reading_state_to_type(reading_state)
 
   @strawberry.mutation(permission_classes=[IsAuthenticated])
-  async def update_progress(self, input: UpdateProgressInput, info: Info) -> ReadingStateType:
-    service: ReadingStateService = info.context["reading_state_service"]
+  async def update_progress(self, input: UpdateProgressInput, info: Info[CustomContext, None]) -> ReadingStateType:
+    service: ReadingStateService = info.context.reading_state_service
     return reading_state_to_type(await service.update_progress(state_id=input.id,current_page=input.current_page))
         
   @strawberry.mutation(permission_classes=[IsAuthenticated])
-  async def finish_reading(self, input: FinishReadingInput, info: Info) -> ReadingStateType:
-    service: ReadingStateService = info.context["reading_state_service"]
+  async def finish_reading(self, input: FinishReadingInput, info: Info[CustomContext, None]) -> ReadingStateType:
+    service: ReadingStateService = info.context.reading_state_service
     return reading_state_to_type(await service.finish_reading(state_id=input.id))
   
   @strawberry.mutation(permission_classes=[IsAuthenticated])
@@ -180,4 +195,4 @@ class Mutation:
 
     await broadcast.publish(channel=channel, message=payload)
 
-    return True
+    return True 

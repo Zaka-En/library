@@ -29,7 +29,7 @@ class BaseService(ABC, Generic[T]):
   async def delete(self, id: int) -> T:
     ...
 
-class SingletonServiceInstance:
+class SingletonService:
   _instance = None
 
   def __new__(cls, *args, **kwargs):
