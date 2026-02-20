@@ -1,7 +1,6 @@
 <script lang="ts">
   import { PageServerData } from "./$types";
 
-  const 
 
 </script>
 

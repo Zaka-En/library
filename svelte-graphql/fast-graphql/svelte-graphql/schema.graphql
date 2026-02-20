@@ -97,6 +97,7 @@ type Mutation {
   updateAuthor(input: UpdateAuthorInput!): AuthorType!
   updateBook(input: UpdateBookInput!): BookType!
   updateProgress(input: UpdateProgressInput!): ReadingStateType!
+  updateUser(input: UpdateUserInput!): UserProfileType
 }
 
 """An object with a Globally Unique ID"""
@@ -166,6 +167,20 @@ input UpdateProgressInput {
   id: Int!
 }
 
+input UpdateUserInput {
+  about: String = null
+  city: String = null
+  email: String = null
+  fullname: String = null
+  id: Int!
+  name: String = null
+  province: String = null
+  secondName: String = null
+  streetAdress: String = null
+  username: String = null
+  zipCode: String = null
+}
+
 type UserProfileType {
   about: String
   city: String
@@ -177,6 +192,7 @@ type UserProfileType {
   rol: String!
   secondName: String
   streetAdress: String
+  username: String
   zipCode: String
 }
 

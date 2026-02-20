@@ -3,11 +3,11 @@ import { HoudiniClient, subscription } from '$houdini';
 import { createClient } from 'graphql-ws';
 
 //let refreshPromise: Promise<Response> | null = null;
-const pendingAuthRetries: (Promise<Response>)[] = [];
-type Resolver = (value: Response) => void
-const pendingAuthRetries: Resolver[] = []
-let isWaitingForReauth = false;
-const API_URL = 'http://localhost:8000/graphql';
+// const pendingAuthRetries: (Promise<Response>)[] = [];
+// type Resolver = (value: Response) => void
+// const pendingAuthRetries: Resolver[] = []
+// let isWaitingForReauth = false;
+// const API_URL = 'http://localhost:8000/graphql';
 
 
 // ESTA ES UN CHOARRADA QUE HA HECHO CLAUDE
@@ -132,7 +132,6 @@ const API_URL = 'http://localhost:8000/graphql';
 // };
 
 
-let refreshPromise: Promise<Response> | null = null;
 
 
 const API_URL = 'http://localhost:8000/graphql';

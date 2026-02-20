@@ -62,7 +62,5 @@ export const actions: Actions = {
     
     
     throw redirect(303, event.url.searchParams.get("redirect") ?? "/books")
-
-    
   }
 };
