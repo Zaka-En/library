@@ -91,7 +91,6 @@ type Mutation {
   finishReading(input: FinishReadingInput!): ReadingStateType!
   generateReporting(authorId: Int!): String!
   login(data: LoginInput!): LoginResponse!
-  refreshToken: LoginResponse!
   registerUser(data: RegisterInput!): UserType!
   sendBookChatMessage(bookId: Int!, message: String!, userName: String!): Boolean!
   startReading(input: StartReadingInput!): ReadingStateType!
@@ -114,6 +113,7 @@ type Query {
   books: [BookType!]!
   myReadingProgress(userId: Int!): [ReadingStateType!]!
   recomendations(user: String!): [String!]!
+  userInfo(userId: Int!): UserProfileType!
 }
 
 type ReadingStateType {
@@ -164,6 +164,20 @@ input UpdateBookInput {
 input UpdateProgressInput {
   currentPage: Int!
   id: Int!
+}
+
+type UserProfileType {
+  about: String
+  city: String
+  email: String!
+  fullname: String
+  id: ID!
+  name: String!
+  province: String
+  rol: String!
+  secondName: String
+  streetAdress: String
+  zipCode: String
 }
 
 type UserType {
