@@ -31,11 +31,10 @@ class Query:
   #TODO add a permission: isuserowner
   @strawberry.field #(permission_classes=[IsAuthenticated])
   async def user_info(self, info: Info[CustomContext, None], user_id: int) -> UserProfileType :
-
-    user_from_payload = info.context.user
+    
 
     # if not user_from_payload or not user_from_payload["id"] != user_id:
-    #   raise Exception("CAN NOT QUERY OR MODIFY OTHERS PRFILES")
+    #   raise Exception("CAN NOT QUERY OR MODIFY OTHERS P")
     
 
     service = info.context.user_service

@@ -7,6 +7,8 @@ from strawberry.subscriptions import GRAPHQL_WS_PROTOCOL, GRAPHQL_TRANSPORT_WS_P
 from app.dependencies import get_context
 from app.broadcast import broadcast
 from contextlib import asynccontextmanager
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
 
 
 origins = [
@@ -17,16 +19,15 @@ origins = [
 ]
 
 
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
   await broadcast.connect()
   yield
   await broadcast.disconnect()
 
-
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(lifespan=lifespan)
+app.state.limiter = limiter
 
 # Configurar CORS
 app.add_middleware(
@@ -40,7 +41,7 @@ app.add_middleware(
 graphql_app = GraphQLRouter(
   schema,
   subscription_protocols=[GRAPHQL_WS_PROTOCOL, GRAPHQL_TRANSPORT_WS_PROTOCOL],
-  context_getter=get_context
+  context_getter=get_context,
   #dependencies=
 )
 

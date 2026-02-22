@@ -7,6 +7,8 @@ from broadcaster import Broadcast
 from strawberry.dataloader import DataLoader
 from app.dependencies import CustomContext
 from app.models.user import User
+from app.utils.permissions import RBAC
+
 
 broadcast = Broadcast("redis://localhost:6379")
 
@@ -62,20 +64,43 @@ class UserType:
   fullname: Optional[str]
   rol: str
 
+
+
+""" 
+No funciona porque strawberry no
+entiende el Mapped[int] de SQLAlchemy --> int
 @strawberry.type
 class UserProfileType(User):
-  id: strawberry.ID
+  __allow_unmapped__ = True
+  id: strawberry.auto
   email: strawberry.auto
   name: strawberry.auto
   username: strawberry.auto
   fullname: strawberry.auto
   rol: strawberry.auto
   second_name: strawberry.auto
-  street_adress: Optional[str]
+  street_adress: strawberry.auto = strawberry.field(permission_classes=[RBAC("admin")])
+  city: strawberry.auto
+  province: strawberry.auto
+  zip_code: strawberry.auto
+  about: strawberry.auto """
+
+@strawberry.type
+class UserProfileType():
+  id: strawberry.ID
+  email: str
+  name: str
+  username: Optional[str]
+  fullname: Optional[str]
+  rol: str = strawberry.field(permission_classes=[RBAC("admin")])
+  second_name: Optional[str]
+  street_adress: Optional[str] 
   city: Optional[str]
   province: Optional[str]
   zip_code: Optional[str]
-  about: Optional[str]
+  about: Optional[str] 
+
+
 
 @strawberry.type
 class LoginResponse:
