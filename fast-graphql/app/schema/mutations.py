@@ -5,7 +5,8 @@ from strawberry.types import Info
 from .convertors import author_to_type, book_to_type, reading_state_to_type
 from time import sleep
 from fastapi.concurrency import run_in_threadpool
-from app.utils.permissions import IsAuthenticated, RBAC
+from app.permissions.authenticated import IsAuthenticated
+from app.permissions.authorized import RBAC
 from app.services.user_service import UserService
 from app.services.author_service import AuthorService
 #from app.services.book_service import BookService

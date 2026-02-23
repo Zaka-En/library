@@ -6,7 +6,7 @@ from typing import TypeVar
 from strawberry.dataloader import DataLoader
 from app.dependencies import CustomContext
 from app.models.user import User
-from app.utils.permissions import RBAC
+from app.permissions.authorized import RBAC
 
 
 @strawberry.type

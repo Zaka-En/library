@@ -1,5 +1,5 @@
-from fastapi import Depends,  Request, WebSocket
-from typing import Annotated, Tuple
+from fastapi import Depends
+from typing import Annotated
 from app.database import  SessionLocal
 from app.broadcast import broadcast
 from app.services.user_service import UserService
@@ -41,7 +41,7 @@ def get_auth_result(access_token: str) -> AuthResult:
   """Pure logic to decode access_token y inject the result in the context 
   this allows us to centralize the authcheck
   It only happens here once per request 
-  error_message and status_code if returned are to be handled in app.utils.permission.py"""
+  error_message and status_code if returned are to be handled in app.permissions.authenticated.py"""
   
 
   try:

@@ -11,11 +11,14 @@ from datetime import datetime
 from app.services.author_service import AuthorService
 # from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
-from app.utils.permissions import IsAuthenticated, rate_limiting
 from app.models.user import User
 from app.dependencies import CustomContext
-from app.utils.permissions import RBAC
-from app.limiter import limiter
+from app.permissions.rate_limiting import rate_limiting
+from app.permissions.authorized import RBAC
+
+
+
+
 
 VALORACIONES = [
   "Increíble historia, me encantó",
