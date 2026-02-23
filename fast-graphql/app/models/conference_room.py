@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
-  from .room_bookings import RoomBooking
+  from .room_booking import RoomBooking
 
 class ConferenceRoom(Base):
 

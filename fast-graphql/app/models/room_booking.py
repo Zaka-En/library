@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, Integer, String, DateTime, CheckConstraint
+from sqlalchemy import ForeignKey, Integer, String, CheckConstraint, Date
 from datetime import datetime
 
 if TYPE_CHECKING:
@@ -28,13 +28,18 @@ class RoomBooking(Base):
     nullable=True
   )
 
-  start_datetime: Mapped[datetime] = mapped_column(
-    type_=DateTime,
+  start_hour: Mapped[int] = mapped_column(
+    type_=Integer,
     nullable=True
   )
 
-  end_datetime: Mapped[datetime] = mapped_column(
-    type_=DateTime,
+  end_hour: Mapped[int] = mapped_column(
+    type_=Integer,
+    nullable=True
+  )
+
+  date: Mapped[datetime] = mapped_column(
+    type_=Date,
     nullable=True
   )
 
@@ -45,7 +50,7 @@ class RoomBooking(Base):
 
   status: Mapped[str]  = mapped_column(
     String(10),
-    default="pending"
+    default="pending" #confirmed canceled 
   )
 
   user: Mapped["User"] = relationship(
@@ -60,6 +65,6 @@ class RoomBooking(Base):
 
   #-----Constraints-------
   __table_args__ = (
-    CheckConstraint(sqltext='start_datetime < end_datetime' , name="check_user_role"),
+    CheckConstraint(sqltext='start_hour < end_hour' , name="check_start_<_end_hour")
   )
 

@@ -1,7 +1,7 @@
 import strawberry
 from typing import List, Optional
 from strawberry.types import Info
-from .types import AuthorType, BookType, ReadingStateType, CustomPageInfo, AuthorConnection, UserProfileType
+from .types import AuthorType, BookType, ReadingStateType, CustomPageInfo, AuthorConnection, UserProfileType, ConferenceRoomType
 from app.models.book import Book
 from .convertors import reading_state_to_type, book_to_type, author_to_type
 from strawberry import relay
@@ -15,9 +15,6 @@ from app.models.user import User
 from app.dependencies import CustomContext
 from app.permissions.rate_limiting import rate_limiting
 from app.permissions.authorized import RBAC
-
-
-
 
 
 VALORACIONES = [
@@ -66,10 +63,12 @@ class Query:
     return [author_to_type(a) for a in authors]
 
   @strawberry.field
-  
+  async def conference_rooms(self, info: Info[CustomContext, None]) -> List[ConferenceRoomType]:
+
+  @strawberry.field
   async def authors(
     self,
-    info: Info,
+    info: Info[CustomContext,None],
     first: Optional[int] = None, 
     after: Optional[str] = None
     ) -> AuthorConnection:

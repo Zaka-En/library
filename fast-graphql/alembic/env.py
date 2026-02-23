@@ -10,7 +10,7 @@ from app.models.author import Author
 from app.models.book import Book
 from app.models.reading_state import ReadingState
 from app.models.user import User
-from app.models.room_bookings import RoomBooking
+from app.models.room_booking import RoomBooking
 from app.models.conference_room import ConferenceRoom
 
 import os

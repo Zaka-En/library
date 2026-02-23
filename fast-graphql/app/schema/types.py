@@ -7,6 +7,10 @@ from strawberry.dataloader import DataLoader
 from app.dependencies import CustomContext
 from app.models.user import User
 from app.permissions.authorized import RBAC
+from datetime import datetime
+
+NodeType = TypeVar("NodeType")
+
 
 
 @strawberry.type
@@ -88,11 +92,25 @@ class CustomPageInfo(strawberry.relay.PageInfo):
   """PageInfo extended with aditional info"""
   total_count: int
 
-NodeType = TypeVar("NodeType")
-
 @strawberry.type
 class AuthorConnection:
   page_info: CustomPageInfo
   edges: list[strawberry.relay.Edge[AuthorType]]
 
+@strawberry.type
+class ConferenceRoomType:
+  id: strawberry.ID
+  name: str
+  capacity: int
+  price_per_hour: int
+  is_active: bool
+
+@strawberry.type
+class RoomBookingType:
+  id: strawberry.ID
+  user_id : int
+  room_id : int 
+  start_date: datetime
+  end_datetime: datetime
+  status: str
 

@@ -6,7 +6,7 @@ import bcrypt
 
 if TYPE_CHECKING:
   from .reading_state import ReadingState
-  from .room_bookings import RoomBooking
+  from .room_booking import RoomBooking
 
 class User(Base):
 
