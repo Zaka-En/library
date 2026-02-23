@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 from app.schema import schema
@@ -7,9 +7,7 @@ from strawberry.subscriptions import GRAPHQL_WS_PROTOCOL, GRAPHQL_TRANSPORT_WS_P
 from app.dependencies import get_context
 from app.broadcast import broadcast
 from contextlib import asynccontextmanager
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-
+from app.limiter import limiter
 
 origins = [
   "http://localhost:5173",
@@ -25,9 +23,9 @@ async def lifespan(app: FastAPI):
   yield
   await broadcast.disconnect()
 
-limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
+
 
 # Configurar CORS
 app.add_middleware(

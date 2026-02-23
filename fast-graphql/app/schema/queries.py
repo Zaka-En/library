@@ -11,11 +11,11 @@ from datetime import datetime
 from app.services.author_service import AuthorService
 # from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
-from app.utils.permissions import IsAuthenticated
+from app.utils.permissions import IsAuthenticated, rate_limiting
 from app.models.user import User
 from app.dependencies import CustomContext
 from app.utils.permissions import RBAC
-
+from app.limiter import limiter
 
 VALORACIONES = [
   "Increíble historia, me encantó",
@@ -29,14 +29,13 @@ VALORACIONES = [
 class Query:
 
   #TODO add a permission: isuserowner
+  
   @strawberry.field #(permission_classes=[IsAuthenticated])
   async def user_info(self, info: Info[CustomContext, None], user_id: int) -> UserProfileType :
     
-
     # if not user_from_payload or not user_from_payload["id"] != user_id:
     #   raise Exception("CAN NOT QUERY OR MODIFY OTHERS P")
     
-
     service = info.context.user_service
     user: User = await service.get_all_info_by_id(user_id)
     print("="*90)
@@ -57,13 +56,14 @@ class Query:
       about=user.about
     )
 
-  @strawberry.field
+  @strawberry.field(permission_classes=[rate_limiting(2,60)])
   async def authors_query (self, info: Info[CustomContext, None]) -> List[AuthorType]:
     author_service: AuthorService = info.context.author_service
     authors = await author_service.get_all()
     return [author_to_type(a) for a in authors]
 
   @strawberry.field
+  
   async def authors(
     self,
     info: Info,

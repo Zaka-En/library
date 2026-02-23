@@ -38,6 +38,7 @@ class Mutation:
     )
       
   @strawberry.mutation
+  
   async def login(self, info: Info[CustomContext, None], data: LoginInput) -> LoginResponse:
 
     user_service: UserService = info.context.user_service
