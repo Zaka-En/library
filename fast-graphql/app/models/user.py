@@ -6,6 +6,7 @@ import bcrypt
 
 if TYPE_CHECKING:
   from .reading_state import ReadingState
+  from .room_bookings import RoomBooking
 
 class User(Base):
 
@@ -84,6 +85,10 @@ class User(Base):
     "ReadingState",
     back_populates="user",
     cascade="all, delete-orphan"
+  )
+
+  room_bookings: Mapped[List["RoomBooking"]] =relationship(
+    back_populates="user",
   )
 
   def verify_password(self, plain_password: str) -> bool:
