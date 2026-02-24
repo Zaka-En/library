@@ -30,7 +30,10 @@ class RoomBookingService(BaseService[RoomBooking], SingletonService):
         )
         return list(result.scalars().all())
   
-    async def create(self, data: dict) -> RoomBooking:
+    async def create(
+      self,
+      data: dict
+      ) -> RoomBooking:
       async with self.session_factory() as session:
         booking = RoomBooking(**data)
         session.add(booking)

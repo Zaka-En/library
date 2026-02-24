@@ -1,5 +1,5 @@
-from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, UpdateBookInput, StartReadingInput, UpdateProgressInput, FinishReadingInput, RegisterInput, LoginInput, UpdateUserInput )
-from .types import AuthorType, BookType, ReadingStateType, UserType, LoginResponse, UserProfileType
+from .inputs import ( CreateAuthorInput, UpdateAuthorInput, CreateBookInput, UpdateBookInput, StartReadingInput, UpdateProgressInput, FinishReadingInput, RegisterInput, LoginInput, UpdateUserInput, RoomBookingInput )
+from .types import AuthorType, BookType, ReadingStateType, UserType, LoginResponse, UserProfileType,RoomBookingType
 import strawberry
 from strawberry.types import Info
 from .convertors import author_to_type, book_to_type, reading_state_to_type
@@ -11,9 +11,11 @@ from app.services.user_service import UserService
 from app.services.author_service import AuthorService
 #from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
+from app.services.room_booking_service import RoomBookingService
 from app.broadcast import broadcast
 from app.dependencies import CustomContext
 from typing import Optional
+from datetime import date as pyDate
 
 
 REFRESH_TOKEN_EXPIRY= 6 * 30
@@ -39,7 +41,6 @@ class Mutation:
     )
       
   @strawberry.mutation
-  
   async def login(self, info: Info[CustomContext, None], data: LoginInput) -> LoginResponse:
 
     user_service: UserService = info.context.user_service
@@ -166,6 +167,20 @@ class Mutation:
     service: ReadingStateService = info.context.reading_state_service
     return reading_state_to_type(await service.finish_reading(state_id=input.id))
   
+  @strawberry.mutation
+  async def book_conference_room(self, input: RoomBookingInput, info: Info[CustomContext, None]) -> RoomBookingType:
+    room_booking_service: RoomBookingService =  info.context.room_booking_service
+    room_booking= await room_booking_service.create(input.to_model_dict())
+    return RoomBookingType(
+      id=strawberry.ID(str(room_booking.id)),
+      room_id=room_booking.room_id,
+      start_hour=room_booking.start_hour,
+      end_hour=room_booking.end_hour,
+      status= room_booking.status,
+      date= pyDate.isoformat(room_booking.date),
+      attendees_count=room_booking.attendees_count
+    )
+
   @strawberry.mutation(permission_classes=[IsAuthenticated])
   async def add_rating(self, text: str) -> str:
     await broadcast.publish(channel="RATINGS",message=text)

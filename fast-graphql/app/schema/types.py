@@ -108,9 +108,11 @@ class ConferenceRoomType:
 @strawberry.type
 class RoomBookingType:
   id: strawberry.ID
-  user_id : int
-  room_id : int 
-  start_date: datetime
-  end_datetime: datetime
+  user_id : Optional[int] = None
+  room_id : int
+  attendees_count: int 
+  start_hour: int
+  end_hour: int
   status: str
+  date: str
 

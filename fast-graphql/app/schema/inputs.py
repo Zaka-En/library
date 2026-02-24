@@ -79,3 +79,23 @@ class UpdateUserInput:
   province: Optional[str] = None
   zip_code: Optional[str] = None
   about: Optional[str] = None
+
+
+
+
+import strawberry
+from datetime import date as pyDate
+
+@strawberry.input
+class RoomBookingInput:
+  room_id: int
+  user_id: int
+  date: str  # Formato YYYY-MM-DD
+  attendees_count: int
+  start_hour: int
+  end_hour: int
+
+  def to_model_dict(self) -> dict:
+    data = strawberry.asdict(self)
+    data['date'] = pyDate.fromisoformat(self.date)
+    return data
