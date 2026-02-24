@@ -6,6 +6,8 @@ from app.services.user_service import UserService
 from app.services.author_service import AuthorService
 from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
+from app.services.conference_room_service import ConferenceRoomService
+from app.services.room_booking_service  import RoomBookingService
 from app.schema.loaders import create_loaders, DataLoaders
 from app.utils.auth import decode_token
 from strawberry.fastapi import  BaseContext
@@ -26,7 +28,11 @@ async def get_book_service():
 async def get_reading_state_service():
   return ReadingStateService(session_factory=SessionLocal)
 
+async def get_conference_room_service():
+  return ConferenceRoomService(session_factory=SessionLocal)
 
+async def get_room_booking_service():
+  return RoomBookingService(session_factory=SessionLocal)
 
 
 #---------------AUTHENTICATION------------------
@@ -70,13 +76,16 @@ class CustomContext(BaseContext):
     author_service: AuthorService,
     book_service: BookService,
     reading_state_service: ReadingStateService,
-    
+    conference_room_service: ConferenceRoomService,
+    room_booking_service: RoomBookingService
   ):
     super().__init__()
     self.user_service = user_service
     self.author_service = author_service
     self.book_service = book_service
     self.reading_state_service = reading_state_service
+    self.conference_room_service = conference_room_service
+    self.room_booking_service = room_booking_service 
 
     self.loaders: DataLoaders = create_loaders(book_service=book_service,author_service=author_service)
 
@@ -95,21 +104,22 @@ class CustomContext(BaseContext):
   #helper prop
   @cached_property
   def user(self) -> dict | None:
-    return self.auth.user
-
-    
-    
+    return self.auth.user  
 
 async def get_context(
   user_service: Annotated[UserService, Depends(get_user_service)],
   author_service: Annotated[AuthorService, Depends(get_author_service)],
   book_service: Annotated[BookService, Depends(get_book_service)],
   reading_state_service: Annotated[ReadingStateService, Depends(get_reading_state_service)],
+  conference_room_service: Annotated[ConferenceRoomService, Depends(get_conference_room_service)],
+  room_booking_service: Annotated[RoomBookingService, Depends(get_room_booking_service)]
 ) -> CustomContext:
     
   return CustomContext(
     user_service=user_service,
     author_service=author_service,
     book_service=book_service,
-    reading_state_service=reading_state_service
+    reading_state_service=reading_state_service,
+    conference_room_service = conference_room_service,
+    room_booking_service = room_booking_service 
   )

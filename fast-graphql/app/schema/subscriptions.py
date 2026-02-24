@@ -1,5 +1,5 @@
 import strawberry
-from .types import broadcast
+from app.broadcast import broadcast
 from typing import AsyncGenerator
 
 

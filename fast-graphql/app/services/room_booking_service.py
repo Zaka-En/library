@@ -1,10 +1,11 @@
 # services/room_booking_service.py
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from datetime import datetime
 from sqlalchemy import select, delete, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.models.room_booking import RoomBooking
 from .base import BaseService, SingletonService
+from datetime import date
 
 class RoomBookingService(BaseService[RoomBooking], SingletonService):
     def __init__(self, session_factory: async_sessionmaker[AsyncSession]):
@@ -105,6 +106,37 @@ class RoomBookingService(BaseService[RoomBooking], SingletonService):
             result = await session.execute(query)
             return result.scalar_one_or_none() is None
     
+    async def get_available_slots(self, room_id: int , date: date) -> List[Tuple[int, int]]:
+      async with self.session_factory() as session:
+        ocuppied_slots_query = select(RoomBooking.start_hour, RoomBooking.end_hour).where(
+          RoomBooking.date == date,
+          RoomBooking.room_id == room_id,
+          RoomBooking.status.in_(["pending", "confirmed"]),
+        ).order_by(RoomBooking.start_hour)
+        
+        ocuppied_slots= list(await session.execute(ocuppied_slots_query))
+        n = len(ocuppied_slots)
+        available_slots : List[Tuple[int, int]] = []
+        start_hour = 9
+        end_hour = 19
+
+        if n == 0:
+          available_slots.append((start_hour,end_hour))
+          return available_slots
+        
+        for index,row in enumerate(ocuppied_slots):
+          current_start_hour_row = row[0]
+          current_end_hour_row = row[1]
+          if start_hour < current_start_hour_row:
+            available_slots.append((start_hour,current_start_hour_row))
+
+          start_hour = current_end_hour_row
+
+          if index == n-1 and start_hour < end_hour:
+            available_slots.append((start_hour,end_hour))
+
+        return available_slots      
+        
     async def get_by_user(self, user_id: int) -> List[RoomBooking]:
       """Método específico: obtener reservas de un usuario"""
       async with self.session_factory() as session:

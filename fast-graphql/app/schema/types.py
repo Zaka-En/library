@@ -66,7 +66,7 @@ class UserType:
   rol: str
 
 @strawberry.type
-class UserProfileType(User):
+class UserProfileType:
   id: strawberry.ID
   email: Optional[str]
   name: Optional[str]
@@ -102,7 +102,7 @@ class ConferenceRoomType:
   id: strawberry.ID
   name: str
   capacity: int
-  price_per_hour: int
+  price_per_hour: float
   is_active: bool
 
 @strawberry.type

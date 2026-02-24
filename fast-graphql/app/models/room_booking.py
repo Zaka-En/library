@@ -65,6 +65,7 @@ class RoomBooking(Base):
 
   #-----Constraints-------
   __table_args__ = (
-    CheckConstraint(sqltext='start_hour < end_hour' , name="check_start_<_end_hour")
+    CheckConstraint(sqltext='start_hour < end_hour' , name="check_start_hour_<_end_hour"),
+    CheckConstraint(sqltext='start_hour >= 8 AND end_hour <= 19', name='check_start_and_end_hours_in_range')
   )
 

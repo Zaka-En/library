@@ -9,12 +9,15 @@ from typing import Tuple
 import asyncio
 from datetime import datetime
 from app.services.author_service import AuthorService
+from app.services.conference_room_service import ConferenceRoomService
+from app.services.room_booking_service import RoomBookingService
 # from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
 from app.models.user import User
 from app.dependencies import CustomContext
 from app.permissions.rate_limiting import rate_limiting
 from app.permissions.authorized import RBAC
+from datetime import date as pyDate
 
 
 VALORACIONES = [
@@ -64,6 +67,23 @@ class Query:
 
   @strawberry.field
   async def conference_rooms(self, info: Info[CustomContext, None]) -> List[ConferenceRoomType]:
+    conference_room_service : ConferenceRoomService = info.context.conference_room_service
+    conference_rooms = await conference_room_service.get_all()
+    return [
+      ConferenceRoomType(
+        id=strawberry.ID(str(c.id)),
+        name=c.name,
+        capacity=c.capacity,
+        is_active=c.is_active,
+        price_per_hour=c.price_per_hour
+      )for c in conference_rooms
+    ]
+
+  @strawberry.field
+  async def available_slots(self,room_id: int,date: str, info: Info[CustomContext, None]) -> List[Tuple[int,int]]:
+    room_booking_service: RoomBookingService =  info.context.room_booking_service
+    available_slots = await room_booking_service.get_available_slots(room_id=room_id,date=pyDate.fromisoformat(date))
+    return available_slots
 
   @strawberry.field
   async def authors(

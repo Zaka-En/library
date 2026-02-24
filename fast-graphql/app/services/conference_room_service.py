@@ -1,8 +1,9 @@
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.models.conference_room import ConferenceRoom
 from .base import BaseService, SingletonService
+from datetime import date
 
 class ConferenceRoomService(BaseService[ConferenceRoom], SingletonService):
   def __init__(self, session_factory: async_sessionmaker[AsyncSession]):
@@ -69,10 +70,4 @@ class ConferenceRoomService(BaseService[ConferenceRoom], SingletonService):
       await session.commit()
       return room
   
-  async def get_active_rooms(self) -> List[ConferenceRoom]:
-    """Method to get active rooms"""
-    async with self.session_factory() as session:
-      result = await session.execute(
-          select(ConferenceRoom).where(ConferenceRoom.is_active == True)
-      )
-      return list(result.scalars().all())
+  
