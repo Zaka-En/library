@@ -14,6 +14,8 @@
     <a class=" inline-block p-1 hover:underline transition" href="/authors">Autores</a>
     <a class=" inline-block p-1 hover:underline transition" href="/books">Libros</a>
     <a class=" inline-block p-1 hover:underline transition" href="/ratings">Valoraciones</a>
+    <a class=" inline-block p-1 hover:underline transition" href="/conf-rooms">Salas de Reuniones</a>
+
   </nav>
 </header>
 

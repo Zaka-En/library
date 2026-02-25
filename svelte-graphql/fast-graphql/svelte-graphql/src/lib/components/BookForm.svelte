@@ -35,8 +35,6 @@
   let loader: LoaderType = createLoader()
 
   
-
-  
   interface FormDataType {
     isbn?: string | null | undefined;
     pages?: number | null | undefined;
@@ -135,7 +133,6 @@
   }
 
   function handleCancel() {goto(`/books`)}
-
 
 
  </script>

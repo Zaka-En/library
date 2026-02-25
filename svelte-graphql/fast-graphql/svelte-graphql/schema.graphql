@@ -33,6 +33,15 @@ type BookType {
   title: String!
 }
 
+type ConferenceRoomType {
+  availableSlots: [[Int!]!]!
+  capacity: Int!
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  pricePerHour: Float!
+}
+
 input CreateAuthorInput {
   biography: String = null
   country: String!
@@ -84,6 +93,7 @@ type LoginResponse {
 
 type Mutation {
   addRating(text: String!): String!
+  bookConferenceRoom(input: RoomBookingInput!): RoomBookingType!
   createAuthor(input: CreateAuthorInput!): AuthorType!
   createBook(input: CreateBookInput!): BookType!
   deleteAuthor(id: Int!): Boolean!
@@ -110,8 +120,10 @@ type Query {
   author(id: Int!): AuthorType
   authors(after: String = null, first: Int = null): AuthorConnection!
   authorsQuery: [AuthorType!]!
+  availableSlots(date: String!, roomId: Int!): [[Int!]!]!
   book(id: Int!): BookType
   books: [BookType!]!
+  conferenceRooms: [ConferenceRoomType!]!
   myReadingProgress(userId: Int!): [ReadingStateType!]!
   recomendations(user: String!): [String!]!
   userInfo(userId: Int!): UserProfileType!
@@ -132,6 +144,26 @@ input RegisterInput {
   name: String!
   password: String!
   rol: String! = "user"
+}
+
+input RoomBookingInput {
+  attendeesCount: Int!
+  date: String!
+  endHour: Int!
+  roomId: Int!
+  startHour: Int!
+  userId: Int!
+}
+
+type RoomBookingType {
+  attendeesCount: Int!
+  date: String!
+  endHour: Int!
+  id: ID!
+  roomId: Int!
+  startHour: Int!
+  status: String!
+  userId: Int
 }
 
 input StartReadingInput {
@@ -184,12 +216,12 @@ input UpdateUserInput {
 type UserProfileType {
   about: String
   city: String
-  email: String!
+  email: String
   fullname: String
   id: ID!
-  name: String!
+  name: String
   province: String
-  rol: String!
+  rol: String
   secondName: String
   streetAdress: String
   username: String
