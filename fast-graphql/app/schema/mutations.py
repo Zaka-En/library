@@ -16,7 +16,7 @@ from app.broadcast import broadcast
 from app.dependencies import CustomContext
 from typing import Optional
 from datetime import date as pyDate
-
+from fastapi import Response
 
 REFRESH_TOKEN_EXPIRY= 6 * 30
 
@@ -170,6 +170,18 @@ class Mutation:
   @strawberry.mutation
   async def book_conference_room(self, input: RoomBookingInput, info: Info[CustomContext, None]) -> RoomBookingType:
     room_booking_service: RoomBookingService =  info.context.room_booking_service
+    response: Response | None = info.context.response
+
+    if room_booking_service._check_availability(
+      room_id=input.room_id,
+      date=pyDate.fromisoformat(input.date),
+      end=input.end_hour,
+      start=input.start_hour
+    ):
+      if response:
+        response.status_code = 409
+      raise Exception("CONFERENCE_ROOM_OCCUPIED")
+
     room_booking= await room_booking_service.create(input.to_model_dict())
     return RoomBookingType(
       id=strawberry.ID(str(room_booking.id)),

@@ -1,4 +1,4 @@
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Tuple
 import strawberry
 from datetime import datetime
 from strawberry.types import Info
@@ -104,6 +104,10 @@ class ConferenceRoomType:
   capacity: int
   price_per_hour: float
   is_active: bool
+
+  @strawberry.field
+  async def available_slots(self, info: Info[CustomContext, None]) -> List[Tuple[int,int]]:
+    return await info.context.loaders.room_slots.load(int(self.id))
 
 @strawberry.type
 class RoomBookingType:

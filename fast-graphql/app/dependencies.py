@@ -87,7 +87,10 @@ class CustomContext(BaseContext):
     self.conference_room_service = conference_room_service
     self.room_booking_service = room_booking_service 
 
-    self.loaders: DataLoaders = create_loaders(book_service=book_service,author_service=author_service)
+    self.loaders: DataLoaders = create_loaders(
+      book_service=book_service,
+      author_service=author_service,
+      room_booking_service=room_booking_service)
 
   @cached_property
   def auth(self) -> AuthResult:
