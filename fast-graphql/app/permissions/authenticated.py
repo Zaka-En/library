@@ -2,7 +2,6 @@ from strawberry.permission import BasePermission
 from strawberry.types import Info
 from typing import Any
 from fastapi import  Response
-from functools import lru_cache
 from app.dependencies import CustomContext
 
 class IsAuthenticated(BasePermission):

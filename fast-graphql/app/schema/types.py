@@ -11,8 +11,6 @@ from datetime import datetime
 
 NodeType = TypeVar("NodeType")
 
-
-
 @strawberry.type
 class AuthorType(strawberry.relay.Node):
   id: strawberry.relay.NodeID[int]
@@ -25,7 +23,7 @@ class AuthorType(strawberry.relay.Node):
   async def books(self, info: Info[CustomContext,Any]) -> List["BookType"]:
     from .convertors import book_to_type
     books = await info.context.loaders.book.load(self.id)
-    return [book_to_type(b) for b in books] 
+    return [book_to_type(b) for b in books ] if books else []
   
 @strawberry.type
 class BookType:
@@ -104,14 +102,10 @@ class ConferenceRoomType:
   capacity: int
   price_per_hour: float
   is_active: bool
-
-  @strawberry.field
-  async def available_slots(self, info: Info[CustomContext, None]) -> List[Tuple[int,int]]:
-    return await info.context.loaders.room_slots.load(int(self.id))
   
   @strawberry.field
-  async def available_hours(self, info: Info[CustomContext, None]) -> List[int]:
-    return await info.context.loaders.room_hours.load(int(self.id))
+  async def available_hours(self,starting_hour: int, info: Info[CustomContext, None]) -> List[int]:
+    return await info.context.loaders.room_hours.load((int(self.id), starting_hour))
 
 
 @strawberry.type

@@ -175,6 +175,7 @@ class Mutation:
     try:
       room_booking= await room_booking_service.create(input.to_model_dict())
     except Exception as e:
+      
       error_msg = str(e)
 
       if error_msg == 'DUPLICATE_ROOM_BOOKING':

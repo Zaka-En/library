@@ -1,5 +1,7 @@
 import strawberry
 from typing import Optional
+from datetime import date as pyDate
+
 
 @strawberry.input
 class CreateAuthorInput:
@@ -83,8 +85,6 @@ class UpdateUserInput:
 
 
 
-import strawberry
-from datetime import date as pyDate
 
 @strawberry.input
 class RoomBookingInput:

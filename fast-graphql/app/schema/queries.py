@@ -79,16 +79,21 @@ class Query:
       )for c in conference_rooms
     ]
 
-  @strawberry.field
-  async def available_slots(self,room_id: int,date: str, info: Info[CustomContext, None]) -> List[Tuple[int,int]]:
-    room_booking_service: RoomBookingService =  info.context.room_booking_service
-    available_slots = await room_booking_service.get_available_slots(room_id=room_id,date=pyDate.fromisoformat(date))
-    return available_slots
   
   @strawberry.field
-  async def available_hours(self, room_id: int, date: str, info: Info[CustomContext, None]) -> List[int]:
+  async def available_hours(
+    self,
+    room_id: int,
+    date: str,
+    info: Info[CustomContext, None],
+    starting_hour: int = 9,
+    ) -> List[int]:
     room_booking_service: RoomBookingService =  info.context.room_booking_service
-    available_hours = await room_booking_service.get_available_hours(room_id=room_id,date=pyDate.fromisoformat(date))
+    available_hours = await room_booking_service.get_available_hours(
+      room_id=room_id,
+      date=pyDate.fromisoformat(date),
+      starting_hour=starting_hour
+      )
     return available_hours
 
   @strawberry.field

@@ -1,5 +1,4 @@
 from .authenticated import IsAuthenticated
-from strawberry.permission import BasePermission
 from strawberry.types import Info
 from typing import Any
 from fastapi import  Response, status

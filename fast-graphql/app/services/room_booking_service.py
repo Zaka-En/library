@@ -1,6 +1,4 @@
-# services/room_booking_service.py
 from typing import Optional, List, Tuple
-from datetime import datetime
 from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -92,66 +90,9 @@ class RoomBookingService(BaseService[RoomBooking], SingletonService):
         delete(RoomBooking).where(RoomBooking.id == id)
       )
       await session.commit()
-      return booking
-  
-  async def _check_availability(
-      self, 
-      room_id: int, 
-      start: int, 
-      end: int,
-      date: date
-  ) -> bool:
-      """Método específico: verificar si la sala está disponible en la franja horaria especificada"""
-      async with self.session_factory() as session:
-          
-        if start < 9 or end > 19 or start >= end:
-          return False
-        
-        query = select(RoomBooking).where(
-          RoomBooking.room_id == room_id,
-          RoomBooking.date == date,
-          RoomBooking.end_hour > start,
-          RoomBooking.start_hour < end
-        )
-
-        result = await session.execute(query)
-        count = list(result.scalar())
-
-        return count == 0
-  
-  async def get_available_slots(self, room_id: int , date: date) -> List[Tuple[int, int]]:
-
-    async with self.session_factory() as session:
-      ocuppied_slots_query = select(RoomBooking.start_hour, RoomBooking.end_hour).where(
-        RoomBooking.date == date,
-        RoomBooking.room_id == room_id,
-        RoomBooking.status.in_(["pending", "confirmed"]),
-      ).order_by(RoomBooking.start_hour)
-      
-      ocuppied_slots= list(await session.execute(ocuppied_slots_query))
-      n = len(ocuppied_slots)
-      available_slots : List[Tuple[int, int]] = []
-      start_hour = 9
-      end_hour = 19
-
-      if n == 0:
-        available_slots.append((start_hour,end_hour))
-        return available_slots
-      
-      for index,row in enumerate(ocuppied_slots):
-        current_start_hour_row = row[0]
-        current_end_hour_row = row[1]
-        if start_hour < current_start_hour_row:
-          available_slots.append((start_hour,current_start_hour_row))
-
-        start_hour = current_end_hour_row
-
-        if index == n-1 and start_hour < end_hour:
-          available_slots.append((start_hour,end_hour))
-
-      return available_slots      
+      return booking     
     
-  async def get_available_hours(self, room_id: int , date: date) -> List[int]:
+  async def get_available_hours(self, room_id: int , date: date, starting_hour: int = 9) -> List[int]:
     async with self.session_factory() as session:
       booked_hours_query = select(RoomBooking.hour).where(
         RoomBooking.date == date,
@@ -162,7 +103,7 @@ class RoomBookingService(BaseService[RoomBooking], SingletonService):
       result = await session.execute(booked_hours_query)
       booked_hours = result.scalars().all()
 
-      FIRST_AVAILABLE_HOUR = 9
+      FIRST_AVAILABLE_HOUR = starting_hour
       LAST_AVAILABLE_HOUR = 18
       HOURS_RANGE = range(FIRST_AVAILABLE_HOUR,LAST_AVAILABLE_HOUR + 1)
     
