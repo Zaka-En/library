@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, Integer, String, CheckConstraint, Date
+from sqlalchemy import ForeignKey, Integer, String, CheckConstraint, Date, UniqueConstraint
 from datetime import datetime
 
 if TYPE_CHECKING:
@@ -28,18 +28,13 @@ class RoomBooking(Base):
     nullable=True
   )
 
-  start_hour: Mapped[int] = mapped_column(
-    type_=Integer,
-    nullable=True
-  )
-
-  end_hour: Mapped[int] = mapped_column(
-    type_=Integer,
-    nullable=True
+  hour: Mapped[int] = mapped_column(
+    Integer,
+    nullable=False
   )
 
   date: Mapped[datetime] = mapped_column(
-    type_=Date,
+    Date,
     nullable=True
   )
 
@@ -65,7 +60,19 @@ class RoomBooking(Base):
 
   #-----Constraints-------
   __table_args__ = (
-    CheckConstraint(sqltext='start_hour < end_hour' , name="check_start_hour_<_end_hour"),
-    CheckConstraint(sqltext='start_hour >= 8 AND end_hour <= 19', name='check_start_and_end_hours_in_range')
+    CheckConstraint(sqltext='hour>=9 and hour<= 18', name='check_hour_between_9_and_18'),
+    UniqueConstraint(
+      "hour",
+      "room_id",
+      "date",
+      name='uq_hour_room_date_booking'
+    ),
   )
+  # __table_args__ = (
+  #   CheckConstraint(sqltext='start_hour < end_hour' , name="check_start_hour_<_end_hour"),
+  #   CheckConstraint(sqltext='start_hour >= 8 AND end_hour <= 19', name='check_start_and_end_hours_in_range')
+  # )
+
+
+
 

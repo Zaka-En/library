@@ -90,10 +90,9 @@ from datetime import date as pyDate
 class RoomBookingInput:
   room_id: int
   user_id: int
-  date: str  # Formato YYYY-MM-DD
+  date: str  # Formato YYYY-MM-DD iso 8601
   attendees_count: int
-  start_hour: int
-  end_hour: int
+  hour:int
 
   def to_model_dict(self) -> dict:
     data = strawberry.asdict(self)

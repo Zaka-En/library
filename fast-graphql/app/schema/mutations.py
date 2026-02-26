@@ -11,12 +11,12 @@ from app.services.user_service import UserService
 from app.services.author_service import AuthorService
 #from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
-from app.services.room_booking_service import RoomBookingService
+from app.services.room_booking_service import RoomBookingService, IntegrityError
 from app.broadcast import broadcast
 from app.dependencies import CustomContext
 from typing import Optional
 from datetime import date as pyDate
-from fastapi import Response
+from fastapi import Response, status
 
 REFRESH_TOKEN_EXPIRY= 6 * 30
 
@@ -172,22 +172,20 @@ class Mutation:
     room_booking_service: RoomBookingService =  info.context.room_booking_service
     response: Response | None = info.context.response
 
-    if room_booking_service._check_availability(
-      room_id=input.room_id,
-      date=pyDate.fromisoformat(input.date),
-      end=input.end_hour,
-      start=input.start_hour
-    ):
-      if response:
-        response.status_code = 409
-      raise Exception("CONFERENCE_ROOM_OCCUPIED")
+    try:
+      room_booking= await room_booking_service.create(input.to_model_dict())
+    except Exception as e:
+      error_msg = str(e)
 
-    room_booking= await room_booking_service.create(input.to_model_dict())
+      if error_msg == 'DUPLICATE_ROOM_BOOKING':
+        if response:  
+          response.status_code = status.HTTP_409_CONFLICT
+        raise Exception('DUPLICATE_ROOM_BOOKING')
+
     return RoomBookingType(
       id=strawberry.ID(str(room_booking.id)),
       room_id=room_booking.room_id,
-      start_hour=room_booking.start_hour,
-      end_hour=room_booking.end_hour,
+      hour=input.hour,
       status= room_booking.status,
       date= pyDate.isoformat(room_booking.date),
       attendees_count=room_booking.attendees_count

@@ -108,6 +108,11 @@ class ConferenceRoomType:
   @strawberry.field
   async def available_slots(self, info: Info[CustomContext, None]) -> List[Tuple[int,int]]:
     return await info.context.loaders.room_slots.load(int(self.id))
+  
+  @strawberry.field
+  async def available_hours(self, info: Info[CustomContext, None]) -> List[int]:
+    return await info.context.loaders.room_hours.load(int(self.id))
+
 
 @strawberry.type
 class RoomBookingType:
@@ -115,8 +120,7 @@ class RoomBookingType:
   user_id : Optional[int] = None
   room_id : int
   attendees_count: int 
-  start_hour: int
-  end_hour: int
+  hour: int
   status: str
   date: str
 

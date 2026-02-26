@@ -84,6 +84,12 @@ class Query:
     room_booking_service: RoomBookingService =  info.context.room_booking_service
     available_slots = await room_booking_service.get_available_slots(room_id=room_id,date=pyDate.fromisoformat(date))
     return available_slots
+  
+  @strawberry.field
+  async def available_hours(self, room_id: int, date: str, info: Info[CustomContext, None]) -> List[int]:
+    room_booking_service: RoomBookingService =  info.context.room_booking_service
+    available_hours = await room_booking_service.get_available_hours(room_id=room_id,date=pyDate.fromisoformat(date))
+    return available_hours
 
   @strawberry.field
   async def authors(

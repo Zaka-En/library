@@ -17,6 +17,7 @@ class DataLoaders:
   author: DataLoader[int, Optional[Author]]
   books_by_author: DataLoader[int, List[Book]]
   room_slots: DataLoader[int, List[Tuple[int, int]]]
+  room_hours: DataLoader[int, List[int]]
 
 async def load_books_by_ids(book_ids: List[int], book_service: BookService) -> List[Optional[Book]]:
   books = await book_service.get_by_ids(book_ids)
@@ -53,6 +54,22 @@ async def load_available_slots_by_room_ids(
 
   return list(results)
 
+async def load_available_hours_by_room_ids(
+    
+  room_ids: List[int],
+  room_booking_service: RoomBookingService,
+  target_date: date
+  ) -> List[List[int]]:
+  """Takes list of room ids and retreives availables slots of eahc room_id that same date"""
+  
+  tasks = [room_booking_service.get_available_hours(
+    room_id=rid,
+    date=target_date
+    ) for rid in room_ids]
+  
+  results = await asyncio.gather(*tasks)
+
+  return list(results)
   
 
 
@@ -74,12 +91,16 @@ def create_loaders(
   async def load_slots(ids: List[int]) -> List[List[Tuple[int,int]]]:
     #date: hard-coded today's date to 
     return await load_available_slots_by_room_ids(room_ids=ids,room_booking_service=room_booking_service,target_date=date.today())
+  
+  async def load_hours(ids: List[int]) -> List[List[int]]:
+    return await load_available_hours_by_room_ids(room_ids=ids,room_booking_service=room_booking_service,target_date=date.today())
 
   return DataLoaders(
     book=DataLoader(load_fn=load_books),
     author=DataLoader(load_fn=load_authors),
     books_by_author=DataLoader(load_fn=load_books_by_author),
-    room_slots=DataLoader(load_fn=load_slots)
+    room_slots=DataLoader(load_fn=load_slots),
+    room_hours=DataLoader(load_fn=load_hours)
   )
 
   
