@@ -86,7 +86,7 @@
          });
       }
     } catch (error) {
-      console.error("error sending the message", error)
+      console.log("error sending the message", error)
     }
     inputMessage = ""
   }

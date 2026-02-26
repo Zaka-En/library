@@ -53,7 +53,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         console.log("❌ Falló el refresh en servidor.");
       }
     } catch (error) {
-      console.error("Error de red en refresh server:", error);
+      console.log("Error de red en refresh server:", error);
     }
   }
 

@@ -1,20 +1,26 @@
 import type { PageLoad } from './$types';
 import { graphql } from '$houdini';
+import dayjs from 'dayjs';
 
 const conferenceRoomStore = graphql(`
-  query ConferenceRoom {
+  query ConferenceRooms($startingHour: Int!) {
     conferenceRooms {
       id
       name
       capacity
-      availableSlots
+      availableHours(startingHour: $startingHour)
     }
   }
 `)
 
 export const load: PageLoad = async (event) => {
 
-  await conferenceRoomStore.fetch({event})
+  let startingHour = dayjs().hour() + 1
+
+  await conferenceRoomStore.fetch({
+    event,
+    variables: { startingHour }
+  })
 
   return{
     conferenceRoomStore

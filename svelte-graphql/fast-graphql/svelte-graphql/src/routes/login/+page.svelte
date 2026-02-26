@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-
+  import favicon from "$lib/assets/favicon.svg";
   let { form }  = $props()
 
 </script>
@@ -8,7 +8,7 @@
 <section class="bg-gray-50 dark:bg-gray-900 w-full max-w-md p-4 sm:p-6 rounded-lg shadow-xl flex flex-col items-center mt-5 mx-auto">
     
     <a href="#d" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-        <img class="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="logo">
+        <img class="w-8 h-8 mr-2" src={favicon} alt="logo">
         Biblio    
     </a>
 

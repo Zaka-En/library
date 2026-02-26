@@ -1,20 +1,20 @@
 <script lang="ts">
-	import ConferenceRoom from "$lib/components/ConferenceRoom.svelte";
+	import ConferenceRoom, { type ConferenceRoom as ConferenceRoomType } from "$lib/components/ConferenceRoom.svelte";
 	import type { PageProps } from './$types';
-	import { type ConferenceRoom$result } from "$houdini";
-	
 
-	type ConferenceRoom = ConferenceRoom$result["conferenceRooms"][number]
 
   const { data } : PageProps = $props()
 
 	const conferenceRoomStore = $derived(data.conferenceRoomStore)
 	const userId = $derived(data.user.id)
 	$inspect(userId)
-	let conferenceRooms: ConferenceRoom[]   = $derived($conferenceRoomStore.data?.conferenceRooms ?? [])
+	let conferenceRooms: ConferenceRoomType[] = $derived($conferenceRoomStore.data?.conferenceRooms ?? [])
 
 </script>
 
-{#each conferenceRooms as conferenceRoom (conferenceRoom.id)}
-	<ConferenceRoom room={conferenceRoom} {userId}/>
-{/each}
+<section class="flex justify-center flex-wrap gap-4 mx-10 items-start">
+	{#each conferenceRooms as conferenceRoom (conferenceRoom.id)}
+		<ConferenceRoom room={conferenceRoom} {userId}/>
+	{/each}
+</section>
+

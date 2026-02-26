@@ -34,7 +34,7 @@ type BookType {
 }
 
 type ConferenceRoomType {
-  availableSlots: [[Int!]!]!
+  availableHours(startingHour: Int!): [Int!]!
   capacity: Int!
   id: ID!
   isActive: Boolean!
@@ -120,7 +120,7 @@ type Query {
   author(id: Int!): AuthorType
   authors(after: String = null, first: Int = null): AuthorConnection!
   authorsQuery: [AuthorType!]!
-  availableSlots(date: String!, roomId: Int!): [[Int!]!]!
+  availableHours(date: String!, roomId: Int!, startingHour: Int!): [Int!]!
   book(id: Int!): BookType
   books: [BookType!]!
   conferenceRooms: [ConferenceRoomType!]!
@@ -149,19 +149,17 @@ input RegisterInput {
 input RoomBookingInput {
   attendeesCount: Int!
   date: String!
-  endHour: Int!
+  hour: Int!
   roomId: Int!
-  startHour: Int!
   userId: Int!
 }
 
 type RoomBookingType {
   attendeesCount: Int!
   date: String!
-  endHour: Int!
+  hour: Int!
   id: ID!
   roomId: Int!
-  startHour: Int!
   status: String!
   userId: Int
 }
