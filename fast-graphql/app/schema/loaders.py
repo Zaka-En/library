@@ -10,7 +10,7 @@ from datetime import date
 import asyncio
 
 
-#---------------Data Loaders-------------------
+#---------------DataLoaders-------------------
 @dataclass
 class DataLoaders:
   book: DataLoader[int, Optional[Book]]
@@ -56,7 +56,6 @@ async def load_available_hours_by_room_ids(
   return list(results)
   
 
-
 def create_loaders(
   book_service: BookService,
   author_service: AuthorService, 
@@ -74,6 +73,7 @@ def create_loaders(
   
   async def load_hours(keys: List[Tuple[int, int]]) -> List[List[int]]:
     return await load_available_hours_by_room_ids(keys=keys,room_booking_service=room_booking_service,target_date=date.today())
+  
   return DataLoaders(
     book=DataLoader(load_fn=load_books),
     author=DataLoader(load_fn=load_authors),

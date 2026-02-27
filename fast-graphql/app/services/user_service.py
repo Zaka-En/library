@@ -54,7 +54,7 @@ class UserService:
       user: User = result.scalar_one_or_none()
 
       if not user or not user.verify_password(data.password):
-        raise Exception("INVALID CREDENTIALS")
+        raise Exception("INVALID_CREDENTIALS")
       
       #the user payload
       user_data= {

@@ -57,7 +57,6 @@ class RoomBookingService(BaseService[RoomBooking], SingletonService):
         await session.rollback()
         raise e
 
-    
   async def update(self, data: dict) -> RoomBooking:
     async with self.session_factory() as session:
       result = await session.execute(
@@ -110,7 +109,7 @@ class RoomBookingService(BaseService[RoomBooking], SingletonService):
       if len(booked_hours) == 0:
         return list(HOURS_RANGE)
       
-      return [hour for hour in HOURS_RANGE if hour not in booked_hours ] 
+      return [hour for hour in HOURS_RANGE if hour not in booked_hours] 
 
   async def get_by_user(self, user_id: int) -> List[RoomBooking]:
     """Método específico: obtener reservas de un usuario"""
