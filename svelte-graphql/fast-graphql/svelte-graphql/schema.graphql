@@ -120,7 +120,7 @@ type Query {
   author(id: Int!): AuthorType
   authors(after: String = null, first: Int = null): AuthorConnection!
   authorsQuery: [AuthorType!]!
-  availableHours(date: String!, roomId: Int!, startingHour: Int!): [Int!]!
+  availableHours(date: String!, roomId: Int!, startingHour: Int! = 9): [Int!]!
   book(id: Int!): BookType
   books: [BookType!]!
   conferenceRooms: [ConferenceRoomType!]!

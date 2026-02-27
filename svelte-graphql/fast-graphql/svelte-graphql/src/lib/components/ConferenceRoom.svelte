@@ -10,11 +10,17 @@
   import dayjs from "dayjs";
 
 
-  let {room, userId}:
-  { room: ConferenceRoom, userId: number }
+  let {
+    room,
+    userId
+  } : { 
+    room: ConferenceRoom,
+    userId: number
+  }
   = $props()
-  const availableHoursFromRoomLoad = $derived(room.availableHours)
-  let availableHours = $state(availableHoursFromRoomLoad ?? [])
+  
+  const availableHoursFromRoomLoading = $derived(room.availableHours)
+  let availableHours = $state(availableHoursFromRoomLoading ?? [])
   let currentDate = $state.raw(dayjs());
   const isToday = $derived(currentDate.isSame(dayjs(),'day'))
   let dateLable = $derived(
@@ -47,23 +53,30 @@
     }
   `)
   let isLoadingBookRoom = $state(false)
-  let isBookRoomSuccess = $state(true)
+  let isBookRoomSuccess: boolean | null = $state(null)
   let hasRequestedBookRoom = $state(false) // flag to determin if a user confirmed an hour to show success/fail
   let errorMsg = $state("")
+  let lastQueryToken = $state(0)
 
-  $effect(() => {
-    if (availableHours) {
-      selectedHour = null
-    }
-  })
-
-  // Button Actions
+  //+++++++ Button Actions ++++++++++
   const moveBetweenDays = (days: number) => {
     currentDate = currentDate.add(days, 'day')
   }
 
   const onChangeDay = async () => {
+    /**
+     * TODO
+     * Figure out how AbortController works with houdini
+     */
+    const controller = new AbortController()
+    const { signal } = controller
+
+    const queryToken = ++lastQueryToken 
+
+    selectedHour = null // reset
+
     // the +1 is for fetching next available hours begining from the next one
+    // en case the day chosen is the current day
     let startingHour = isToday ? (dayjs().hour() + 1) : FIRST_AVAILABLE_HOUR
     let variables = {
       roomId: Number(room.id),
@@ -73,14 +86,20 @@
 
     await getAvailableHoursStore.fetch({
       variables,
-      policy: 'NetworkOnly'
+      policy: 'NetworkOnly', // Important
     })
+
+    //if the response arrived too late, it is simply ignored
+    if (queryToken != lastQueryToken){
+      return
+    }
+
     const newAvailableHours = $getAvailableHoursStore.data?.availableHours ?? []
     availableHours = newAvailableHours // <-- Aquí estoy haciendo un reassignment
   }
 
   const onConfirmHour = async () => {
-    if(!selectedHour) return
+    if(!selectedHour || isLoadingBookRoom) return
 
     isLoadingBookRoom = true
 
@@ -102,11 +121,12 @@
     if(result.errors){
       isBookRoomSuccess = false
       errorMsg = result.errors[0].message
+    }else{
+      isBookRoomSuccess = true
     }
   }
 
   const onBackToRoomBookHours = async () => {
-    console.log(`Antes de volver a los horarios, el valor de currentDate: ${currentDate.format("YYYY-MM-DD")}`)
     await onChangeDay() // refresh room booking availablehours
     hasRequestedBookRoom=false
     isLoadingBookRoom=false
@@ -119,7 +139,7 @@
 </script>
 
 <div
-  class="flex min-h-72 w-xs flex-col bg-white shadow-md rounded-2xlshadow-md font-normal p-2 "
+  class="flex min-h-72 w-xs flex-col bg-[#dddacf] shadow-md rounded-2xlshadow-md font-normal p-2"
 >
   {#if !isLoadingBookRoom }
     <div class="mb-2 flex items-center justify-between px-4 pt-4">
@@ -207,7 +227,7 @@
       </div>
 
       <div class="m-auto flex justify-center items-center mb-3">
-        <button onclick={() => {onConfirmHour()}}
+        <button onclick={() => {onConfirmHour()}} disabled={isLoadingBookRoom}
         class="text-xs cursor-pointer rounded-full bg-amber-50 py-2 px-5 hover:bg-amber-100" >Confirmar</button>
       </div>
     {/if}
@@ -239,7 +259,7 @@
           {#if errorMsg === DUPLICATE_ROOM_BOOKING_ERROR}
             <span>la hora: {selectedHour}:00 ya está reservada</span>
           {:else}
-            <span>Hubo un error. <a class="text-blue-400 italic" href="/">Support team</a> </span>
+            <span>Hubo un error. <a class="text-blue-400 italic underline" href="/">Support team</a> </span>
           {/if}
           <span class="text-sm">Consulta otros horarios</span>          
         </div>

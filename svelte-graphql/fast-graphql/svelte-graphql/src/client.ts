@@ -283,7 +283,6 @@ export default new HoudiniClient({
     fetchParams() {
         return { credentials: 'include' };
     },
-
     //houdini functions/plugins pipeline
     plugins: [
         () => ({

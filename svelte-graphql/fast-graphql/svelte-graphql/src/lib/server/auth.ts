@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET_KEY } from '$env/static/private'
 
 export interface UserPayLoad {
-  //id: string
+  id: string
   name: string
   email: string
   rol: string
