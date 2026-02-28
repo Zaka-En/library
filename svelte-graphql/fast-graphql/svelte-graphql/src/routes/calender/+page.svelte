@@ -1,4 +1,4 @@
 <script>
-  import Calendar from "$lib/components/ui/Calendar.svelte";
+  import {Calendar} from "$lib/components/ui";
 </script>
 <Calendar />
