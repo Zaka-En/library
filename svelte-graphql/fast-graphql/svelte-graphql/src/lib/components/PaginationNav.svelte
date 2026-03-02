@@ -44,7 +44,7 @@
         stroke-width="2"
         d="M15 19l-7-7 7-7"
       />
-    </svg>
+    </svg> 
   </button>
 
   <div class="w-16 h-8 flex justify-center items-center border border-black ">

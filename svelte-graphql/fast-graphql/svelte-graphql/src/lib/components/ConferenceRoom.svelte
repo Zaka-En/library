@@ -89,7 +89,7 @@
       policy: 'NetworkOnly', // Important
     })
 
-    //if the response arrived too late, it is simply ignored
+    //if a response arrived too late, it is simply ignored
     if (queryToken != lastQueryToken){
       return
     }
