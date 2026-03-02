@@ -55,7 +55,7 @@ export class RoomBookingController<TRoom extends BaseRoom> {
     try {
       const hours = await this.#provider.getAvailableHours(
         this.#room,
-        this.currentDate.format('YYYY-MMM-DD'),
+        this.currentDate.format('YYYY-MM-DD'),
         startingHour
       )
 
@@ -78,11 +78,11 @@ export class RoomBookingController<TRoom extends BaseRoom> {
     this.isLoadingBookRoom = true;
 
     const input ={
-      roomId: this.#room.id,
+      roomId: Number(this.#room.id),
       userId: this.#userId,
       date: this.currentDate.format('YYYY-MM-DD'),
       hour: this.selectedHour,
-      attendees: this.attendees || 1
+      attendeesCount: this.attendees || 1
     }
     
     const { success, error } = await this.#provider.bookRoom(input)
