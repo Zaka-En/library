@@ -118,10 +118,12 @@
 					{@const isDayOftheMonth = day.month() === currentFirstDateOfMonth.month()}
 					{@const canBeSelected = !isSunday && isDayOftheMonth}
 					<button
-						
+						onclick={() => {}}
 						type="button"
-						class="size-8 flex justify-center items-center rounded-sm {!isDayOftheMonth? 'text-gray-300' : isSunday ? 'text-red-500' : 'text-gray-800'}
-						{!canBeSelected || 'hover:border border-gray-600 cursor-pointer'}">
+						class="size-8 flex justify-center items-center rounded-sm
+						{!isDayOftheMonth? 'text-gray-300' : isSunday ? 'text-red-500' : 'text-gray-800'}
+						{!canBeSelected || 'hover:border border-gray-600 cursor-pointer'}
+						">
 						{day.get('D')}
 					</button>
 				{/each}
