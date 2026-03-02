@@ -1,8 +1,6 @@
-import { type ConferenceRooms$result, graphql } from "$houdini";
+import { type ConferenceRoom } from "./types";
 import dayjs from "dayjs";
-
-
-export type ConferenceRoom = ConferenceRooms$result["conferenceRooms"][number];
+import { graphql } from "$houdini"
 
 const FIRST_AVAILABLE_HOUR = 9;
 
