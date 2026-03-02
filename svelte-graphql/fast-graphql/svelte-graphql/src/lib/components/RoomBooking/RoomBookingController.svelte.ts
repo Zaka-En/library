@@ -5,19 +5,19 @@ import { graphql } from "$houdini"
 const FIRST_AVAILABLE_HOUR = 9;
 
 // Stores de Houdini (Sin el $ porque estamos en un .ts)
-const getAvailableHoursStore = graphql(`
-  query AvailableHours($roomId: Int!, $date: String!, $startingHour: Int!){
-    availableHours(roomId: $roomId, date: $date, startingHour: $startingHour )
-  }
-`);
+// const getAvailableHoursStore = graphql(`
+//   query AvailableHours($roomId: Int!, $date: String!, $startingHour: Int!){
+//     availableHours(roomId: $roomId, date: $date, startingHour: $startingHour )
+//   }
+// `);
 
-const bookRoomStore = graphql(`
-  mutation BookRoom($input: RoomBookingInput!){
-    bookConferenceRoom(input: $input){
-      roomId hour date attendeesCount
-    }
-  }
-`);
+// const bookRoomStore = graphql(`
+//   mutation BookRoom($input: RoomBookingInput!){
+//     bookConferenceRoom(input: $input){
+//       roomId hour date attendeesCount
+//     }
+//   }
+// `);
 
 export class RoomBookingController {
   

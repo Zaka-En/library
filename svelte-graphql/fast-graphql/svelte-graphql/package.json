@@ -36,6 +36,7 @@
         "graphql": "^16.12.0",
         "graphql-ws": "^6.0.7",
         "jsonwebtoken": "^9.0.3",
-        "tailwind-animations": "^1.0.1"
+        "tailwind-animations": "^1.0.1",
+        "@fast-svelte-graphql/comp-library": "workspace:*"
     }
 }
