@@ -1,6 +1,6 @@
 import { type ConferenceRooms$result, graphql } from "$houdini";
 import dayjs from "dayjs";
-import { getContext, setContext } from "svelte";
+
 
 export type ConferenceRoom = ConferenceRooms$result["conferenceRooms"][number];
 
@@ -21,12 +21,12 @@ const bookRoomStore = graphql(`
   }
 `);
 
-class RoomBookingState {
+export class RoomBookingController {
   
   //TODO QUITAR STATE EN PRIVATE
-  #room = $state<ConferenceRoom>();
+  #room : ConferenceRoom;
   #userId: number;
-  #lastQueryToken = $state(0);
+  #lastQueryToken = 0;
 
   
   availableHours = $state<number[]>([]);
@@ -113,17 +113,11 @@ class RoomBookingState {
   toggleHourButton = (hour: number) => {
     this.selectedHour = this.selectedHour === hour ? null : hour;
   }
+
+  onBackToRoomBookHours = async () => {
+    await this.onChangeDay() // refresh room booking availablehours
+    this.hasRequestedBookRoom=false
+    this.isLoadingBookRoom=false
+  }
 }
 
-const ROOM_BOOKING_KEY = Symbol("ROOM_BOOKING");
-
-//
-export function setRoomBookingState(room: ConferenceRoom, userId: number) {
-  return setContext(ROOM_BOOKING_KEY, new RoomBookingState(room, userId));
-}
-
-export function getRoomBookingState() {
-  const state = getContext<RoomBookingState>(ROOM_BOOKING_KEY);
-  if (!state) throw new Error("RoomBookingState no inicializado");
-  return state;
-}

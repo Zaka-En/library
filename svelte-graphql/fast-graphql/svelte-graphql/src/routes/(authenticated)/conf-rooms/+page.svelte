@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ConferenceRoom, { type ConferenceRoom as ConferenceRoomType } from "$lib/components/ConferenceRoom.svelte";
+	import ConferenceRoom, { type ConferenceRoom as ConferenceRoomType } from "$lib/components/RoomBooking/ConferenceRoom.svelte";
 	import type { PageProps } from './$types';
 
 
