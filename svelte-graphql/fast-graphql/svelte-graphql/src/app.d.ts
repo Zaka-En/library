@@ -6,32 +6,32 @@ import { HTMLAttributes } from 'svelte/elements';
 declare global {
 
 	namespace App {
-		interface Locals{
+		interface Locals {
 			token: string
-			user:{
+			user: {
 				id: int
 				email: string
-				name:string
-				rol:string
-			}| null ;
+				name: string
+				rol: string
+			} | null;
 		}
 	}
 
 	type ReadingProgressType = NonNullable<MyReadingProgress$result['myReadingProgress']>[number]
 	type BookType = NonNullable<ReadingProgressType['book']>
 	type CategoryType = {
-    name: string;
-    description: string;
-    totalBooks: number;
-  }
-
-	namespace svelteHTML{
-		interface HTMLAttributes<T> {
-      // all elements can have an onenterviewport attribute
-      'onenterviewport'?: () => void;
-    }
+		name: string;
+		description: string;
+		totalBooks: number;
 	}
-  
+
+	namespace svelteHTML {
+		interface HTMLAttributes<T> {
+			// all elements can have an onenterviewport attribute
+			'onenterviewport'?: () => void;
+		}
+	}
+
 }
 
 export {
