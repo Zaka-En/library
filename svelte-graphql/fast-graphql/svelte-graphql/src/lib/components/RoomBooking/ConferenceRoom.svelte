@@ -2,8 +2,6 @@
 <script lang="ts">
 
   import { RoomBooker, type BookingRoomProvider } from '@fast-svelte-graphql/comp-library'
-  //import Spinner from "../ui/Spinner.svelte";
-  //import { RoomBookingController } from "./RoomBookingController.svelte";
   import { type ConferenceRoom } from "./types.ts";
   import { graphql } from '$houdini';
 
