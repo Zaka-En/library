@@ -1,3 +1,8 @@
+<script lang="ts" module>
+  import {type Book} from "./Book.svelte";
+  import { type Author } from "./AuthorForm.svelte";
+</script>
+
 <script lang="ts">
   import type {LoaderType} from "$lib/utils/loader.svelte";
   import type { CreateBook$input
@@ -16,7 +21,7 @@
   import { createLoader } from "$lib/utils/loader.svelte";
 
   interface Props{
-    book:  GetBooks$result["books"][number] | null
+    book:  Book
     author : GetAllAuthors$result["authors"]["edges"][number]["node"] | null
     authorNames: GetAuthorNamesWithId$result["authorsQuery"]  | null
   }

@@ -1,6 +1,10 @@
-<script lang="ts">
+<script lang="ts" module>
   import type { GetBooks$result } from "$houdini";
-  type Book = GetBooks$result["books"][number]
+  export type Book = GetBooks$result["books"][number]
+</script>
+
+<script lang="ts">
+  
 
   const  { book } : { book: Book}  = $props();
 

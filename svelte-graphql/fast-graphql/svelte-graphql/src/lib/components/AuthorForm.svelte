@@ -1,3 +1,7 @@
+<script lang="ts" module>
+  export type Author = GetAllAuthors$result["authors"]["edges"][number]["node"] | null
+</script>
+
 <script lang="ts">
 
   import type {LoaderType} from "$lib/utils/loader.svelte";
@@ -16,7 +20,7 @@
   import { onMount } from "svelte";
 
   interface Props{
-    author: GetAllAuthors$result["authors"]["edges"][number]["node"] | null
+    author: Author
   }
 
   let { author = null } : Props = $props();
