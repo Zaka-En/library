@@ -1,6 +1,6 @@
 
 <script lang="ts" generics="TRoom extends BaseRoom">
-  import Spinner from "../ui/Spinner.svelte";
+  import { Spinner } from "../../ui";
   import { RoomBookingController } from "./RoomBookingController.svelte.ts";
   import { type BaseRoom, type BookingRoomProvider} from "./types.ts";
 
