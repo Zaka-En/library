@@ -5,7 +5,7 @@
   interface Props{
     categories: CategoryType[]
     categorySnippet: Snippet<[string,string,number]>
-    children: Snippet<[CategoryType|undefined,Snippet<[string,string,number]>]>
+    children: Snippet<[CategoryType,Snippet<[string,string,number]>]>
   }
   
 

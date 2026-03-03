@@ -1,7 +1,7 @@
 {
     "name": "svelte-graphql",
     "private": true,
-    "version": "0.0.1",
+    "version": "2.0.1",
     "type": "module",
     "scripts": {
         "dev": "vite dev",
@@ -37,6 +37,6 @@
         "graphql-ws": "^6.0.7",
         "jsonwebtoken": "^9.0.3",
         "tailwind-animations": "^1.0.1",
-        "@fast-svelte-graphql/comp-library": "workspace:*"
+        "@fast-svelte-graphql/comp-library": "workspace:^1.3.0"
     }
 }

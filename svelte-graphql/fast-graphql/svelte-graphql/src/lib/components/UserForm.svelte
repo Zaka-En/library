@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { PageServerData } from "./$types";
 
 
 </script>

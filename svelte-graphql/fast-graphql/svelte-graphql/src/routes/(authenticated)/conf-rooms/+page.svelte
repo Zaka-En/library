@@ -1,6 +1,10 @@
 <script lang="ts">
-	import ConferenceRoom, { type ConferenceRoom as ConferenceRoomType } from "$lib/components/RoomBooking/ConferenceRoom.svelte";
+	import ConferenceRoom from '$lib/components/RoomBooking/ConferenceRoom.svelte';
 	import type { PageProps } from './$types';
+
+	import { type ConferenceRooms$result } from "$houdini";
+
+	type ConferenceRoomType = ConferenceRooms$result["conferenceRooms"][number]
 
 
   const { data } : PageProps = $props()

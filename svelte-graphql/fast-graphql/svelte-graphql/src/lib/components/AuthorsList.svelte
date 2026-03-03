@@ -1,11 +1,11 @@
 <script lang="ts">
   import viewport from "$lib/utils/useViewportActions";
-  import type { GetAuthors$result } from "$houdini";
+  import type { GetAllAuthors$result } from "$houdini";
 
   
 
   interface Props{
-    authors: GetAuthors$result["authors"]["edges"]
+    authors: GetAllAuthors$result["authors"]["edges"]
     noMoreData: boolean
     loading?: boolean
     key?: string

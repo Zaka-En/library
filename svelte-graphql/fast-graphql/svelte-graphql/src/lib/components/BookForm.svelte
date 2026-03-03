@@ -6,7 +6,7 @@
     , UpdateBook$result
     , CreateBook$result
     , GetBooks$result 
-    , GetAuthors$result,
+    , GetAllAuthors$result,
     GetAuthorNamesWithId$result} from "$houdini";
   //import type {Timeout} from 'node:timers' <-- Typescript does not like it for some reason
   import FormButton from "./FormButton.svelte";
@@ -17,8 +17,8 @@
 
   interface Props{
     book:  GetBooks$result["books"][number] | null
-    author : GetAuthors$result["authors"]["edges"][number]["node"] | null
-    authorNames: GetAuthorNamesWithId$result["authorsQuery"] 
+    author : GetAllAuthors$result["authors"]["edges"][number]["node"] | null
+    authorNames: GetAuthorNamesWithId$result["authorsQuery"]  | null
   }
 
   const { 

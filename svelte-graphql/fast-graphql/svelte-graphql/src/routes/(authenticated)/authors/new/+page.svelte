@@ -2,4 +2,4 @@
   import AuthorForm from "$lib/components/AuthorForm.svelte";
 </script>
 
-<AuthorForm />
+<AuthorForm author={null} />

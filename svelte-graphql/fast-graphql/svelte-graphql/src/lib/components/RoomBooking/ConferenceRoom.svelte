@@ -2,8 +2,11 @@
 <script lang="ts">
 
   import { RoomBooker, type BookingRoomProvider } from '@fast-svelte-graphql/comp-library'
-  import { type ConferenceRoom } from "./types.ts";
   import { graphql } from '$houdini';
+    import { type ConferenceRooms$result } from "$houdini";
+
+	type ConferenceRoomType = ConferenceRooms$result["conferenceRooms"][number]
+
 
   const getAvailableHoursStore = graphql(`
     query AvailableHours($roomId: Int!, $date: String!, $startingHour: Int!){
@@ -24,14 +27,14 @@
     room,
     userId,
   } : { 
-    room: ConferenceRoom,
+    room: ConferenceRoomType,
     userId: number
   }
   = $props()
 
   //const DUPLICATE_ROOM_BOOKING_ERROR = "DUPLICATE_ROOM_BOOKING"
 
-  const houdiniRoomBookingProvider: BookingRoomProvider<ConferenceRoom> = {
+  const houdiniRoomBookingProvider: BookingRoomProvider<ConferenceRoomType> = {
     getAvailableHours: async (room, date, startingHour) => {
       const result = await getAvailableHoursStore.fetch({
         variables: { roomId: Number(room.id), date, startingHour }

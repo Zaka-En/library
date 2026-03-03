@@ -6,7 +6,7 @@
     CreateAuthor$input,CreateAuthor$result,
     UpdateAuthor$input,
     UpdateAuthor$result,
-    GetAuthors$result
+    GetAllAuthors$result
   } from '$houdini'
   import { graphql } from "$houdini";
   import { goto } from "$app/navigation";
@@ -16,7 +16,7 @@
   import { onMount } from "svelte";
 
   interface Props{
-    author: GetAuthors$result["authors"]["edges"][number]["node"] | null
+    author: GetAllAuthors$result["authors"]["edges"][number]["node"] | null
   }
 
   let { author = null } : Props = $props();
