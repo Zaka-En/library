@@ -8,7 +8,9 @@
 
   const authorsStore =  $derived(data.authorsStore)
   
-  let authors = $derived($authorsStore.data?.authors?.edges ?? []);
+  let authors = $derived(
+    $authorsStore.data?.authors?.edges?.map(edge => edge.node) ?? []
+  );
   let pageInfo = $derived($authorsStore.data?.authors.pageInfo)
   let fetching = $derived($authorsStore.fetching)
   
@@ -31,8 +33,8 @@
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2">
-    <AuthorsList 
   
+    <AuthorsList 
     noMoreData = {!pageInfo?.hasNextPage}
     loading = {fetching}
     onLoadMore= {() => {

@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import type { GetBooks$result } from "$houdini";
-  export type Book = GetBooks$result["books"][number]
+export type Book = GetBooks$result["books"][number] | null
 </script>
 
 <script lang="ts">
@@ -20,28 +20,28 @@
   
   <!-- Info -->
   <div class="p-4">
-    <h3 class="font-bold text-lg line-clamp-2 mb-2">{book.title}</h3>
+    <h3 class="font-bold text-lg line-clamp-2 mb-2">{book?.title}</h3>
     
-    {#if book.author}
-      <p class="text-sm text-gray-600 mb-2">{book.author.name}</p>
+    {#if book?.author}
+      <p class="text-sm text-gray-600 mb-2">{book?.author.name}</p>
     {/if}
     
     <div class="flex justify-between text-xs text-gray-500">
-      <span>{book.publicationYear}</span>
-      <span>{book.pages} pág.</span>
+      <span>{book?.publicationYear}</span>
+      <span>{book?.pages} pág.</span>
     </div>
   </div>
   
   <!-- Footer actions -->
   <div class="px-4 pb-4">
     <a 
-      href="/books/{book.id}" 
+      href="/books/{book?.id}" 
       class="block w-full text-center bg-green-600 text-white py-2 rounded hover:bg-green-700 transition mb-2 "
     >
      Ver detalles
     </a>
     <a 
-      href="/books/{book.id}/chat"
+      href="/books/{book?.id}/chat"
       class="block w-full text-center underline hover:text-blue-500 transition"
     >Chat & Discuss</a>
   </div>

@@ -2,7 +2,7 @@
   import type { PageInfo } from "$houdini";
 
   interface Props {
-    pageInfo: PageInfo;
+    pageInfo: PageInfo & { totalCount: number };
     fetching: boolean;
     onNext: (cursor: string | null) => void;
     onPrevious: (cursor: string | null) => void;

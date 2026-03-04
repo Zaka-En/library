@@ -1,3 +1,6 @@
+// Somehow, Typescript intents to find this dep 
+// from the root project (the workspace)
+// TODO: ASK GONZA
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET_KEY } from '$env/static/private'
 
