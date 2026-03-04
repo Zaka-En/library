@@ -1,5 +1,5 @@
 import { graphql, HttpResponse } from 'msw'
-import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest'
+import {  it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest'
 import { setupServer } from 'msw/node'
 
 const api = graphql.link('http://localhost:8000/grapqhql')
