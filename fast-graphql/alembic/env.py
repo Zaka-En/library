@@ -12,24 +12,23 @@ from app.models.reading_state import ReadingState
 from app.models.user import User
 from app.models.room_booking import RoomBooking
 from app.models.conference_room import ConferenceRoom
+from app.config import settings
 
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # Leer variables
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
+# DB_USER = settings.db_user #os.getenv("DB_USER")
+# DB_PASSWORD = settings.db_password
+# DB_HOST = settings.db_host
+# DB_PORT = settings.db_port
+# DB_NAME = settings.db_name
+
 
 # Construir URL (MISMO formato que en app.database)
-DATABASE_URL = (
-    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
-    f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-)
+DATABASE_URL = settings.database_url
+# (
+#     f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
+#     f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# )
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

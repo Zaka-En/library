@@ -1,7 +1,7 @@
 [project]
 name = "fast-graphql"
 version = "0.1.0"
-description = "Add your description here"
+description = "Library System Manager"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -48,6 +48,16 @@ dependencies = [
     "watchfiles==1.1.1",
     "websockets==16.0",
 ]
+
+# I found this solution on github
+# I have no idea on what it actually does 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["src/app"]
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 asyncio_mode = "auto"
