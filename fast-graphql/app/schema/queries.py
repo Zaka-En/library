@@ -18,6 +18,7 @@ from app.dependencies import CustomContext
 from app.permissions.rate_limiting import rate_limiting
 from app.permissions.authorized import RBAC
 from datetime import date as pyDate
+from app.permissions.authenticated import IsAuthenticated
 
 
 VALORACIONES = [
@@ -33,7 +34,7 @@ class Query:
 
   #TODO add a permission: isuserowner
   
-  @strawberry.field #(permission_classes=[IsAuthenticated])
+  @strawberry.field(permission_classes=[IsAuthenticated])
   async def user_info(self, info: Info[CustomContext, None], user_id: int) -> UserProfileType :
     
     # if not user_from_payload or not user_from_payload["id"] != user_id:

@@ -76,6 +76,18 @@ class UserService:
 
       return user, access_token, refresh_token
     
+  async def verify(self, email: str, passwd: str) -> User | None:
+    async with self.session_factory() as session:
+      query = query = select(User).where(User.email == email)
+      result = await session.execute(query)
+      user: User = result.scalar_one_or_none()
+
+      if not user or not user.verify_password(passwd):
+        return None
+      
+      return user
+
+
   async def get_all_info_by_id(self, id: int) -> User:
     async with self.session_factory() as session:
       query = select(User).where(User.id == id)

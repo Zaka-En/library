@@ -5,6 +5,7 @@ description = "Library System Manager"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "aiohttp>=3.13.3",
     "aiomysql>=0.3.2",
     "alembic==1.18.1",
     "annotated-doc==0.0.4",
@@ -49,6 +50,9 @@ dependencies = [
     "websockets==16.0",
 ]
 
+[project.scripts]
+start-app = "app.app:start"
+
 # I found this solution on github
 # I have no idea on what it actually does 
 [build-system]
@@ -57,6 +61,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build]
 include = ["src/app"]
+
+
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

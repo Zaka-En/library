@@ -17,6 +17,7 @@ from app.dependencies import CustomContext
 from typing import Optional
 from datetime import date as pyDate
 from fastapi import Response, status
+from fastapi import Depends
 
 REFRESH_TOKEN_EXPIRY= 6 * 30
 
@@ -116,7 +117,7 @@ class Mutation:
             
         return updated_user
 
-  @strawberry.mutation(permission_classes=[RBAC("admin", "editor")]) #TODO RBAC(roles=[.....])
+  @strawberry.mutation(permission_classes=[RBAC("admin", "editor")]) 
   async def create_author(self, input: CreateAuthorInput, info: Info[CustomContext, None]) -> AuthorType:
     author_service: AuthorService = info.context.author_service
     author = await author_service.create(data=input)

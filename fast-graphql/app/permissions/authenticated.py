@@ -1,21 +1,61 @@
 from strawberry.permission import BasePermission
 from strawberry.types import Info
 from typing import Any
-from fastapi import  Response
+from fastapi import  Response, Request, status
 from app.dependencies import CustomContext
+from app.services.auth_service import validate_token, refresh_token as refresh_token_service
 
 class IsAuthenticated(BasePermission):
   message = "UNAUTHENTICATED"
-
-  def has_permission(self, source: Any, info: Info[CustomContext, Any], **kwargs) -> bool:
-    
-    auth = info.context.auth
+ 
+  
+  async def has_permission(self, source: Any, info: Info[CustomContext, Any], **kwargs) -> bool:
+    print("HA ENTRADO AQUI")
     response: Response | None = info.context.response
 
-    if not auth.is_authenticated:
-      self.message = auth.error_message
-      if response:
-        response.status_code = auth.status_code
-      return False
+    access_token = info.context.access_token
+    refresh_token = info.context.refresh_token
+    retried = False
 
-    return True   
+    try:
+      token, auth_message = await validate_token(access_token)
+      print(f"INFO: TOKEN VALIDADTED {token[:11]}... {auth_message}")
+    except Exception as e:
+      detail = str(e)
+
+      if detail == "ACCESS_TOKEN_EXPIRED" and not retried:
+        print(f"TOKEN EXPIRED: REFRESHINg")
+        retried = True
+        refreshed = await self._refresh_access_token(refresh_token)
+        if refreshed:
+          new_access_token, auth_message = refreshed
+          print(f"TOKEN EMITTED: {auth_message}: {new_access_token[:11]}")
+          info.context.access_token = new_access_token
+          
+        else:
+          if response:
+            response.status_code = status.HTTP_401_UNAUTHORIZED
+          return False
+      elif detail == "SERVER_ERROR" and response:
+        self.message = detail
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return False
+      else:
+        if response:
+          response.status_code = status.HTTP_401_UNAUTHORIZED
+        return False
+      
+    return True
+
+  async def _refresh_access_token(self, refresh_token: str) -> tuple[str, str] | None:
+    try:
+      print(f"DEBUG:  ha entrdo en el la funcion de refresh ")
+      new_access_token, message = await refresh_token_service(refresh_token)
+      return new_access_token, message
+    except Exception as e:
+      detail = str(e)
+      print(F"EL FALLO DE REFRESHING {detail}")
+      if detail == "SERVER_ERROR":
+        raise  
+      return None
+  

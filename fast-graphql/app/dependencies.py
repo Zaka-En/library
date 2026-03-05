@@ -14,6 +14,11 @@ from strawberry.fastapi import  BaseContext
 from jwt import exceptions as pyJwtExceptions
 from functools import cached_property
 from dataclasses import dataclass
+from fastapi import HTTPException
+from app.models.user import User
+from fastapi.security import OAuth2PasswordRequestForm
+from app.models.user import User
+
 
 
 async def get_user_service():
@@ -33,6 +38,29 @@ async def get_conference_room_service():
 
 async def get_room_booking_service():
   return RoomBookingService(session_factory=SessionLocal)
+
+async def verify_user(
+  form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+  user_service: Annotated[UserService, Depends(get_user_service)]
+  ) -> User:
+
+  #TODO
+  #Important: in this case username is gonna be its email
+  #It is a bad implementation
+  #It is just a Temporary solution: to not break the whole logic of the user service
+   
+  user = await user_service.verify(
+    email=form_data.username,
+    passwd=form_data.password
+    )
+  
+  if not user:
+    raise HTTPException(
+      status_code=401,
+      detail="INVALID_CREDENTIALS"
+    )
+  
+  return user
 
 
 #---------------AUTHENTICATION------------------
@@ -67,6 +95,9 @@ def get_auth_result(access_token: str) -> AuthResult:
   except Exception as e:
     return AuthResult(error_message=f"AUTH_ERROR: {str(e)}", status_code=500)
 
+
+
+#---------------Context Grapqhql------------------
 
 class CustomContext(BaseContext):
 
@@ -108,6 +139,14 @@ class CustomContext(BaseContext):
   @cached_property
   def user(self) -> dict | None:
     return self.auth.user  
+  
+  @cached_property
+  def access_token(self)-> str:
+    return self.request.cookies.get("access_token", "") if self.request else ""
+  
+  @cached_property
+  def refresh_token(self)-> str:
+    return self.request.cookies.get("refresh_token", "") if self.request else ""
 
 async def get_context(
   user_service: Annotated[UserService, Depends(get_user_service)],

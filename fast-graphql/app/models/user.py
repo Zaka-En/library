@@ -3,6 +3,7 @@ from sqlalchemy import String, CheckConstraint, Text
 from typing import Optional, List, TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import bcrypt
+from pydantic import BaseModel, EmailStr
 
 if TYPE_CHECKING:
   from .reading_state import ReadingState
@@ -104,4 +105,12 @@ class User(Base):
     hashed = bcrypt.hashpw(password_bytes, salt)
     return hashed.decode('utf-8')
 
+class UserPayload(BaseModel):
+  id: int
+  email: EmailStr
+  name: str
+  rol: str
 
+class LoginResponse(BaseModel):
+  access_token: str
+  refresh_token : str
