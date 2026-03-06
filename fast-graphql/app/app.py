@@ -7,8 +7,9 @@ from app.dependencies import get_context, verify_user
 from app.broadcast import broadcast
 from contextlib import asynccontextmanager
 from typing import Annotated
-from app.models.user import User, UserPayload, LoginResponse
-from app.services.auth_service import get_tokens
+from app.models.user import User, UserPayload, LoginResponse, LogoutResponse, LogoutRequest
+from app.services.auth_service import AuthService
+
 import uvicorn
 
 origins = [
@@ -46,7 +47,7 @@ def create_app() -> FastAPI:
   )
 
   @app.post("/login", response_model=LoginResponse)
-  async def login( user: Annotated[User, Depends(verify_user)]):
+  async def login(user: Annotated[User, Depends(verify_user)]):
 
     user_payload = UserPayload(
       id=user.id,
@@ -55,17 +56,25 @@ def create_app() -> FastAPI:
       rol=user.rol
     )
 
-    access_token, refresh_token = await get_tokens(user_payload=user_payload)
+    access_token, refresh_token = await AuthService.get_tokens(user_payload=user_payload)
 
     return LoginResponse(
       access_token=access_token,
       refresh_token=refresh_token
     )
 
+  @app.post("/logout", response_model=LogoutResponse)
+  async def logout(params: LogoutRequest) :
+    success = await AuthService.revoke_token(token=params.token)
+
+    return LogoutResponse(
+      success=success,
+      user_id=params.user_id
+    )
+
+    
   app.include_router(graphql_app, prefix='/graphql')
 
-
-  
 
   return app
 

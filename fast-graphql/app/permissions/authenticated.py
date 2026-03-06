@@ -3,7 +3,7 @@ from strawberry.types import Info
 from typing import Any
 from fastapi import  Response, Request, status
 from app.dependencies import CustomContext
-from app.services.auth_service import validate_token, refresh_token as refresh_token_service
+from app.services.auth_service import AuthService
 
 class IsAuthenticated(BasePermission):
   message = "UNAUTHENTICATED"
@@ -18,7 +18,7 @@ class IsAuthenticated(BasePermission):
     retried = False
 
     try:
-      token, auth_message = await validate_token(access_token)
+      token, auth_message = await AuthService.validate_token(access_token)
       print(f"INFO: TOKEN VALIDADTED {token[:11]}... {auth_message}")
     except Exception as e:
       detail = str(e)
@@ -50,7 +50,7 @@ class IsAuthenticated(BasePermission):
   async def _refresh_access_token(self, refresh_token: str) -> tuple[str, str] | None:
     try:
       print(f"DEBUG:  ha entrdo en el la funcion de refresh ")
-      new_access_token, message = await refresh_token_service(refresh_token)
+      new_access_token, message = await AuthService.refresh_token(refresh_token)
       return new_access_token, message
     except Exception as e:
       detail = str(e)

@@ -114,3 +114,11 @@ class UserPayload(BaseModel):
 class LoginResponse(BaseModel):
   access_token: str
   refresh_token : str
+
+class LogoutResponse(BaseModel):
+  success: bool
+  user_id: int
+
+class LogoutRequest(BaseModel):
+  token: str
+  user_id: int
