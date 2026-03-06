@@ -2,10 +2,9 @@ import houdini from "houdini/vite";
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
-import { enhancedImages } from '@sveltejs/enhanced-img'; 
 
 export default defineConfig({ 
-  plugins: [houdini(), tailwindcss(), sveltekit(), enhancedImages()], 
+  plugins: [houdini(), tailwindcss(), sveltekit()], 
   ssr: {
     noExternal: ['houdini']
   }
