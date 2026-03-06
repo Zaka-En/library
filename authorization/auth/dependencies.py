@@ -2,14 +2,14 @@ from .service import decode_token
 from fastapi import HTTPException
 from .database import SessionLocal
 
-def validate_token_signature(token: str):
+def get_jti(token: str) -> str :
   try:
-    decode_token(token)
-    
+    decoded = decode_token(token)
+    jti = decoded["jti"]
   except Exception :
     raise HTTPException(status_code=401 ,detail="INVALID_TOKEN")
   print("DEBUG: HEMOS VALIDADO EL TOKEN")
-  return token
+  return jti
 
   
 async def get_db_session():

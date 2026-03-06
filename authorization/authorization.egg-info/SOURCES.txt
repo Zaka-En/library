@@ -1,7 +1,9 @@
 README.md
 pyproject.toml
-auth/__main__.py
+auth/__ini__.py
 auth/app.py
+auth/database.py
+auth/dependencies.py
 auth/models.py
 auth/service.py
 auth/api/router.py
@@ -9,4 +11,5 @@ authorization.egg-info/PKG-INFO
 authorization.egg-info/SOURCES.txt
 authorization.egg-info/dependency_links.txt
 authorization.egg-info/entry_points.txt
+authorization.egg-info/requires.txt
 authorization.egg-info/top_level.txt

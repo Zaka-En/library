@@ -4,7 +4,7 @@ from ..models import AuthResponse, TokenRequest, UserPayload, TokensResponse, Re
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from datetime import timedelta
 from typing import Annotated
-from ..dependencies import validate_token_signature, get_db_session
+from ..dependencies import get_jti, get_db_session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -21,6 +21,7 @@ async def validate_or_refresh_token(
 
   try:
     decoded = decode_token(token)
+    print(f"DEBUG: token has been decoded  {decoded}")
     
     if grant_type == "authorization_code" and decoded.get("refresh", False):
       raise HTTPException(
@@ -32,9 +33,10 @@ async def validate_or_refresh_token(
 
     if grant_type == "refresh_token":
       
-      jti = decoded["jit"]
+      jti = decoded["jti"]
+      print(f"DEBUG: el jti es:  {jti}")
       is_blacklisted = await is_black_listed(jti, db_session)
-
+      print(f"DEBUG: el blacklisted check se ejecuto y este su resultado {is_black_listed}")
       if is_blacklisted:
         raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
@@ -42,21 +44,22 @@ async def validate_or_refresh_token(
       )
 
       new_access_token = create_access_token(user)
+      print(f"DEBUG:  se ha emitido un nuevo token {new_access_token}")
       return AuthResponse(message="TOKEN_REFRESHED", access_token=new_access_token)
     
     return AuthResponse(message="AUTHENTICATED", access_token=token)
 
   except ExpiredSignatureError:
     error_msg = "REFRESH_TOKEN_EXPIRED" if grant_type == "refresh_token" else "ACCESS_TOKEN_EXPIRED"
+    print(f"DEBUG:  {error_msg}")
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=error_msg)
   
   except InvalidTokenError:
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="INVALID_TOKEN")
   
-  except HTTPException as e:
-    raise e
       
-  except Exception:
+  except Exception as e:
+    print(f"DEBUG 500: {str(e)}")
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="AUTH_ERROR")
 
 @router.post("/authorize", response_model=TokensResponse)
@@ -77,13 +80,16 @@ async def create_tokens(user_payload: UserPayload):
 
 @router.post("/revoke", response_model=RevokeTokenResponse)
 async def revoke_token(
-  token: Annotated[str, Depends(validate_token_signature)],
+  token: str,
   db_session: Annotated[AsyncSession, Depends(get_db_session)], 
   ):
-  
-  decoded = decode_token(token)
-  jti = decoded.get("jti")
 
+  try:
+    jti = get_jti(token)
+  except HTTPException as e:
+    raise e
+  
+  
   if not jti:
     return False
   
