@@ -1,5 +1,5 @@
 # Use a Python image with uv pre-installed
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS builder
 
 # Setup a non-root user
 RUN groupadd --system --gid 999 nonroot \
@@ -24,30 +24,39 @@ ENV UV_TOOL_BIN_DIR=/usr/local/bin
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=../uv.lock,target=uv.lock \
     --mount=type=bind,source=../pyproject.toml,target=pyproject.toml \
-    cd authorization && uv sync --locked --no-install-project
-    #uv sync --frozen --no-install-workspace --package=authorization
+    uv sync --frozen --no-install-workspace
 
 # Then, add the rest of the project source code and install it
 # Installing separately from its dependencies allows optimal layer caching
-RUN mkdir -p mypa
-COPY . /app/
+COPY uv.lock pyproject.toml ./
+COPY ./authorization ./authorization
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked 
+    uv sync --frozen --package authorization 
+
+
+#Then, use a final image without uv
+FROM python:3.13-slim-bookworm
+# It is important to use the image that matches the builder, as the path to the
+# Python executable must be the same, e.g., using `python:3.11-slim-bookworm`
+# will fail.
+
+# Setup a non-root user
+RUN groupadd --system --gid 999 nonroot \
+ && useradd --system --gid 999 --uid 999 --create-home nonroot
+
+# Copy the application from the builder
+COPY --from=builder --chown=nonroot:nonroot /app/.venv /app/.venv
+COPY --from=builder --chown=nonroot:nonroot /app/authorization /app
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Reset the entrypoint, don't invoke `uv`
-ENTRYPOINT []
-
 # Use the non-root user to run our application
 USER nonroot
 
+# Use `/app` as the working directory
+WORKDIR /app
+
 # Run the FastAPI application by default
-# Uses `uv run` to sync dependencies on startup, respecting UV_NO_DEV
-# Uses `fastapi dev` to enable hot-reloading when the `watch` sync occurs
-# Uses `--host 0.0.0.0` to allow access from outside the container
-# Note in production, you should use `fastapi run` instead
-#CMD ["uv", "run", "python", "-m", "auth.app"]
-CMD ["uv", "run", "main.py"]
+CMD ["python", "-m", "auth.app"]

@@ -1,4 +1,8 @@
-# Exclude the project virtual environment from image builds
 .venv
-*.egg-info/
-dist/
+**/*.egg-info
+**/dist
+**/node_modules
+**/__pycache__
+.git
+.gitignore
+**/*.sh
