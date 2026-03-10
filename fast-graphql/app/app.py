@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 from app.schema import schema
@@ -17,6 +17,8 @@ origins = [
   "http://localhost:5174",
   "http://127.0.0.1:5173",
   "http://127.0.0.1:5174",
+  "http://localhost:3000",
+  "http://frontend:3000",
 ]
 
 
@@ -46,8 +48,10 @@ def create_app() -> FastAPI:
     context_getter=get_context,
   )
 
+
   @app.post("/login", response_model=LoginResponse)
   async def login(user: Annotated[User, Depends(verify_user)]):
+
 
     user_payload = UserPayload(
       id=user.id,
@@ -72,6 +76,13 @@ def create_app() -> FastAPI:
       user_id=params.user_id
     )
 
+  @app.middleware("http")
+  async def debug_500(request: Request, call_next):
+      print(f"Request headers : {request.headers}")
+      response = await call_next(request)
+      print(f"Response headers : {response.headers}")
+      return response
+
     
   app.include_router(graphql_app, prefix='/graphql')
 
@@ -81,4 +92,7 @@ def create_app() -> FastAPI:
 app = create_app()
 
 def start():
-  uvicorn.run(app, host="127.0.0.1" , port=8001, reload=True)
+  uvicorn.run(app, host="0.0.0.0" , port=8001, reload=True)
+
+if "__name__" == "__main__":
+  start()

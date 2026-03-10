@@ -16,6 +16,7 @@ class Settings:
   #static method: def get_instnace()
 
   def _load(self):
+    load_dotenv()
     self.db_user          = os.getenv("DB_USER")
     self.db_password      = os.getenv("DB_PASSWORD")
     self.db_host          = os.getenv("DB_HOST")
@@ -29,6 +30,7 @@ class Settings:
     self.auth_service_url = os.getenv("AUTH_SERVICE_URL", "http://localhost:8001")
 
 
-load_dotenv()
+
 
 settings = Settings()
+print(settings.__dict__)

@@ -7,10 +7,9 @@ from app.services.auth_service import AuthService
 
 class IsAuthenticated(BasePermission):
   message = "UNAUTHENTICATED"
- 
   
+  #TODO: refactorizar esta mierda
   async def has_permission(self, source: Any, info: Info[CustomContext, Any], **kwargs) -> bool:
-    print("HA ENTRADO AQUI")
     response: Response | None = info.context.response
 
     access_token = info.context.access_token
@@ -31,7 +30,7 @@ class IsAuthenticated(BasePermission):
           new_access_token, auth_message = refreshed
           print(f"TOKEN EMITTED: {auth_message}: {new_access_token[:11]}")
           info.context.access_token = new_access_token
-          
+          return True
         else:
           if response:
             response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -49,7 +48,6 @@ class IsAuthenticated(BasePermission):
 
   async def _refresh_access_token(self, refresh_token: str) -> tuple[str, str] | None:
     try:
-      print(f"DEBUG:  ha entrdo en el la funcion de refresh ")
       new_access_token, message = await AuthService.refresh_token(refresh_token)
       return new_access_token, message
     except Exception as e:

@@ -11,17 +11,17 @@ def RBAC(*roles: str):
   class RoleBasedAccessControl(IsAuthenticated):
     message = f"UNAUTHORIZED. REQUIRED ROLES: {', '.join(roles)}"
 
-    def has_permission(self, source: Any, info: Info[CustomContext, Any], **kwargs: Any) -> bool:
+    async def has_permission(self, source: Any, info: Info[CustomContext, Any], **kwargs: Any) -> bool:
 
-      # before cheking the authorization, vemos si está autenticado
-      auth_check = super().has_permission(source,info,**kwargs)
+      # Before cheking the authorization, vemos si está autenticado
+      auth_check = await super().has_permission(source, info, **kwargs)
+      print(f"AUTH CHECK : {auth_check}")
       response: Response | None = info.context.response
 
       if not auth_check:
         if response:
           response.status_code = status.HTTP_401_UNAUTHORIZED
         return False
-      
       
       user = info.context.user
       print(user)

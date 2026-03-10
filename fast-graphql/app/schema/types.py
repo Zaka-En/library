@@ -22,7 +22,7 @@ class AuthorType(strawberry.relay.Node):
   @strawberry.field
   async def books(self, info: Info[CustomContext,Any]) -> List["BookType"]:
     from .convertors import book_to_type
-    books = await info.context.loaders.book.load(self.id)
+    books = await info.context.loaders.books_by_author.load(self.id)
     return [book_to_type(b) for b in books ] if books else []
   
 @strawberry.type
