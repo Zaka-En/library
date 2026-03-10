@@ -93,10 +93,6 @@ export class RoomBookingController<TRoom extends BaseRoom> {
 
     this.isBookRoomSuccess = success
     this.errorMsg = error ?? ""
-    this.hasRequestedBookRoom = true
-    this.isLoadingBookRoom = false
-   
-    
   }
 
   toggleHourButton = (hour: number) => {
