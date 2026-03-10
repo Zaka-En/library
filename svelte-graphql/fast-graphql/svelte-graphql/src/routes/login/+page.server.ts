@@ -1,4 +1,4 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail, redirect, type HttpError } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { graphql } from '$houdini';
 
@@ -26,19 +26,32 @@ export const actions: Actions = {
     const password = data.get('password') as string;
 
 
-    const response = await loginStore.mutate(
-      { data: { email, password } },
-      { event } 
-    );
+    console.log("ha entrado en el login ")
 
-    
+    let accessToken: string = ""
+    let refreshToken: string = ""
 
-    if (response.errors) {
-      return fail(401, {error: response.errors[0].message})
+    try {
+      const respons = await fetch("http://apigateway:8000/login",{
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        credentials: 'include',
+        body: new URLSearchParams({
+          "username": email,
+          "password": password
+        })
+      })
+
+      const datos = await respons.json()
+      
+      console.table(datos)
+      accessToken = datos.access_token
+      refreshToken = datos.refresh_token
+    } catch (error) {
+      console.error(error)
+      fail(401, error )
     }
-
-    const accessToken = response.data?.login.accessToken;
-    const refreshToken = response.data?.login.refreshToken;
+ 
 
     if (accessToken) {
       event.cookies.set('access_token', accessToken, {

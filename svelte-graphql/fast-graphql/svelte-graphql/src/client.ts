@@ -1,6 +1,10 @@
 // src/lib/houdini/client.ts
 import { HoudiniClient, subscription } from '$houdini';
 import { createClient } from 'graphql-ws';
+import { browser } from '$app/environment';
+import { PUBLIC_API_URL, PUBLIC_INTERNAL_API_URL} from '$env/static/public';
+
+
 
 //let refreshPromise: Promise<Response> | null = null;
 // const pendingAuthRetries: (Promise<Response>)[] = [];
@@ -134,7 +138,6 @@ import { createClient } from 'graphql-ws';
 
 
 
-const API_URL = 'http://localhost:8000/graphql';
 let refreshPromise: Promise<Response> | null = null;
 
 const customFetch: typeof fetch = async (input, init) => {
@@ -278,22 +281,27 @@ const customFetch: typeof fetch = async (input, init) => {
 //     return response;
 // };
 
+console.log('BROWSER:', browser);
+console.log('API_URL:', PUBLIC_API_URL);
+console.log('INTERNAL_URL:', PUBLIC_INTERNAL_API_URL);
 export default new HoudiniClient({
-    url: API_URL,
+    
+    url: browser ? PUBLIC_API_URL : PUBLIC_INTERNAL_API_URL ,
     fetchParams() {
         return { credentials: 'include' };
     },
+
     //houdini functions/plugins pipeline
     plugins: [
-        () => ({
-            network: async (ctx, { next }) => {
+        // () => ({
+        //     network: async (ctx, { next }) => {
 
-                ctx.fetch = customFetch;
-                return next(ctx);
-            },
-        }),
+        //         ctx.fetch = customFetch;
+        //         return next(ctx);
+        //     },
+        // }),
         subscription(() => createClient({
-            url: 'ws://localhost:8000/graphql'
+            url: (browser ? PUBLIC_API_URL : PUBLIC_INTERNAL_API_URL) ?? ""
         }))
     ]
 });

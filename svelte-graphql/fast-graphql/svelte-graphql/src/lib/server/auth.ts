@@ -20,7 +20,7 @@ export function authenticateUser(token: string | undefined): UserPayLoad | null 
     }) as any;
     
     
-    if (decoded.refresh) return null;
+    //if (decoded.refresh) return null;
     
     return decoded.user; // Devuelve el objeto user del payload
   } catch {

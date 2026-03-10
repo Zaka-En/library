@@ -3,7 +3,7 @@
 /** @type {import('houdini').ConfigFile} */
 const config = {
     "watchSchema": {
-        "url": "http://localhost:8000/graphql"
+        "url": "http://apigateway:8000/graphql"
     },
     "runtimeDir": ".houdini",
     "plugins": {

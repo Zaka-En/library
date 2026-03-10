@@ -1,6 +1,7 @@
 import type { PageLoad } from './$types';
 import { graphql } from '$houdini';
 
+
 const authorsStore = graphql(`
   query GetAllAuthors($first: Int) {
     authors(first: $first) @list(name: "All_Authors") @paginate(mode: Infinite){
@@ -24,13 +25,18 @@ const authorsStore = graphql(`
 
 export const load: PageLoad = async (event) => {
    
- 
-  await authorsStore.fetch({
+  var res
+  try {
+    let res = await authorsStore.fetch({
     event,
     variables: { first: 10 }
   });
+  } catch (error) {
+    console.log("error", error)
+  }finally{
+    console.log("header", res?.headers)
+  }
 
-    
 
   return {
     authorsStore

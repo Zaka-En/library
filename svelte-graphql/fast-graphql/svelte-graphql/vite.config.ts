@@ -7,5 +7,6 @@ export default defineConfig({
   plugins: [houdini(), tailwindcss(), sveltekit()], 
   ssr: {
     noExternal: ['houdini']
-  }
+  },
+  
 });
