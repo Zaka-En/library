@@ -1,0 +1,21 @@
+[project]
+name = "backend-workspace"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic[email]>=2.12.5",
+]
+
+[tool.uv.sources]
+fast-graphql = { workspace = true }
+authorization = { workspace = true }
+
+
+[tool.uv.workspace]
+members = [
+    "fast-graphql",
+    "authorization",
+]
+#exclude = ["./node_modules","./svelte-graphql", "./comp-library"]

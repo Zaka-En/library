@@ -1,0 +1,8 @@
+.venv
+**/*.egg-info
+**/dist
+**/node_modules
+**/__pycache__
+.git
+.gitignore
+**/*.sh

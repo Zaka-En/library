@@ -1,0 +1,9 @@
+{
+  "name": "fast-svelte-graphql",
+  "version": "2.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.28.2"
+}
