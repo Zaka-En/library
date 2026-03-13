@@ -55,7 +55,8 @@ async def validate_or_refresh_token(
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=error_msg)
   
   except InvalidTokenError:
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="INVALID_TOKEN")
+    type = "REFRESH" if grant_type == "refresh_token" else "ACCESS"
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"INVALID_TOKEN_{type}")
   
       
   except Exception as e:
