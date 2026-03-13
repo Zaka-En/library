@@ -1,5 +1,5 @@
 def main():
-    print("Hello from fast-svelte-graphql!")
+    print("Hello from library!")
 
 
 if __name__ == "__main__":

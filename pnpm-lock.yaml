@@ -72,7 +72,7 @@ importers:
 
   svelte-graphql:
     dependencies:
-      '@fast-svelte-graphql/comp-library':
+      '@library/comp-library':
         specifier: workspace:*
         version: link:../comp-library
       dayjs:
