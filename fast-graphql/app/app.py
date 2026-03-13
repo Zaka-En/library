@@ -19,8 +19,10 @@ origins = [
   "http://127.0.0.1:5174",
   "http://localhost:3000",
   "http://frontend:3000",
+  "http://frontend.localhost",
+  "https://frontend:3000",
+  "https://frontend.localhost",
 ]
-
 
 
 @asynccontextmanager
@@ -76,12 +78,12 @@ def create_app() -> FastAPI:
       user_id=params.user_id
     )
 
-  @app.middleware("http")
-  async def debug_500(request: Request, call_next):
-      print(f"Request headers : {request.headers}")
-      response = await call_next(request)
-      print(f"Response headers : {response.headers}")
-      return response
+  # @app.middleware("http")
+  # async def debug_500(request: Request, call_next):
+  #     print(f"Request headers : {request.headers}")
+  #     response = await call_next(request)
+  #     print(f"Response headers : {response.headers}")
+  #     return response
 
     
   app.include_router(graphql_app, prefix='/graphql')
