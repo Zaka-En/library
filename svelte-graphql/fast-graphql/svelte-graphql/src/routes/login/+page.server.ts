@@ -32,7 +32,7 @@ export const actions: Actions = {
     let refreshToken: string = ""
 
     try {
-      const respons = await fetch("http://apigateway:8000/login",{
+      const respons = await fetch("http://api:8000/login",{
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
         credentials: 'include',
@@ -45,11 +45,16 @@ export const actions: Actions = {
       const datos = await respons.json()
       
       console.table(datos)
+
+
       accessToken = datos.access_token
       refreshToken = datos.refresh_token
+
+
+
     } catch (error) {
       console.error(error)
-      fail(401, error )
+      
     }
  
 
@@ -59,7 +64,7 @@ export const actions: Actions = {
         httpOnly: true,
         //secure: true,
         sameSite: 'lax',
-        maxAge: 15 * 60
+        maxAge: 60
       });
     }
       
@@ -73,7 +78,9 @@ export const actions: Actions = {
     });
     }
     
+    if (accessToken) {
+      throw redirect(303, event.url.searchParams.get("redirect") ?? "/books")
+    }
     
-    throw redirect(303, event.url.searchParams.get("redirect") ?? "/books")
   }
 };

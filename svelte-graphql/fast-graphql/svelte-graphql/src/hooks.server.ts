@@ -1,15 +1,17 @@
 import type { Handle } from '@sveltejs/kit';
-import { authenticateUser, type UserPayLoad } from '$lib/server/auth';
+import { authenticateUser, getUserfromPayLoad, type UserPayLoad } from '$lib/server/auth';
 
-const GRAPHQL_URL = 'http://apigateway:8000/graphql'
+const GRAPHQL_URL = 'http://api:8000/graphql'
 
 export const handle: Handle = async ({ event, resolve }) => {
   let accessToken = event.cookies.get('access_token') as string;
-  const refreshToken = event.cookies.get('refresh_token');
-  let user: UserPayLoad | null = authenticateUser(refreshToken);
-  console.table(user)
+  const refreshToken = event.cookies.get('refresh_token') as string;
+  let isAuthenticated = accessToken? authenticateUser(refreshToken) : false
+  let user: UserPayLoad | null = getUserfromPayLoad(accessToken);
 
-  
+  console.log("===============================================")
+  console.log("user in hooks:", user)
+  console.log("===============================================")
 
   // if (!user && refreshToken) {
   //   console.log("Token expirado en servidor. Intentando Refresh...");
@@ -61,6 +63,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   // }
 
   event.locals.user = user;
+  event.locals.isAuthenticated = isAuthenticated 
   event.locals.token = accessToken;
 
   return await resolve(event);

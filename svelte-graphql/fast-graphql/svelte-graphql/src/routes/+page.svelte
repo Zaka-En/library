@@ -4,7 +4,9 @@
   import ReadingModal2 from "$lib/components/ReadingModal_2.svelte";
   import Reading from "$lib/components/Reading.svelte"
   import type { Snippet } from "svelte";
+  import { type LayoutServerData } from "./$types";
 
+  const { user } : LayoutServerData = $props()
   
   const categories: CategoryType[] =  [
     {
@@ -24,7 +26,7 @@
     }
   ];
 
-  const userId = 5
+  const userId = user?.id ?? 5
 
   const  myReadingProgressStore = graphql(
     `
@@ -42,15 +44,24 @@
 
 
   $effect( () => {
-    myReadingProgressStore.fetch({
+    try {
+      myReadingProgressStore.fetch({
       variables: {
         userId
       }
     })
+  
+    } catch (error) {
+      console.log("==========================================================")
+      console.log("error", error)
+    }
+    
   })
 
   const myReadingProgress = $derived($myReadingProgressStore.data?.myReadingProgress || [])
-
+  console.log("==========================================================")
+  $inspect(myReadingProgress)
+  console.log("==========================================================")
 
   let isModalOpen = $state(false);
   let selectedBook: BookType | null = $state(null);
@@ -63,6 +74,8 @@
   }
 
 </script>
+
+
 
 {#if $myReadingProgressStore.fetching}
   <div class="animate-pulse">Cargando...</div>
@@ -80,7 +93,7 @@
     <h2 class="text-2xl font-bold mb-4 mt-2">📖 Leyendo Actualmente</h2>
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-9/12">
     
-    {#each myReadingProgress as reading (reading.id)}
+    {#each myReadingProgress as reading (reading?.id)}
       {#if reading}
         <Reading 
           {reading} 
@@ -92,6 +105,7 @@
   </div>
   
 {/if}
+
 
 {#snippet categorySnippet(name: string, description: string, totalBooks: number)} 
   <h5 class="font-bold text-gray-800 text-lg mb-1 capitalize mt-2">{name}</h5>
@@ -112,9 +126,12 @@
 </Categories>
 
 <!-- Reading Modal -->
-<ReadingModal2
+{#if selectedReading}
+  <ReadingModal2
   bind:isOpen={isModalOpen} 
   book={selectedBook} 
   reading={selectedReading}
 />
+{/if}
+
 

@@ -1,13 +1,12 @@
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import { authenticateUser, type UserPayLoad } from '$lib/server/auth';
 
 
 export const load: LayoutServerLoad = ({ locals, url }) => {
   
   console.log(" USER CHECK BEFORE ACCESSING PROTECTED ROUTES",locals.user)
 
-  if (!locals.user) {
+  if (!locals.isAuthenticated) {
     throw redirect(303, `/login?redirect=${url.pathname}`);
   }
 

@@ -8,6 +8,7 @@ declare global {
 	namespace App {
 		interface Locals {
 			token: string
+			isAuthenticated: boolean
 			user: {
 				id: int
 				email: string

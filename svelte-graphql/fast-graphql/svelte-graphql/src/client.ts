@@ -3,7 +3,7 @@ import { HoudiniClient, subscription } from '$houdini';
 import { createClient } from 'graphql-ws';
 import { browser } from '$app/environment';
 import { PUBLIC_API_URL, PUBLIC_INTERNAL_API_URL} from '$env/static/public';
-
+    
 
 
 //let refreshPromise: Promise<Response> | null = null;
