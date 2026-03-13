@@ -10,7 +10,7 @@
   const { data } : PageProps = $props()
 
 	const conferenceRoomStore = $derived(data.conferenceRoomStore)
-	const userId = $derived(data.user.id)
+	const userId = $derived(data.user?.id)
 	$inspect(userId)
 	let conferenceRooms: ConferenceRoomType[] = $derived($conferenceRoomStore.data?.conferenceRooms ?? [])
 

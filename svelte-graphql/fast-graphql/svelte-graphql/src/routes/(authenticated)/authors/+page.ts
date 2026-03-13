@@ -33,8 +33,6 @@ export const load: PageLoad = async (event) => {
   });
   } catch (error) {
     console.log("error", error)
-  }finally{
-    console.log("header", res?.headers)
   }
 
 

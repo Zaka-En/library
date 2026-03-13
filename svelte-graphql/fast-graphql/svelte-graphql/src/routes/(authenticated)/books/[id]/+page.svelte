@@ -10,6 +10,7 @@
   let isFetching = $derived($bookStore.fetching)
   let author = $derived(book?.author)
 
+
   let birthDay: Date|null = $state(null)
 	let birthDayInput: string = $state("")
 

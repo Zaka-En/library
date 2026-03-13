@@ -66,5 +66,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   event.locals.isAuthenticated = isAuthenticated 
   event.locals.token = accessToken;
 
-  return await resolve(event);
+  return await resolve(event, {
+    filterSerializedResponseHeaders: (name) => name === "content-type",
+  });
 };

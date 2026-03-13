@@ -53,6 +53,8 @@
     pages: null,
   });
 
+  $inspect(book)
+
 
   $effect(() => {
     formData.title = book?.title;

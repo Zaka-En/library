@@ -1,7 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import favicon from "$lib/assets/favicon.svg";
-  let { form }  = $props()
 
 </script>
 
@@ -49,9 +48,9 @@
                     ¿Todavía no tienes cuenta? <a href="#bla" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Regístrate ahora</a>
                 </p>
 
-                {#if form?.error}
+                <!-- {#if form?.error}
                     <p class="p-2 text-sm text-center text-red-600 bg-red-100 rounded border border-red-200">{form.error}</p>
-                {/if}
+                {/if} -->
             </form>
         </div>
     </div>

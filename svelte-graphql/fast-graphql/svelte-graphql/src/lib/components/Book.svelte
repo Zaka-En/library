@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import type { GetBooks$result } from "$houdini";
-export type Book = GetBooks$result["books"][number] | null
+  export type Book = GetBooks$result["books"][number] | null
 </script>
 
 <script lang="ts">

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Book from '$lib/components/Book.svelte';
+  import { type Book } from '$lib/components/Book.svelte';
   import BookForm from '$lib/components/BookForm.svelte';
   import type { LayoutProps } from '../$types';
 
@@ -22,8 +22,8 @@
     readonly publicationYear: number;
     readonly pages: number;
     readonly author: {
-        readonly id: string;
-        readonly name: string;
+      readonly id: string;
+      readonly name: string;
     } | null;
   }
   
