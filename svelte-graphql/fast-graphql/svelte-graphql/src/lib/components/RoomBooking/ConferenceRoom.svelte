@@ -1,7 +1,7 @@
 
 <script lang="ts">
 
-  import { RoomBooker, type BookingRoomProvider } from '@fast-svelte-graphql/comp-library'
+  import { RoomBooker, type BookingRoomProvider } from '@library/comp-library'
   import { graphql } from '$houdini';
     import { type ConferenceRooms$result } from "$houdini";
 
