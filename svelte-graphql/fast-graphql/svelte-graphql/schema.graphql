@@ -1,0 +1,235 @@
+type AuthorConnection {
+  edges: [AuthorTypeEdge!]!
+  pageInfo: CustomPageInfo!
+}
+
+type AuthorType implements Node {
+  biography: String
+  books: [BookType!]!
+  country: String!
+  fullname: String
+
+  """The Globally Unique ID of this object"""
+  id: ID!
+  name: String!
+}
+
+"""An edge in a connection."""
+type AuthorTypeEdge {
+  """A cursor for use in pagination"""
+  cursor: String!
+
+  """The item at the end of the edge"""
+  node: AuthorType!
+}
+
+type BookType {
+  author: AuthorType
+  authorId: Int!
+  id: Int!
+  isbn: String!
+  pages: Int!
+  publicationYear: Int!
+  title: String!
+}
+
+type ConferenceRoomType {
+  availableHours(startingHour: Int!): [Int!]!
+  capacity: Int!
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  pricePerHour: Float!
+}
+
+input CreateAuthorInput {
+  biography: String = null
+  country: String!
+  fullname: String = null
+  name: String!
+}
+
+input CreateBookInput {
+  authorId: Int!
+  isbn: String!
+  pages: Int!
+  publicationYear: Int!
+  title: String!
+}
+
+type CustomPageInfo {
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+  totalCount: Int!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+input FinishReadingInput {
+  id: Int!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  accessToken: String!
+  refreshToken: String!
+  tokenType: String!
+  user: UserType
+}
+
+type Mutation {
+  addRating(text: String!): String!
+  bookConferenceRoom(input: RoomBookingInput!): RoomBookingType!
+  createAuthor(input: CreateAuthorInput!): AuthorType!
+  createBook(input: CreateBookInput!): BookType!
+  deleteAuthor(id: Int!): Boolean!
+  deleteBook(id: Int!): Boolean!
+  finishReading(input: FinishReadingInput!): ReadingStateType!
+  generateReporting(authorId: Int!): String!
+  login(data: LoginInput!): LoginResponse!
+  registerUser(data: RegisterInput!): UserType!
+  sendBookChatMessage(bookId: Int!, message: String!, userName: String!): Boolean!
+  startReading(input: StartReadingInput!): ReadingStateType!
+  updateAuthor(input: UpdateAuthorInput!): AuthorType!
+  updateBook(input: UpdateBookInput!): BookType!
+  updateProgress(input: UpdateProgressInput!): ReadingStateType!
+  updateUser(input: UpdateUserInput!): UserProfileType
+}
+
+"""An object with a Globally Unique ID"""
+interface Node {
+  """The Globally Unique ID of this object"""
+  id: ID!
+}
+
+type Query {
+  author(id: Int!): AuthorType
+  authors(after: String = null, first: Int = null): AuthorConnection!
+  authorsQuery: [AuthorType!]!
+  availableHours(date: String!, roomId: Int!, startingHour: Int! = 9): [Int!]!
+  book(id: Int!): BookType
+  books: [BookType!]!
+  conferenceRooms: [ConferenceRoomType!]!
+  myReadingProgress(userId: Int!): [ReadingStateType!]!
+  recomendations(user: String!): [String!]!
+  userInfo(userId: Int!): UserProfileType!
+}
+
+type ReadingStateType {
+  book: BookType
+  bookId: Int!
+  currentPage: Int!
+  finishDate: DateTime
+  id: Int!
+  startDate: DateTime!
+}
+
+input RegisterInput {
+  email: String!
+  fullname: String = null
+  name: String!
+  password: String!
+  rol: String! = "user"
+}
+
+input RoomBookingInput {
+  attendeesCount: Int!
+  date: String!
+  hour: Int!
+  roomId: Int!
+  userId: Int!
+}
+
+type RoomBookingType {
+  attendeesCount: Int!
+  date: String!
+  hour: Int!
+  id: ID!
+  roomId: Int!
+  status: String!
+  userId: Int
+}
+
+input StartReadingInput {
+  bookId: Int!
+  userId: Int!
+}
+
+type Subscription {
+  bookChat(bookId: Int!): String!
+  bookRatings: String!
+  updateAuthorNotifications: String!
+}
+
+input UpdateAuthorInput {
+  biography: String
+  country: String
+  fullname: String
+  id: Int!
+  name: String
+}
+
+input UpdateBookInput {
+  authorId: Int
+  id: Int!
+  isbn: String
+  pages: Int
+  publicationYear: Int
+  title: String
+}
+
+input UpdateProgressInput {
+  currentPage: Int!
+  id: Int!
+}
+
+input UpdateUserInput {
+  about: String = null
+  city: String = null
+  email: String = null
+  fullname: String = null
+  id: Int!
+  name: String = null
+  province: String = null
+  secondName: String = null
+  streetAdress: String = null
+  username: String = null
+  zipCode: String = null
+}
+
+type UserProfileType {
+  about: String
+  city: String
+  email: String
+  fullname: String
+  id: ID!
+  name: String
+  province: String
+  rol: String
+  secondName: String
+  streetAdress: String
+  username: String
+  zipCode: String
+}
+
+type UserType {
+  email: String!
+  fullname: String
+  id: ID!
+  name: String!
+  rol: String!
+}
