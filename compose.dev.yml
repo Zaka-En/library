@@ -1,0 +1,116 @@
+services:
+
+  traefik:
+    image: traefik:v3
+    container_name: traefik
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yaml:/etc/traefik/traefik.yaml
+      - "./data/certs:/certs:ro"
+      - ./tls.yaml:/etc/traefik/tls.yaml
+  db:
+    image: mariadb:11
+    container_name: mariadb-biblioteca
+    labels:
+      - "traefik.enable=false"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: biblioteca
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 1234
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    # healthcheck:
+    #   test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: redis-biblioteca
+    labels:
+      - "traefik.enable=false"
+    ports:
+      - "6379:6379"
+
+  authservice:
+    container_name: authservice
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authservice.rule=Host(`authservice.localhost`)"
+      - "traefik.http.services.authservice.loadbalancer.server.port=8001"
+      - "traefik.http.routers.authservice.tls=true"
+      
+    build:
+      dockerfile: authorization/Dockerfile
+      context: .
+    ports:
+      - 8001:8001
+    depends_on:
+      - db
+      # :
+      #   condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./authorization/
+          target: /app
+          ignore: 
+            - .venv/
+                 
+  api:
+    container_name: api
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.localhost`)"
+      - "traefik.http.services.api.loadbalancer.server.port=8000"
+      - "traefik.http.routers.api.tls=true"
+    build:
+      dockerfile: fast-graphql/Dockerfile
+      context: .
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    develop:
+      watch:
+        - action: sync
+          path: ./fast-graphql
+          target: /app
+          ignore: 
+            - .venv/
+  
+  frontend:
+    container_name: frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`frontend.localhost`)"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.middlewares=test-ratelimit"
+      - "traefik.http.services.frontend.loadbalancer.server.port=5173"      
+      - "traefik.http.middlewares.test-ratelimit.ratelimit.average=300"
+    build:
+      dockerfile: svelte-graphql/Dockerfile.dev
+      context: .
+    ports:
+      - "5173:5173" 
+    env_file: svelte-graphql/.env
+    depends_on:
+      - api
+    develop:
+      watch:
+        - action: sync
+          path: ./svelte-graphql
+          target: /app/svelte-graphql/
+
+volumes:
+  db_data:
+    external: true
+
