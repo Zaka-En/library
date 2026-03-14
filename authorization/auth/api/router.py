@@ -56,12 +56,12 @@ async def validate_or_refresh_token(
   
   except InvalidTokenError:
     type = "REFRESH" if grant_type == "refresh_token" else "ACCESS"
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"INVALID_TOKEN_{type}")
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"INVALID_{type}_TOKEN")
   
       
   except Exception as e:
     print(f"DEBUG 500: {str(e)}")
-    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="AUTH_ERROR")
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="AUTH_INTERNAL_ERROR")
 
 @router.post("/authorize", response_model=TokensResponse)
 async def create_tokens(user_payload: UserPayload):
