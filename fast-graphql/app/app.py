@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, Request
+from fastapi import FastAPI, Depends, Response, Cookie
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 from app.schema import schema
@@ -68,6 +68,22 @@ def create_app() -> FastAPI:
       access_token=access_token,
       refresh_token=refresh_token
     )
+  
+
+  
+  @app.post("/refresh",response_model=LoginResponse)
+  async def refresh(response: Response, refresh_token: str = Cookie(...)):
+
+    access_token, message = await AuthService.refresh_token(refresh_token)
+
+    response.set_cookie("access_token", access_token)
+
+    return LoginResponse(
+      access_token=access_token,
+      refresh_token=refresh_token
+    )
+
+
 
   @app.post("/logout", response_model=LogoutResponse)
   async def logout(params: LogoutRequest) :

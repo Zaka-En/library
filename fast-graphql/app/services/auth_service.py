@@ -48,18 +48,11 @@ class AuthService:
         data = await response.json()
         response_status_code = response.status
         
+        if response_status_code != 200:
+          raise HTTPException(
+            status_code=response_status_code,
+            detail=data["detail"])
 
-        if response_status_code == 500:
-          raise Exception(
-            "SERVER_ERROR"
-          )
-        
-        if response_status_code in (403, 401):
-          detail = data["detail"]
-          print(f"DEBUG:  validacion del token fallo por este motivo {detail}")
-          raise Exception(
-            detail
-          )
         
         token = data["access_token"]
         message =  data["message"]
@@ -81,19 +74,15 @@ class AuthService:
         ) as response:
 
         data = await response.json()
-        
+        response_status_code = response.status
 
-        if response.status == 500:
-          raise Exception(
-            "SERVER_ERROR"
+
+        if response_status_code != 200:
+          raise HTTPException(
+            status_code=response_status_code,
+            detail=data["detail"]
           )
 
-        if response.status != 200:
-          detail = data["detail"]
-          raise Exception(
-            detail
-          )
-        
         token = data["access_token"]
         message =  data["message"]
         
