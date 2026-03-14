@@ -62,9 +62,10 @@ export const actions: Actions = {
       event.cookies.set('access_token', accessToken, {
         path: '/',
         httpOnly: true,
-        //secure: true,
+        secure: true,
         sameSite: 'lax',
-        maxAge: 60
+        maxAge: 5 * 60
+        
       });
     }
       
@@ -72,7 +73,7 @@ export const actions: Actions = {
       event.cookies.set('refresh_token', refreshToken, {
       path: '/',
       httpOnly: true,
-      //secure: true,
+      secure: true,
       sameSite: 'strict',
       maxAge: 6 * 30 * 24 * 60 * 60
     });

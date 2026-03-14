@@ -1,7 +1,7 @@
 import jwt
 import uuid
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 from typing import Optional, Any
 
@@ -22,7 +22,7 @@ def create_access_token(
   payload: dict[str, Any] = {}
 
   payload["user"] = user_data
-  payload["exp"] = datetime.now() + (
+  payload["exp"] = datetime.now(timezone.utc) + (
     expiry if expiry is not None else timedelta(seconds=ACCESS_TOKEN_EXPIRY)
   )
   payload["jti"] = str(uuid.uuid4())

@@ -11,7 +11,7 @@ from app.services.room_booking_service  import RoomBookingService
 from app.schema.loaders import create_loaders, DataLoaders
 from app.utils.auth import decode_token
 from strawberry.fastapi import  BaseContext
-from jwt import exceptions as pyJwtExceptions
+from jwt import ExpiredSignatureError, InvalidTokenError
 from functools import cached_property
 from dataclasses import dataclass
 from fastapi import HTTPException
@@ -88,10 +88,10 @@ def get_auth_result(access_token: str) -> AuthResult:
     print("="*80)
 
     return AuthResult(user=decoded["user"], is_authenticated=True)
-  except pyJwtExceptions.ExpiredSignatureError:
-    return AuthResult(error_message="UNAUTHENTICATED, TOKEN EXPIRED", status_code=401)
-  except pyJwtExceptions.InvalidTokenError:
-    return AuthResult(error_message="UNAUTHENTICATED, INVALID TOKEN", status_code=401)
+  except ExpiredSignatureError:
+    return AuthResult(error_message="ACCESS_TOKEN_EXPIRED", status_code=401)
+  except InvalidTokenError:
+    return AuthResult(error_message="INVALID_ACCESS_TOKEN", status_code=401)
   except Exception as e:
     return AuthResult(error_message=f"AUTH_ERROR: {str(e)}", status_code=500)
 
@@ -142,10 +142,18 @@ class CustomContext(BaseContext):
   
   @cached_property
   def access_token(self)-> str:
+    if self.request:
+      print("="*80)
+      print(f"access_token from context: {self.request.cookies.get("access_token", "")}")
+      print("="*80)
     return self.request.cookies.get("access_token", "") if self.request else ""
   
   @cached_property
   def refresh_token(self)-> str:
+    if self.request:
+      print("="*80)
+      print(f"refresh from context: {self.request.cookies.get("refresh_token", "")}")
+      print("="*80)
     return self.request.cookies.get("refresh_token", "") if self.request else ""
 
 async def get_context(

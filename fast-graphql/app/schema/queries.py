@@ -34,14 +34,16 @@ class Query:
 
   #TODO add a permission: isuserowner
   
-  @strawberry.field(permission_classes=[IsAuthenticated])
+  @strawberry.field #(permission_classes=[IsAuthenticated])
   async def user_info(self, info: Info[CustomContext, None], user_id: int) -> UserProfileType :
     
     # if not user_from_payload or not user_from_payload["id"] != user_id:
     #   raise Exception("CAN NOT QUERY OR MODIFY OTHERS P")
     
+
     service = info.context.user_service
     user: User = await service.get_all_info_by_id(user_id)
+    
     print("="*90)
     print("DEBUG USER PROFILE", vars(user))
     print("="*90)
@@ -138,7 +140,7 @@ class Query:
     return author_to_type(author) if author else None
 
 
-  @strawberry.field(permission_classes=[IsAuthenticated])
+  @strawberry.field #(permission_classes=[IsAuthenticated])
   async def books(self, info: Info[CustomContext, None]) -> List[BookType]:
     book_service = info.context.book_service
     books = await book_service.get_all()

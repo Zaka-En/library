@@ -13,7 +13,8 @@ const store = graphql(`
 export const load: PageLoad = async (event) => {
 
   await store.fetch({
-    event
+    event,
+    policy: 'NetworkOnly'
   })
 
 

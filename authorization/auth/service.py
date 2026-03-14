@@ -46,7 +46,7 @@ def decode_token(token: str) -> dict[str,Any] :
       jwt=token,
       key=SECRET_KEY,
       algorithms=[ALGORITHM],
-      options={"verify_exp": True}
+      #options={"verify_exp": True}
     )
     
     return token_data

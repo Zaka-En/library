@@ -19,6 +19,7 @@ async def validate_or_refresh_token(
   token = body.token
   grant_type = body.grant_type
 
+  
   try:
     decoded = decode_token(token)
     print(f"DEBUG: token has been decoded  {decoded}")
@@ -58,7 +59,9 @@ async def validate_or_refresh_token(
     type = "REFRESH" if grant_type == "refresh_token" else "ACCESS"
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"INVALID_{type}_TOKEN")
   
-      
+  except HTTPException:
+    raise
+  
   except Exception as e:
     print(f"DEBUG 500: {str(e)}")
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="AUTH_INTERNAL_ERROR")

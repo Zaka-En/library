@@ -48,7 +48,10 @@ class AuthService:
         data = await response.json()
         response_status_code = response.status
         
+        
+
         if response_status_code != 200:
+          print(f"DEBUG: DETAIL {data['detail']}")
           raise HTTPException(
             status_code=response_status_code,
             detail=data["detail"])
@@ -78,6 +81,7 @@ class AuthService:
 
 
         if response_status_code != 200:
+          print(f"DEBUG: DETAIL {data['detail']}")
           raise HTTPException(
             status_code=response_status_code,
             detail=data["detail"]

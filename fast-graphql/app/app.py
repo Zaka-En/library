@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, Response, Cookie
+from fastapi import FastAPI, Depends, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 from app.schema import schema
@@ -72,15 +72,15 @@ def create_app() -> FastAPI:
 
   
   @app.post("/refresh",response_model=LoginResponse)
-  async def refresh(response: Response, refresh_token: str = Cookie(...)):
+  async def refresh(response: Response, request: Request):  
 
-    access_token, message = await AuthService.refresh_token(refresh_token)
+    access_token, message = await AuthService.refresh_token(request.cookies.get("refresh_token",""))
 
     response.set_cookie("access_token", access_token)
 
     return LoginResponse(
       access_token=access_token,
-      refresh_token=refresh_token
+      refresh_token=request.cookies.get("refresh_token", "") 
     )
 
 
@@ -94,12 +94,12 @@ def create_app() -> FastAPI:
       user_id=params.user_id
     )
 
-  # @app.middleware("http")
-  # async def debug_500(request: Request, call_next):
-  #     print(f"Request headers : {request.headers}")
-  #     response = await call_next(request)
-  #     print(f"Response headers : {response.headers}")
-  #     return response
+  @app.middleware("http")
+  async def debug_500(request: Request, call_next):
+      print(f"Request headers : {request.headers}")
+      response = await call_next(request)
+      print(f"Response headers : {response.headers}")
+      return response
 
     
   app.include_router(graphql_app, prefix='/graphql')

@@ -88,7 +88,7 @@ services:
             - .venv/
   
   frontend:
-    container_name: frontend
+   # container_name: frontend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`frontend.localhost`)"
@@ -99,8 +99,10 @@ services:
     build:
       dockerfile: svelte-graphql/Dockerfile
       context: .
-    ports:
-      - "3000:3000" 
+    expose:
+      - "3000"
+   # ports:
+    #  - "3000:3000" 
     env_file: svelte-graphql/.env
     depends_on:
       - api
