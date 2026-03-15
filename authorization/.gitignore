@@ -12,4 +12,6 @@ env/
 .venv
 *.pyc
 
+.env
+
 .uv/
