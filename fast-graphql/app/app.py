@@ -22,6 +22,8 @@ origins = [
   "http://frontend.localhost",
   "https://frontend:3000",
   "https://frontend.localhost",
+  "https://frontend.ezaka.es",
+  "http://frontend.ezaka.es"
 ]
 
 
