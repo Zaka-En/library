@@ -1,5 +1,4 @@
 services:
-
   traefik:
     image: traefik:v3
     container_name: traefik
@@ -13,8 +12,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik.yaml:/etc/traefik/traefik.yaml
       - ./data/certs/:/var/traefik/certs:rw
-      # - "./data/certs:/certs:ro"
-      # - ./tls.yaml:/etc/traefik/tls.yaml
+
   db:
     image: mariadb:11
     container_name: mariadb-biblioteca
@@ -29,11 +27,6 @@ services:
       - db_data:/var/lib/mysql
     ports:
       - "3306:3306"
-    # healthcheck:
-    #   test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
 
   redis:
     image: redis:alpine
@@ -52,7 +45,7 @@ services:
       - "traefik.http.routers.authservice.entrypoints=websecure"
       - "traefik.http.services.authservice.loadbalancer.server.port=8001"
       - "traefik.http.routers.authservice.tls=true"
-      
+
     build:
       dockerfile: authorization/Dockerfile
       context: .
@@ -60,16 +53,14 @@ services:
       - 8001:8001
     depends_on:
       - db
-      # :
-      #   condition: service_healthy
     develop:
       watch:
         - action: sync
           path: ./authorization/
           target: /app
-          ignore: 
+          ignore:
             - .venv/
-                 
+
   api:
     container_name: api
     labels:
@@ -91,27 +82,39 @@ services:
         - action: sync
           path: ./fast-graphql
           target: /app
-          ignore: 
+          ignore:
             - .venv/
-  
+
   frontend:
     container_name: frontend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`frontend.ezaka.es`)"
+
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+
       - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.middlewares=test-ratelimit"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"      
-      - "traefik.http.middlewares.test-ratelimit.ratelimit.average=300"
+
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+
+      # Rate limit Middleware
+      - "traefik.http.routers.frontend.middlewares=test-ratelimit,test-errorpages"
+      - "traefik.http.middlewares.test-ratelimit.ratelimit.average=1"
+
+      # Custom error pages Middleware
+      - "traefik.http.middlewares.test-errorpages.errors.status=400-599"
+      - "traefik.http.middlewares.test-errorpages.errors.service=error"
+      - "traefik.http.middlewares.test-errorpages.errors.query=/{status}.html"
+
     build:
       dockerfile: svelte-graphql/Dockerfile
       context: .
     # expose:
     #   - "3000"
+    # the specified port should be removed when using docker-compose --scale
     ports:
-      - "3000:3000" 
+      - "3000:3000"
     env_file: svelte-graphql/.env
     depends_on:
       - api
@@ -121,7 +124,19 @@ services:
           path: ./svelte-graphql
           target: /app/svelte-graphql/
 
+  error:
+    image: tarampampam/error-pages:3.8
+    environment:
+      - TEMPLATE_NAME=lost-in-space
+    ports:
+      - "8081:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.error.rule=Host(`error.ezaka.es`)"
+      - "traefik.http.routers.error.service=error"
+      - "traefik.http.services.error.loadbalancer.server.port=8080"
+      - "traefik.http.routers.error.entrypoints=web"
+
 volumes:
   db_data:
     external: true
-

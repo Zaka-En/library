@@ -21,10 +21,8 @@ entryPoints:
       
   websecure:
     address: :443
-    # http:
-    #   tls: true
 
-certificatesResolvers:
+certificatesResolvers: 
   letsencrypt:
     acme:
       email: "zakanahoti@gmail.com"
@@ -41,11 +39,6 @@ providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
-    #useBindPortIP: true
-  
-  # file:
-  #   filename: ./tls.yaml
-  #   watch: true
 
 
  

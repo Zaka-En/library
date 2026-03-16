@@ -139,7 +139,6 @@ class Query:
     author = await author_service.get_by_id(id)
     return author_to_type(author) if author else None
 
-
   @strawberry.field #(permission_classes=[IsAuthenticated])
   async def books(self, info: Info[CustomContext, None]) -> List[BookType]:
     book_service = info.context.book_service
