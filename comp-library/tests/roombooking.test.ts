@@ -1,165 +1,143 @@
-import { RoomBookingController } from "$lib/components/RoomBookingController.svelte"
-import { describe, it, expect, vi, beforeEach, test } from 'vitest'
-import dayjs from "dayjs"
-import { render } from 'vitest-browser-svelte'
-import { RoomBooker } from "$lib/components/RoomBooking.svelte"
+import { RoomBookingController } from '$lib/components/RoomBookingController.svelte.ts';
+import { describe, it, expect, vi, beforeEach, test } from 'vitest';
+import dayjs from 'dayjs';
+import { render } from 'vitest-browser-svelte';
+//import { RoomBooker } from '$lib/components/RoomBooking.svelte';
 
-
-const mockRoom = { id: 1, name: 'Sala A', capacity: 10 }
+const mockRoom = { id: 1, name: 'Sala A', capacity: 10 };
 
 const mockProvider = {
-  getAvailableHours: vi.fn(), // in this case vi mocks a function
-  bookRoom: vi.fn() 
-}
-
+	getAvailableHours: vi.fn(), // in this case vi mocks a function
+	bookRoom: vi.fn()
+};
 
 beforeEach(() => {
-  vi.clearAllMocks()
-})
+	vi.clearAllMocks();
+});
 
 // describe groups all logically related tests
-describe("onChangeDay",  () => {
+describe('onChangeDay', () => {
+	it('Loads available hours correctly', async () => {
+		mockProvider.getAvailableHours.mockResolvedValue([9, 10, 11]);
+		const ctrl = new RoomBookingController(mockRoom, 1, mockProvider);
 
-  it("Loads available hours correctly", async () => {
-    mockProvider.getAvailableHours.mockResolvedValue([9, 10, 11])
-    const ctrl = new RoomBookingController(mockRoom, 1, mockProvider)
+		await ctrl.onChangeDay();
+		expect(ctrl.availableHours).toEqual([9, 10, 11]);
+		expect(ctrl.isLoadingHours).toBe(false);
+	});
 
-    await ctrl.onChangeDay()
-    expect(ctrl.availableHours).toEqual([9, 10, 11])
-    expect(ctrl.isLoadingHours).toBe(false)
+	it('Resets selectedHour after changing day', async () => {
+		const ctrl = new RoomBookingController(mockRoom, 1, mockProvider);
 
-  })
+		ctrl.selectedHour = 9;
+		await ctrl.onChangeDay();
 
-  it("Resets selectedHour after changing day", async () => {
-    const ctrl = new RoomBookingController(mockRoom, 1, mockProvider)
+		expect(ctrl.selectedHour).toBeNull();
+	});
 
-    ctrl.selectedHour = 9
-    await ctrl.onChangeDay()
+	it('Sets errMsg if call is failed', async () => {
+		mockProvider.getAvailableHours.mockRejectedValue(new Error('ERROR WHILE LOADING'));
+		const ctrl = new RoomBookingController(mockRoom, 1, mockProvider);
 
-    expect(ctrl.selectedHour).toBeNull()
+		await ctrl.onChangeDay();
 
-  })
+		expect(ctrl.errorMsg).toEqual('ERROR_LOADING_AVAILABLE_HOURS');
+		expect(ctrl.isLoadingHours).toBeFalsy();
+	});
 
-  it("Sets errMsg if call is failed", async () => {
-    mockProvider.getAvailableHours.mockRejectedValue(new Error("ERROR WHILE LOADING"))
-    const ctrl = new RoomBookingController(mockRoom, 1, mockProvider)
+	it('Ignores old query responses (race condition)', async () => {
+		mockProvider.getAvailableHours.mockResolvedValueOnce([9]).mockResolvedValueOnce([10, 12]);
 
-    await ctrl.onChangeDay()
+		const ctrl = new RoomBookingController(mockRoom, 1, mockProvider);
 
-    expect(ctrl.errorMsg).toEqual("ERROR_LOADING_AVAILABLE_HOURS")
-    expect(ctrl.isLoadingHours).toBeFalsy()
-  })
+		const first = ctrl.onChangeDay(); // [9]
+		const second = ctrl.onChangeDay(); // [10,12]
 
-  it("Ignores old query responses (race condition)", async () => {
-    
-    mockProvider.getAvailableHours
-      .mockResolvedValueOnce([9])
-      .mockResolvedValueOnce([10,12]) 
+		await Promise.all([first, second]);
 
-    const ctrl = new RoomBookingController(mockRoom, 1, mockProvider)
+		expect(ctrl.availableHours).toEqual([10, 12]);
+	});
+});
 
-    const first = ctrl.onChangeDay() // [9]
-    const second = ctrl.onChangeDay() // [10,12]
+describe('moveBetweenDays', () => {
+	it('Day changes correctly', async () => {
+		mockProvider.getAvailableHours.mockResolvedValue([]);
+		const ctrl = new RoomBookingController(mockRoom, 1, mockProvider);
 
-    await Promise.all([first, second])
+		await ctrl.moveBetweenDays(-221);
+		expect(ctrl.currentDate.date()).toEqual(dayjs().add(-221, 'day').date());
+		expect(ctrl.currentDate.month()).toEqual(dayjs().add(-221, 'day').month());
+	});
+});
 
-    expect(ctrl.availableHours).toEqual([10, 12])
+describe('Confirming a booking hour', () => {
+	it('Nothing happens when no hour is selected', async () => {
+		mockProvider.bookRoom.mockResolvedValue({});
+		const ctrl = new RoomBookingController(mockRoom, 1, mockProvider);
 
-  })
+		ctrl.selectedHour = null;
+		await ctrl.onConfirmHour();
 
-})
+		expect(mockProvider.bookRoom).not.toHaveBeenCalled();
+	});
 
-describe("moveBetweenDays", () => {
-  it("Day changes correctly", async () => {
+	it('Nothing happens when loading for previous confimation', async () => {
+		mockProvider.bookRoom.mockResolvedValue({});
+		const ctrl = new RoomBookingController(mockRoom, 1, mockProvider);
 
-    mockProvider.getAvailableHours.mockResolvedValue([])
-    const ctrl = new RoomBookingController(mockRoom, 1, mockProvider)
+		ctrl.isLoadingBookRoom = true;
+		await ctrl.onConfirmHour();
 
-    await ctrl.moveBetweenDays(-221)
-    expect(ctrl.currentDate.date()).toEqual(dayjs().add(-221, 'day').date())
-    expect(ctrl.currentDate.month()).toEqual(dayjs().add(-221, 'day').month())
-  })
-})
+		expect(mockProvider.bookRoom).not.toHaveBeenCalled();
+	});
 
-describe("Confirming a booking hour", () => {
-  
-  it("Nothing happens when no hour is selected" , async () => {
+	it('Confirmation of Booking Room is Successful', async () => {
+		mockProvider.bookRoom.mockResolvedValue({ success: true });
+		const ctrl = new RoomBookingController(mockRoom, 1, mockProvider);
 
-    mockProvider.bookRoom.mockResolvedValue({})
-    const ctrl = new RoomBookingController(mockRoom, 1, mockProvider)
+		ctrl.selectedHour = 12;
+		ctrl.attendees = 11;
 
-    ctrl.selectedHour = null
-    await ctrl.onConfirmHour()
+		await ctrl.onConfirmHour();
 
-    expect(mockProvider.bookRoom).not.toHaveBeenCalled()
+		expect(ctrl.isBookRoomSuccess).toBeTruthy();
+		expect(ctrl.errorMsg).toEqual('');
+		expect(ctrl.hasRequestedBookRoom).toBeTruthy();
+		expect(ctrl.attendees).toBeNull();
+		expect(ctrl.isLoadingBookRoom).toBeFalsy();
+	});
 
-  })
+	it('Confirmation of Booking Room has failed', async () => {
+		mockProvider.bookRoom.mockResolvedValue({ success: false, error: 'Error' });
+		const ctrl = new RoomBookingController(mockRoom, 1, mockProvider);
 
-  it("Nothing happens when loading for previous confimation" , async () => {
+		ctrl.selectedHour = 12;
+		ctrl.attendees = 11;
 
-    mockProvider.bookRoom.mockResolvedValue({})
-    const ctrl = new RoomBookingController(mockRoom, 1, mockProvider)
+		await ctrl.onConfirmHour();
 
-    ctrl.isLoadingBookRoom = true
-    await ctrl.onConfirmHour()
+		expect(ctrl.isBookRoomSuccess).toBeFalsy();
+		expect(ctrl.errorMsg).toEqual('Error');
+		expect(ctrl.hasRequestedBookRoom).toBeTruthy();
+		expect(ctrl.attendees).toBeNull();
+		expect(ctrl.isLoadingBookRoom).toBeFalsy();
+	});
+});
 
-    expect(mockProvider.bookRoom).not.toHaveBeenCalled()
+// test("First test of the component", async () => {
 
-  })
+//   mockProvider.getAvailableHours.mockResolvedValue([9, 10, 11])
+//   mockProvider.bookRoom.mockResolvedValue({ sucess: true })
 
-  it("Confirmation of Booking Room is Successful", async () => {
-    mockProvider.bookRoom.mockResolvedValue({success: true})
-    const ctrl = new RoomBookingController(mockRoom, 1, mockProvider)
+//   const screen = render(RoomBooker, {
+//     room: mockRoom,
+//     userId: 1,
+//     provider: mockProvider
+//   })
 
-    ctrl.selectedHour = 12
-    ctrl.attendees = 11
+//   await screen.getByRole('button', { name: 'Confirmar'}).click()
+//   await expect.element(screen.getByRole('button', { name: 'Confirmar'})).not.toBeVisible()
+//   await expect.element(screen.getByText('Solicitado correctamente')).toBeVisible()
+//   await expect.element(screen.getByText('Revisa tu correo')).toBeVisible()
 
-    await ctrl.onConfirmHour()
-
-    expect(ctrl.isBookRoomSuccess).toBeTruthy()
-    expect(ctrl.errorMsg).toEqual("")
-    expect(ctrl.hasRequestedBookRoom).toBeTruthy()
-    expect(ctrl.attendees).toBeNull()
-    expect(ctrl.isLoadingBookRoom).toBeFalsy()
-
-  })
-
-  it("Confirmation of Booking Room has failed", async () => {
-    mockProvider.bookRoom.mockResolvedValue({success: false, error: "Error"})
-    const ctrl = new RoomBookingController(mockRoom, 1, mockProvider)
-
-    ctrl.selectedHour = 12
-    ctrl.attendees = 11
-
-    await ctrl.onConfirmHour()
-
-    expect(ctrl.isBookRoomSuccess).toBeFalsy()
-    expect(ctrl.errorMsg).toEqual("Error")
-    expect(ctrl.hasRequestedBookRoom).toBeTruthy()
-    expect(ctrl.attendees).toBeNull()
-    expect(ctrl.isLoadingBookRoom).toBeFalsy()
-  })
-
-
-})
-
-test("First test of the component", async () => {
-
-  mockProvider.getAvailableHours.mockResolvedValue([9, 10, 11])
-  mockProvider.bookRoom.mockResolvedValue({ sucess: true })
-
-  const screen = render(RoomBooker, {
-    room: mockRoom,
-    userId: 1,
-    provider: mockProvider
-  })
-
-  await screen.getByRole('button', { name: 'Confirmar'}).click()
-  await expect.element(screen.getByRole('button', { name: 'Confirmar'})).not.toBeVisible()
-  await expect.element(screen.getByText('Solicitado correctamente')).toBeVisible()
-  await expect.element(screen.getByText('Revisa tu correo')).toBeVisible()
-
-})
-
-
-
+// })

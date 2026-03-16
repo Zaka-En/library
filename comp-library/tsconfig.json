@@ -11,9 +11,9 @@
 		"strict": true,
 		"module": "NodeNext",
 		"plugins": [
-      {
-        "name": "svelte-check" 
-      }
-    ]
+			{
+				"name": "svelte-check"
+			}
+		]
 	}
 }
