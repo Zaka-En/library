@@ -24,4 +24,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build Project
+        run: pnpm --filter comp-library build
         run: pnpm --filter svelte-graphql build
