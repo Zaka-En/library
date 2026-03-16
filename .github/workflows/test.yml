@@ -23,6 +23,7 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install
-      - name: Build Project
+      - name: Build Lib
         run: pnpm --filter comp-library build
+      - name: Build App
         run: pnpm --filter svelte-graphql build
