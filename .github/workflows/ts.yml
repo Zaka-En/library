@@ -4,6 +4,8 @@ on:
     branches:
       - "main"
       - "master"
+    paths:
+      - "svelte-graphql/**"
 
 jobs:
   Build:
