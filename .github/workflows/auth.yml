@@ -1,0 +1,23 @@
+name: Build and Test the authservice
+
+jobs:
+  first-try:
+    name: python
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set Up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install the authservice
+        run: uv sync --locked --package authorization --all-extras --dev
+
+      - name: Test unit tests
+        run: uv run --package authorization pytest authorization/auth
