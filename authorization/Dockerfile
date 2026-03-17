@@ -32,7 +32,7 @@ COPY uv.lock pyproject.toml ./
 COPY ./authorization ./authorization
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --package authorization 
+    uv sync --frozen --package authorization
 
 
 #Then, use a final image without uv
