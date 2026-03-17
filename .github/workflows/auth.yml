@@ -27,4 +27,6 @@ jobs:
         run: uv sync --locked --package authorization --all-extras --dev
 
       - name: Test unit tests
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: uv run --package authorization pytest authorization/auth
