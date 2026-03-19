@@ -46,7 +46,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ${{ env.REGISTERY }}/${{ env.OWNER }}/library-${{ matrix.service }}
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/library-${{ matrix.service }}
 
       - name: Build and push
         uses: docker/build-push-action@v7
