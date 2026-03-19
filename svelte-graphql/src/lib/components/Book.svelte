@@ -14,7 +14,7 @@
   <div
     class="bg-linear-to-br from-blue-400 to-purple-600 h-64 flex items-center justify-center"
   >
-    <span class="text-white text-6xl">📖</span>
+    <span class="text-white text-6xl">📗</span>
   </div>
 
   <!-- Info -->
