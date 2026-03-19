@@ -37,6 +37,7 @@ services:
       - "6379:6379"
 
   authservice:
+    image: ghcr.io/Zaka-En/library-authservice:latest
     container_name: authservice
     labels:
       - "traefik.enable=true"
@@ -46,9 +47,6 @@ services:
       - "traefik.http.services.authservice.loadbalancer.server.port=8001"
       - "traefik.http.routers.authservice.tls=true"
 
-    build:
-      dockerfile: authorization/Dockerfile
-      context: .
     ports:
       - 8001:8001
     depends_on:
@@ -61,8 +59,8 @@ services:
           ignore:
             - .venv/
 
-  # accessing the api from the browser triggers a 502 bad gateway errors
   api:
+    image: ghcr.io/Zaka-En/library-api:latest
     container_name: api
     labels:
       - "traefik.enable=true"
@@ -71,9 +69,6 @@ services:
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.tls.certresolver=letsencrypt"
       - "traefik.http.routers.api.entrypoints=websecure"
-    build:
-      dockerfile: fast-graphql/Dockerfile
-      context: .
     ports:
       - 8000:8000
     depends_on:
@@ -87,6 +82,7 @@ services:
             - .venv/
 
   frontend:
+    image: ghcr.io/Zaka-En/library-frontend:latest
     container_name: frontend
     labels:
       - "traefik.enable=true"
@@ -108,9 +104,6 @@ services:
       - "traefik.http.middlewares.test-errorpages.errors.service=error"
       - "traefik.http.middlewares.test-errorpages.errors.query=/{status}.html"
 
-    build:
-      dockerfile: svelte-graphql/Dockerfile
-      context: .
     # expose:
     #   - "3000"
     # the specified port should be removed when using docker-compose --scale
