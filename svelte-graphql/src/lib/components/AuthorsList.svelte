@@ -1,34 +1,27 @@
-
 <script lang="ts">
   import viewport from "$lib/utils/useViewportActions";
   import { type Author } from "./AuthorForm.svelte";
-  
 
-  interface Props{
-    authors: Author[]
-    noMoreData: boolean
-    loading?: boolean
-    key?: string
-    onLoadMore?: () => void
+  interface Props {
+    authors: Author[];
+    noMoreData: boolean;
+    loading?: boolean;
+    key?: string;
+    onLoadMore?: () => void;
   }
 
-  let { 
+  let {
     authors,
     noMoreData,
-    loading = false, 
-    key, 
-    onLoadMore
-  } : Props = $props();
-
-  
- 
-
+    loading = false,
+    key,
+    onLoadMore,
+  }: Props = $props();
 </script>
 
 {#if authors}
   {#each authors as author (author?.id)}
-    <div 
-      class="bg-white shadow rounded-lg p-6 mb-5 ">
+    <div class="bg-white shadow rounded-lg p-6 mb-5">
       <div class="flex justify-between items-start">
         <div>
           <h2 class="text-xl font-semibold">{author?.name}</h2>
@@ -53,10 +46,8 @@
   {/each}
 
   {#if !noMoreData && !loading}
-    <div use:viewport  onenterviewport={() => onLoadMore?.()}> 
-    </div>
+    <div use:viewport onenterviewport={() => onLoadMore?.()}></div>
   {/if}
-  
 {:else}
   <div>No hay ningún autor registrado</div>
 {/if}
