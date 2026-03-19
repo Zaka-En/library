@@ -61,6 +61,7 @@ services:
           ignore:
             - .venv/
 
+  # accessing the api from the browser triggers a 502 bad gateway errors
   api:
     container_name: api
     labels:
@@ -100,7 +101,7 @@ services:
 
       # Rate limit Middleware
       - "traefik.http.routers.frontend.middlewares=test-ratelimit,test-errorpages"
-      - "traefik.http.middlewares.test-ratelimit.ratelimit.average=1"
+      - "traefik.http.middlewares.test-ratelimit.ratelimit.average=1000"
 
       # Custom error pages Middleware
       - "traefik.http.middlewares.test-errorpages.errors.status=400-599"
