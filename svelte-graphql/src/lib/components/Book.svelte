@@ -8,7 +8,7 @@
 </script>
 
 <div
-  class="flex flex-col justify-between bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow w-52 max-h-4/5"
+  class="flex flex-col justify-between bg-blend-lighten rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow w-52 max-h-4/5"
 >
   <!-- Cover placeholder -->
   <div
@@ -19,7 +19,7 @@
 
   <!-- Info -->
   <div class="p-4">
-    <h3 class="font-bold text-lg line-clamp-2 mb-2">{book?.title}</h3>
+    <h3 class="font-semibold text-lg line-clamp-2 mb-2">{book?.title}</h3>
 
     {#if book?.author}
       <p class="text-sm text-gray-600 mb-2">{book?.author.name}</p>
