@@ -20,13 +20,3 @@ jobs:
           token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
 
           release-type: simple
-
-      - name: Install uv
-        if: ${{ steps.release.outputs.release_created }}
-        uses: astral-sh/setup-uv@v7
-
-      - name: Upload release artifacts
-        if: ${{ steps.release.outputs.release_created }}
-        uses: actions/upload-artifact@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
