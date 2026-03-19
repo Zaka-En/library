@@ -1,23 +1,23 @@
 <script lang="ts">
-
   type PropsType = {
-    reading: any
-    onUpdate : Function
-  }
+    reading: any;
+    onUpdate: Function;
+  };
 
-  const { reading, onUpdate } : PropsType = $props();
+  const { reading, onUpdate }: PropsType = $props();
 
   const progress = $derived(
     reading.book?.pages > 0
       ? Math.round((reading.currentPage / reading.book.pages) * 100)
       : 0,
   );
-
 </script>
 
 <div class="bg-white shadow rounded-lg p-6 mb-4">
-
-  <enhaced:img src="../assets/ReadingImage.png"  alt="Imagen de un niño leyendo"/>
+  <enhaced:img
+    src="../assets/ReadingImage.png"
+    alt="Imagen de un niño leyendo"
+  />
 
   <h3 class="text-xl font-semibold">
     {reading.book.title}
@@ -45,13 +45,11 @@
 
   <!-- Action Button -->
   <div class="mt-4 flex gap-2">
-   
-      <button
-        onclick={() => onUpdate()}
-        class="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition text-sm font-medium"
-      >
-        📖 Actualizar Progreso
-      </button>
-
+    <button
+      onclick={() => onUpdate()}
+      class="flex-1 bg-blue-400 text-white py-2 px-4 rounded hover:bg-blue-700 transition text-sm font-medium"
+    >
+      📖 Actualizar Progreso
+    </button>
   </div>
 </div>
