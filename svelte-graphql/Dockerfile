@@ -28,4 +28,4 @@ COPY --from=build /prod/app /prod/app
 COPY --from=build /app/svelte-graphql/build /prod/app/build
 WORKDIR /prod/app
 EXPOSE 3000
-CMD node build/index.js
+CMD ["node","build/index.js"]
