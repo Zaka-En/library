@@ -1,16 +1,15 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, TypeVar
+from typing import TYPE_CHECKING, Any, List, Optional, TypeVar
 
 import strawberry
 from strawberry.dataloader import DataLoader
 from strawberry.types import Info
 
-from app.dependencies import CustomContext
 from app.models.user import User
 from app.permissions.authorized import RBAC
 
-if TYPE_CHECKING:
-    from app.dependencies import CustomContext
+# if TYPE_CHECKING:
+#     from app.dependencies import CustomContext
 
 
 NodeType = TypeVar("NodeType")
@@ -25,7 +24,8 @@ class AuthorType(strawberry.relay.Node):
     fullname: Optional[str]
 
     @strawberry.field
-    async def books(self, info: Info["CustomContext", Any]) -> List["BookType"]:
+    async def books(self, info: Info) -> List["BookType"]:
+
         from .convertors import book_to_type
 
         books = await info.context.loaders.books_by_author.load(self.id)
@@ -42,7 +42,7 @@ class BookType:
     author_id: int
 
     @strawberry.field
-    async def author(self, info: Info["CustomContext", Any]) -> Optional["AuthorType"]:
+    async def author(self, info: Info) -> Optional["AuthorType"]:
         from .convertors import author_to_type
 
         auhtor_loader: DataLoader = info.context.loaders.author
@@ -59,7 +59,7 @@ class ReadingStateType:
     book_id: int
 
     @strawberry.field
-    async def book(self, info: Info["CustomContext", Any]) -> Optional[BookType]:
+    async def book(self, info: Info) -> Optional[BookType]:
         from .convertors import book_to_type
 
         book = await info.context.loaders.book.load(self.book_id)
@@ -121,9 +121,7 @@ class ConferenceRoomType:
     is_active: bool
 
     @strawberry.field
-    async def available_hours(
-        self, starting_hour: int, info: Info["CustomContext", None]
-    ) -> List[int]:
+    async def available_hours(self, starting_hour: int, info: Info) -> List[int]:
         return await info.context.loaders.room_hours.load((int(self.id), starting_hour))
 
 
