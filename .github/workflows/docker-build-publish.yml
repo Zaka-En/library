@@ -25,9 +25,13 @@ jobs:
 
     strategy:
       matrix:
-        folder: [fast-graphql, svelte-graphql, authorization]
-        service: [api, frontend, authservice]
-
+        include:
+          - folder: fast-graphql
+            service: api
+          - folder: svelte-graphql
+            service: frontend
+          - folder: authorization
+            service: authservice
     steps:
       - uses: actions/checkout@v4
 
