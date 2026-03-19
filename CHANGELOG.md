@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Zaka-En/library/compare/v1.0.0...v1.1.0) (2026-03-19)
+
+
+### Features
+
+* light blue color for the reading status component ([44433be](https://github.com/Zaka-En/library/commit/44433be8b7446131484524ad904ea85e5bc8f45a))
+
 ## 1.0.0 (2026-03-19)
 
 
