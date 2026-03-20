@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/Zaka-En/library/compare/v1.1.0...v1.2.0) (2026-03-20)
+
+
+### Features
+
+* change color to white blend in the Book Component ([bfc402b](https://github.com/Zaka-En/library/commit/bfc402be28ae83a393232995570fc06b984befd5))
+* change new font family in the Book Component ([24f6191](https://github.com/Zaka-En/library/commit/24f6191729b2f118568366699988eead5965c46e))
+* color of book place holder is changed ([9921a89](https://github.com/Zaka-En/library/commit/9921a898b520a2fd069cb30cc12639b0c755427a))
+* new Book emojie in the Book Component ([e5471fb](https://github.com/Zaka-En/library/commit/e5471fb80bd0749749a26bb51d73b285192a7811))
+
+
+### Bug Fixes
+
+* adjust the size of the navigation Component ([4c621ca](https://github.com/Zaka-En/library/commit/4c621ca52658d19efbeda057252cdc1b45dc71d4))
+
 ## [1.1.0](https://github.com/Zaka-En/library/compare/v1.0.0...v1.1.0) (2026-03-19)
 
 
