@@ -31,7 +31,7 @@
       onPrevious(pageInfo.startCursor);
     }}
     disabled={!pageInfo.hasPreviousPage || fetching}
-    class="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+    class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
     aria-label="Atrás"
   >
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +44,7 @@
     </svg>
   </button>
 
-  <div class="w-16 h-8 flex justify-center items-center border border-black">
+  <div class="w-20 h-10 flex justify-center items-center border border-black">
     {#if !isNaN(totalPages)}
       <span class="text-center w-8">{currentPage}</span>/
       <span class="text-center w-8">{totalPages}</span>
@@ -56,7 +56,7 @@
       onNext(pageInfo.endCursor);
     }}
     disabled={!pageInfo.hasNextPage || fetching}
-    class="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+    class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
     aria-label="Adelante"
   >
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
