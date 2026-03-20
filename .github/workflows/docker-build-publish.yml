@@ -1,15 +1,8 @@
 name: Create and publish a Docker image
 
 on:
-  push:
-    branches:
-      - "main"
-    paths-ignore:
-      - "**/README.md"
-      - ".github/**"
-      - ".zed/**"
-      - "stories.md"
-      - "precommit"
+  release:
+    types: [published]
 
 env:
   REGISTRY: ghcr.io
@@ -46,6 +39,11 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.OWNER }}/library-${{ matrix.service }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
 
       - name: Build and push
         uses: docker/build-push-action@v7
