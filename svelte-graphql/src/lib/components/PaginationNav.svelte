@@ -16,16 +16,13 @@
     onPrevious,
     itemsPorPage = 5,
   }: Props = $props();
- 
-  
 
-  
   const totalPages = $derived(Math.ceil(pageInfo?.totalCount / itemsPorPage));
   let endCursor = $derived(pageInfo.endCursor ?? "");
-  let decodedEndCursor = $derived(endCursor ? Number(atob(endCursor).split(':').at(-1)) : 1);
-  let currentPage = $derived( Math.ceil(decodedEndCursor/itemsPorPage));
-
-  
+  let decodedEndCursor = $derived(
+    endCursor ? Number(atob(endCursor).split(":").at(-1)) : 1,
+  );
+  let currentPage = $derived(Math.ceil(decodedEndCursor / itemsPorPage));
 </script>
 
 <div class="flex gap-4 justify-between items-center w-40">
@@ -44,10 +41,10 @@
         stroke-width="2"
         d="M15 19l-7-7 7-7"
       />
-    </svg> 
+    </svg>
   </button>
 
-  <div class="w-16 h-8 flex justify-center items-center border border-black ">
+  <div class="w-16 h-8 flex justify-center items-center border border-black">
     {#if !isNaN(totalPages)}
       <span class="text-center w-8">{currentPage}</span>/
       <span class="text-center w-8">{totalPages}</span>

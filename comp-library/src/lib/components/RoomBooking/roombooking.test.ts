@@ -4,14 +4,12 @@
 // import { render } from 'vitest-browser-svelte'
 // //import { RoomBooker } from "./RoomBooker.svelte"
 
-
 // const mockRoom = { id: 1, name: 'Sala A', capacity: 10 }
 
 // const mockProvider = {
 //   getAvailableHours: vi.fn(), // in this case vi mocks a function
-//   bookRoom: vi.fn() 
+//   bookRoom: vi.fn()
 // }
-
 
 // beforeEach(() => {
 //   vi.clearAllMocks()
@@ -52,10 +50,10 @@
 //   })
 
 //   it("Ignores old query responses (race condition)", async () => {
-    
+
 //     mockProvider.getAvailableHours
 //       .mockResolvedValueOnce([9])
-//       .mockResolvedValueOnce([10,12]) 
+//       .mockResolvedValueOnce([10,12])
 
 //     const ctrl = new RoomBookingController(mockRoom, 1, mockProvider)
 
@@ -83,7 +81,7 @@
 // })
 
 // describe("Confirming a booking hour", () => {
-  
+
 //   it("Nothing happens when no hour is selected" , async () => {
 
 //     mockProvider.bookRoom.mockResolvedValue({})
@@ -141,7 +139,6 @@
 //     expect(ctrl.isLoadingBookRoom).toBeFalsy()
 //   })
 
-
 // })
 
 // test("First test of the component", async () => {
@@ -161,6 +158,3 @@
 //   await expect.element(screen.getByText('Revisa tu correo')).toBeVisible()
 
 // })
-
-
-
