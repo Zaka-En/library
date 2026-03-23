@@ -1,6 +1,6 @@
 packages:
-  - 'svelte-graphql'
-  - 'comp-library'
+  - "svelte-graphql"
+  - "comp-library"
 onlyBuiltDependencies:
   - esbuild
-injectWorkspacePackages: true
+#injectWorkspacePackages: true

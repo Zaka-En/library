@@ -12,10 +12,11 @@
     "**/Thumbs.db",
     "**/.venv",
     "**/node_modules",
-    "**/.svelte-kit",
+    //"**/.svelte-kit",
     "**/.pytest_cache",
     "**/__pycache__",
     "**/pnpm-lock.yaml",
     "**/uv.lock",
+    "**/.houdini",
   ],
 }

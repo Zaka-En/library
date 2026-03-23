@@ -1,18 +1,17 @@
-import adapter from '@sveltejs/adapter-node';
+import adapter from "@sveltejs/adapter-node";
 
 const config = {
-	kit: {
-        adapter: adapter(),
-        
-        alias: {
-            $houdini: ".houdini/"
-        },
+  kit: {
+    adapter: adapter(),
 
-        csrf:{
-			checkOrigin: false,
-		}
-        
+    alias: {
+      $houdini: ".houdini/",
     },
+
+    csrf: {
+      checkOrigin: false,
+    },
+  },
 };
 
 export default config;
