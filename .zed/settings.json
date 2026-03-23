@@ -2,4 +2,20 @@
 //
 // For a full list of overridable settings, and general information on folder-specific settings,
 // see the documentation: https://zed.dev/docs/configuring-zed#settings-files
-{}
+{
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/.svn",
+    "**/.hg",
+    "**/CVS",
+    "**/.DS_Store",
+    "**/Thumbs.db",
+    "**/.venv",
+    "**/node_modules",
+    "**/.svelte-kit",
+    "**/.pytest_cache",
+    "**/__pycache__",
+    "**/pnpm-lock.yaml",
+    "**/uv.lock",
+  ],
+}
