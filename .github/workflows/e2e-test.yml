@@ -49,4 +49,6 @@ jobs:
       - name: Run e2e Tests
         env:
           CF_DNS_API_TOKEN: ${{ secrets.CF_DNS_API_TOKEN }}
+          PUBLIC_API_URL: http://localhost:8000/graphql
+          PUBLIC_INTERNAL_API_URL: http://api:8000/graphql
         run: pnpm run test:e2e
