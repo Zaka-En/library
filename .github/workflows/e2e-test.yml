@@ -33,6 +33,8 @@ jobs:
 
       - name: Docker Compose
         uses: hoverkraft-tech/compose-action@v2.4.3
+        env:
+          CF_DNS_API_TOKEN: ${{ secrets.CF_DNS_API_TOKEN }}
         with:
           compose-file: |
             compose.yml
