@@ -13,7 +13,7 @@
   );
 </script>
 
-<div class="bg-white shadow rounded-lg p-6 mb-4">
+<div class="reading-progress bg-white shadow rounded-lg p-6 mb-4">
   <enhaced:img
     src="../assets/ReadingImage.png"
     alt="Imagen de un niño leyendo"

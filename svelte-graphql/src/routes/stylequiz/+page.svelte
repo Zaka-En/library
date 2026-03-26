@@ -3,4 +3,7 @@
   import { Form } from "@library/comp-library";
 </script>
 
-<Form questions={styleQuiz} />
+<!-- center the artilce using margin -->
+<article class="mx-auto my-auto">
+  <Form questions={styleQuiz} />
+</article>

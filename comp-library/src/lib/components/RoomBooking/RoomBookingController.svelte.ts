@@ -23,7 +23,7 @@ export class RoomBookingController<TRoom extends BaseRoom> {
 	constructor(room: TRoom, userId: number, provider: BookingRoomProvider<TRoom>) {
 		this.#room = room;
 		this.#userId = userId;
-		this.availableHours = room.availableHours ?? [];
+		this.availableHours = room.availableHours ?? [9];
 		this.#provider = provider;
 	}
 
@@ -79,14 +79,18 @@ export class RoomBookingController<TRoom extends BaseRoom> {
 			attendeesCount: this.attendees || 1
 		};
 
+		console.log(input);
+
 		const { success, error } = await this.#provider.bookRoom(input);
 
-		this.hasRequestedBookRoom = true;
+		console.log(success, error);
+
 		this.attendees = null;
 		this.isLoadingBookRoom = false;
-
 		this.isBookRoomSuccess = success;
 		this.errorMsg = error ?? '';
+
+		this.hasRequestedBookRoom = true;
 	};
 
 	toggleHourButton = (hour: number) => {

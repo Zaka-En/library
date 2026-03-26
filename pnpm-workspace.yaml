@@ -3,4 +3,4 @@ packages:
   - "comp-library"
 onlyBuiltDependencies:
   - esbuild
-#injectWorkspacePackages: true
+injectWorkspacePackages: true

@@ -2,8 +2,17 @@
   "name": "library",
   "version": "2.0.0",
   "description": "",
-  "keywords": [],
+  "keywords": [
+    
+  ],
   "author": "",
   "license": "MIT",
-  "packageManager": "pnpm@10.28.2"
+  "packageManager": "pnpm@10.28.2",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test": "npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  }
 }

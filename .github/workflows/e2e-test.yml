@@ -1,0 +1,43 @@
+name: E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Set Up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Docker Compose
+        uses: hoverkraft-tech/compose-action@v2.4.3
+        with:
+          compose-file: |
+            .compose.yml
+            .compose.test.yml
+          up-flags: "--build"
+
+      - name: Run e2e Tests
+        run: pnpm run test:e2e

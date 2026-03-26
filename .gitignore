@@ -3,6 +3,8 @@ node_modules/
 
 **/build/
 
+**/__pycache__/
+
 .env
 *.env
 
@@ -15,3 +17,5 @@ node_modules/
 
 depgraph.py
 
+# Playwright
+test-results

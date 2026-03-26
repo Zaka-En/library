@@ -23,9 +23,10 @@
 
   interface Props {
     author: Author;
+    onSuccess?: () => void;
   }
 
-  let { author = null }: Props = $props();
+  let { author = null, onSuccess }: Props = $props();
   let isEdit = $derived(!!author?.id);
   let errorMessage = $state("");
   let loader: LoaderType = createLoader();
@@ -154,7 +155,8 @@
     if (mutationResult?.errors) {
       errorMessage = "Ocurrió un error al subir los datos";
     } else {
-      goto("/authors");
+      //goto("/authors");
+      onSuccess?.();
     }
   }
 </script>

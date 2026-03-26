@@ -11,18 +11,13 @@ from app.broadcast import broadcast
 from app.database import SessionLocal
 from app.models.user import User
 from app.schema.loaders import DataLoaders, create_loaders
+from app.services.author_service import AuthorService
+from app.services.book_service import BookService
 from app.services.conference_room_service import ConferenceRoomService
-
-# from app.services.author_service import AuthorService
-# from app.services.book_service import BookService
 from app.services.reading_state_service import ReadingStateService
 from app.services.room_booking_service import RoomBookingService
 from app.services.user_service import UserService
 from app.utils.auth import decode_token
-
-if TYPE_CHECKING:
-    from app.services.author_service import AuthorService
-    from app.services.book_service import BookService
 
 
 async def get_user_service():

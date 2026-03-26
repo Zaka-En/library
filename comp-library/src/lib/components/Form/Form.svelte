@@ -26,9 +26,7 @@
 	}
 </script>
 
-<section
-	class="flex aspect-7/6 w-full max-w-sm overflow-hidden rounded-xl border border-gray-500 p-2"
->
+<section class="flex aspect-7/6 w-full max-w-md min-w-sm overflow-hidden rounded-xl p-2">
 	<form class="flex flex-1 flex-col gap-3">
 		<div class="grid grid-cols-1 grid-rows-1">
 			{#key currentQuestionIndex}
@@ -60,14 +58,12 @@
 				>
 			{:else if currentAnswer !== null}
 				<button
-					style="background-color: blue;"
 					type="button"
 					onclick={nextQuestion}
 					class="ml-auto scale-100 cursor-pointer rounded-xl bg-[#eae9e5] px-4 py-2 text-sm font-medium shadow-xs transition-all duration-100 active:scale-95"
 					>Siguiente</button
 				>
 			{/if}
-			<button class="h-10 w-full bg-blue-500" style="background-color: blue;"> hola</button>
 		</div>
 	</form>
 </section>

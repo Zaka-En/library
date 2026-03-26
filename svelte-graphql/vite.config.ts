@@ -1,12 +1,14 @@
 import houdini from "houdini/vite";
-import tailwindcss from '@tailwindcss/vite';
-import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+import tailwindcss from "@tailwindcss/vite";
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
 
-export default defineConfig({ 
-  plugins: [houdini(), tailwindcss(), sveltekit()], 
+export default defineConfig({
+  plugins: [houdini(), tailwindcss(), sveltekit()],
   ssr: {
-    noExternal: ['houdini']
+    noExternal: ["houdini"],
   },
-  
+  optimizeDeps: {
+    exclude: ["@library/comp-library"],
+  },
 });
