@@ -44,17 +44,6 @@ CREATE TABLE IF NOT EXISTS reading_states (
   CONSTRAINT fk_reading_states_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS room_bookings (
-  id              INT             AUTO_INCREMENT PRIMARY KEY,
-  user_id         INT             NOT NULL,
-  room_name       VARCHAR(100)    NOT NULL,
-  booking_date    DATE            NOT NULL,
-  start_time      TIME            NOT NULL,
-  end_time        TIME            NOT NULL,
-  notes           TEXT            NULL,
-  created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_room_bookings_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-);
 
 INSERT INTO authors (id, name, fullname, biography, country) VALUES
 (1, 'Orwell',  'George Orwell',     'Eric Arthur Blair, known by his pen name George Orwell, was an English novelist and essayist.', 'United Kingdom'),

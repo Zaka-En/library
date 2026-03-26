@@ -23,23 +23,27 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Set Up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version-file: ".python-version"
+      # - name: Set Up Python
+      #   uses: actions/setup-python@v6
+      #   with:
+      #     python-version-file: ".python-version"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
 
-      - name: Docker Compose
-        uses: hoverkraft-tech/compose-action@v2.4.3
-        env:
-          CF_DNS_API_TOKEN: ${{ secrets.CF_DNS_API_TOKEN }}
-        with:
-          compose-file: |
-            compose.yml
-            compose.test.yml
-          up-flags: "--build"
+      # - name: Docker Compose
+      #   uses: hoverkraft-tech/compose-action@v2.4.3
+      #   env:
+      #     CF_DNS_API_TOKEN: ${{ secrets.CF_DNS_API_TOKEN }}
+      #   with:
+      #     compose-file: |
+      #       compose.yml
+      #       compose.test.yml
+      #     up-flags: "--build"
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@v2
 
       - name: Run e2e Tests
+        env:
+          CF_DNS_API_TOKEN: ${{ secrets.CF_DNS_API_TOKEN }}
         run: pnpm run test:e2e
