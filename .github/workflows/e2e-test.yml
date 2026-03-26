@@ -35,8 +35,8 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.4.3
         with:
           compose-file: |
-            .compose.yml
-            .compose.test.yml
+            compose.yml
+            compose.test.yml
           up-flags: "--build"
 
       - name: Run e2e Tests
