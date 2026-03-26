@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,
   use: {
-    baseURL: "http://frontend.ezaka.es",
+    baseURL: "http://localhost:3000",
     screenshot: "on",
     //reuseExistingServer: true,
     video: "on-first-retry",
@@ -12,7 +12,7 @@ export default defineConfig({
 
   webServer: {
     command: "docker compose -f compose.yml -f compose.test.yml up ",
-    url: "http://frontend.ezaka.es",
+    url: "http://localhost:3000",
     reuseExistingServer: true,
     timeout: 120 * 1000,
   },
