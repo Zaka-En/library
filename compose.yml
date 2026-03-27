@@ -106,7 +106,7 @@ services:
 
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
 
-      # Rate limit Middleware
+      # Rate limit Middleware: it causes the e2e tests to fail
       # - "traefik.http.routers.frontend.middlewares=test-ratelimit,test-errorpages"
       # - "traefik.http.middlewares.test-ratelimit.ratelimit.average=1000"
 
